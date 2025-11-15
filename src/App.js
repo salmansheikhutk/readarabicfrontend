@@ -5,7 +5,6 @@ function App() {
   const [books, setBooks] = useState([]);
   const [selectedBook, setSelectedBook] = useState(null);
   const [bookData, setBookData] = useState(null);
-  const [pageNumber, setPageNumber] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showSidebar, setShowSidebar] = useState(true);
@@ -34,7 +33,6 @@ function App() {
 
   const handleBookSelect = async (book) => {
     setSelectedBook(book);
-    setPageNumber(0);
     setBookData(null);
     
     try {
@@ -51,22 +49,6 @@ function App() {
     }
   };
 
-  const goToPrevPage = () => {
-    setPageNumber(prevPage => Math.max(prevPage - 1, 0));
-  };
-
-  const goToNextPage = () => {
-    if (bookData && bookData.pages) {
-      setPageNumber(prevPage => Math.min(prevPage + 1, bookData.pages.length - 1));
-    }
-  };
-
-  const getCurrentPage = () => {
-    if (!bookData || !bookData.pages) return null;
-    return bookData.pages[pageNumber];
-  };
-
-  const currentPage = getCurrentPage();
   const totalPages = bookData?.pages?.length || 0;
 
   return (
@@ -118,39 +100,23 @@ function App() {
         ) : (
           <div className="pdf-viewer">
             <div className="pdf-controls">
-              <button 
-                onClick={goToPrevPage} 
-                disabled={pageNumber <= 0}
-                className="nav-button"
-              >
-                Previous
-              </button>
-              
               <span className="page-info">
-                Page {pageNumber + 1} of {totalPages}
+                {bookData?.meta?.name || 'Book'} - {totalPages} Pages
               </span>
-              
-              <button 
-                onClick={goToNextPage} 
-                disabled={pageNumber >= totalPages - 1}
-                className="nav-button"
-              >
-                Next
-              </button>
             </div>
 
             <div className="pdf-document">
-              {currentPage && (
-                <div className="book-page">
+              {bookData?.pages?.map((page, index) => (
+                <div key={index} className="book-page">
                   <div className="page-meta">
-                    <span>Volume: {currentPage.vol}</span>
-                    <span>Page: {currentPage.page}</span>
+                    <span>Volume: {page.vol}</span>
+                    <span>Page: {page.page}</span>
                   </div>
                   <div className="page-text">
-                    {currentPage.text}
+                    {page.text}
                   </div>
                 </div>
-              )}
+              ))}
             </div>
           </div>
         )}
