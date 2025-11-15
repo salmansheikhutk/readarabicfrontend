@@ -8,6 +8,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showSidebar, setShowSidebar] = useState(true);
+  const [showToc, setShowToc] = useState(false);
 
   useEffect(() => {
     fetchBooks();
@@ -49,7 +50,16 @@ function App() {
     }
   };
 
+  const scrollToPage = (pageIndex) => {
+    const element = document.getElementById(`page-${pageIndex}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setShowToc(false);
+    }
+  };
+
   const totalPages = bookData?.pages?.length || 0;
+  const headings = bookData?.indexes?.headings || [];
 
   return (
     <div className="app">
@@ -67,21 +77,44 @@ function App() {
         
         {showSidebar && (
           <div className="sidebar-content">
-            {loading && <p className="loading">Loading books...</p>}
-            {error && <p className="error">{error}</p>}
-            
-            <div className="pdf-list">
-              {books.map((book, index) => (
-                <div
-                  key={index}
-                  className={`pdf-item ${selectedBook?.id === book.id ? 'active' : ''}`}
-                  onClick={() => handleBookSelect(book)}
-                >
-                  <div className="pdf-name">{book.title}</div>
-                  <div className="pdf-info">{book.author}</div>
+            {!selectedBook ? (
+              <>
+                {loading && <p className="loading">Loading books...</p>}
+                {error && <p className="error">{error}</p>}
+                
+                <div className="pdf-list">
+                  {books.map((book, index) => (
+                    <div
+                      key={index}
+                      className={`pdf-item ${selectedBook?.id === book.id ? 'active' : ''}`}
+                      onClick={() => handleBookSelect(book)}
+                    >
+                      <div className="pdf-name">{book.title}</div>
+                      <div className="pdf-info">{book.author}</div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </>
+            ) : (
+              <>
+                <div className="toc-header">
+                  <button className="back-button" onClick={() => setSelectedBook(null)}>← Back to Books</button>
+                  <h3>Table of Contents</h3>
+                </div>
+                <div className="toc-list">
+                  {headings.map((heading, index) => (
+                    <div
+                      key={index}
+                      className={`toc-item level-${heading.level}`}
+                      onClick={() => scrollToPage(heading.page - 1)}
+                    >
+                      <span className="toc-title">{heading.title}</span>
+                      <span className="toc-page">p. {heading.page}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>
@@ -107,7 +140,7 @@ function App() {
 
             <div className="pdf-document">
               {bookData?.pages?.map((page, index) => (
-                <div key={index} className="book-page">
+                <div key={index} id={`page-${index}`} className="book-page">
                   <div className="page-meta">
                     <span>Volume: {page.vol}</span>
                     <span>Page: {page.page}</span>
