@@ -10,8 +10,10 @@ function App() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [showToc, setShowToc] = useState(false);
   const [selectedText, setSelectedText] = useState('');
+  const [translation, setTranslation] = useState('');
   const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0 });
-  const [showTranslateButton, setShowTranslateButton] = useState(false);
+  const [showTranslation, setShowTranslation] = useState(false);
+  const [translating, setTranslating] = useState(false);
 
   useEffect(() => {
     fetchBooks();
@@ -61,7 +63,7 @@ function App() {
     }
   };
 
-  const handleTextSelection = () => {
+  const handleTextSelection = async () => {
     const selection = window.getSelection();
     const text = selection.toString().trim();
     
@@ -74,9 +76,56 @@ function App() {
         x: rect.left + rect.width / 2,
         y: rect.bottom + window.scrollY
       });
-      setShowTranslateButton(true);
+      setShowTranslation(true);
+      setTranslating(true);
+      setTranslation('');
+      
+      // Call OpenAI API for translation
+      try {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-3.5-turbo',
+            messages: [
+              {
+                role: 'system',
+                content: 'You are a translator. Translate the given Arabic text to English. Only provide the translation, no explanations.'
+              },
+              {
+                role: 'user',
+                content: `Translate this Arabic text to English: ${text}`
+              }
+            ],
+            max_tokens: 200,
+            temperature: 0.3
+          })
+        });
+        
+        const data = await response.json();
+        console.log('OpenAI Response:', data);
+        
+        if (data.error) {
+          console.error('OpenAI Error:', data.error);
+          setTranslation(`Error: ${data.error.message || 'API Error'}`);
+        } else if (data.choices && data.choices[0]) {
+          setTranslation(data.choices[0].message.content);
+        } else {
+          console.error('Unexpected response format:', data);
+          setTranslation('Translation failed - unexpected response');
+        }
+      } catch (error) {
+        console.error('Translation error:', error);
+        setTranslation(`Error: ${error.message}`);
+      } finally {
+        setTranslating(false);
+      }
     } else {
-      setShowTranslateButton(false);
+      setShowTranslation(false);
+      setTranslation('');
     }
   };
 
@@ -99,18 +148,21 @@ function App() {
 
   return (
     <div className="app">
-      {/* Translate Button */}
-      {showTranslateButton && (
-        <button
-          className="translate-button"
+      {/* Translation Popup */}
+      {showTranslation && (
+        <div
+          className="translation-popup"
           style={{
             left: `${buttonPosition.x}px`,
             top: `${buttonPosition.y}px`
           }}
-          onClick={handleTranslate}
         >
-          Translate
-        </button>
+          {translating ? (
+            <div className="translation-loading">Translating...</div>
+          ) : (
+            <div className="translation-text">{translation}</div>
+          )}
+        </div>
       )}
 
       {/* Sidebar */}

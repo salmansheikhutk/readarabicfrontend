@@ -268,31 +268,31 @@
 
 /* Responsive Design */
 
-/* Translate Button */
-.translate-button {
+/* Translation Popup */
+.translation-popup {
   position: absolute;
   transform: translateX(-50%);
-  background: #3498db;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  background: white;
+  color: #2c3e50;
+  border: 2px solid #3498db;
+  padding: 12px 16px;
+  border-radius: 8px;
+  max-width: 300px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
   z-index: 1000;
-  transition: all 0.2s;
+  margin-top: 8px;
 }
 
-.translate-button:hover {
-  background: #2980b9;
-  transform: translateX(-50%) translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+.translation-loading {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  font-style: italic;
 }
 
-.translate-button:active {
-  transform: translateX(-50%) translateY(0);
+.translation-text {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #2c3e50;
 }
 
 /* Table of Contents */
