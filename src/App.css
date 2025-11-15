@@ -267,6 +267,34 @@
 }
 
 /* Responsive Design */
+
+/* Translate Button */
+.translate-button {
+  position: absolute;
+  transform: translateX(-50%);
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  z-index: 1000;
+  transition: all 0.2s;
+}
+
+.translate-button:hover {
+  background: #2980b9;
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+
+.translate-button:active {
+  transform: translateX(-50%) translateY(0);
+}
+
 /* Table of Contents */
 .toc-header {
   padding: 15px;

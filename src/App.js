@@ -9,6 +9,9 @@ function App() {
   const [error, setError] = useState(null);
   const [showSidebar, setShowSidebar] = useState(true);
   const [showToc, setShowToc] = useState(false);
+  const [selectedText, setSelectedText] = useState('');
+  const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0 });
+  const [showTranslateButton, setShowTranslateButton] = useState(false);
 
   useEffect(() => {
     fetchBooks();
@@ -58,11 +61,58 @@ function App() {
     }
   };
 
+  const handleTextSelection = () => {
+    const selection = window.getSelection();
+    const text = selection.toString().trim();
+    
+    if (text.length > 0) {
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      
+      setSelectedText(text);
+      setButtonPosition({
+        x: rect.left + rect.width / 2,
+        y: rect.bottom + window.scrollY
+      });
+      setShowTranslateButton(true);
+    } else {
+      setShowTranslateButton(false);
+    }
+  };
+
+  const handleTranslate = () => {
+    // For now, just log the selected text
+    // You can integrate with a translation API later
+    console.log('Translating:', selectedText);
+    alert(`Translation for: ${selectedText}\n\n(Translation API integration coming soon)`);
+  };
+
+  useEffect(() => {
+    document.addEventListener('mouseup', handleTextSelection);
+    return () => {
+      document.removeEventListener('mouseup', handleTextSelection);
+    };
+  }, []);
+
   const totalPages = bookData?.pages?.length || 0;
   const headings = bookData?.indexes?.headings || [];
 
   return (
     <div className="app">
+      {/* Translate Button */}
+      {showTranslateButton && (
+        <button
+          className="translate-button"
+          style={{
+            left: `${buttonPosition.x}px`,
+            top: `${buttonPosition.y}px`
+          }}
+          onClick={handleTranslate}
+        >
+          Translate
+        </button>
+      )}
+
       {/* Sidebar */}
       <div className={`sidebar ${showSidebar ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
