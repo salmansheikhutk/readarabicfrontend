@@ -16,10 +16,18 @@ function App() {
   const [translating, setTranslating] = useState(false);
   const [isArabicContent, setIsArabicContent] = useState(true);
   const [definitions, setDefinitions] = useState([]);
+  const [dictionary, setDictionary] = useState(() => {
+    const saved = localStorage.getItem('readarabic-dictionary');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   useEffect(() => {
     fetchBooks();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('readarabic-dictionary', JSON.stringify(dictionary));
+  }, [dictionary]);
 
   const fetchBooks = async () => {
     try {
@@ -68,6 +76,14 @@ function App() {
   const handleTextSelection = async () => {
     const selection = window.getSelection();
     const text = selection.toString().trim();
+    
+    // Check if we clicked inside the popup - if so, ignore
+    const activeElement = document.activeElement;
+    const popup = document.querySelector('.translation-popup');
+    if (popup && popup.contains(document.elementFromPoint(window.lastMouseX, window.lastMouseY))) {
+      console.log('Clicked inside popup, ignoring');
+      return;
+    }
     
     if (text.length > 0) {
       const range = selection.getRangeAt(0);
@@ -183,9 +199,42 @@ function App() {
     alert(`Translation for: ${selectedText}\n\n(Translation API integration coming soon)`);
   };
 
+  const addToDictionary = (def) => {
+    console.log('addToDictionary called with:', def);
+    
+    const arabicWord = def.voc_form || def.form;
+    const englishDef = def.nice_gloss;
+    
+    console.log('Extracted - Arabic:', arabicWord, 'English:', englishDef);
+    console.log('Current dictionary:', dictionary);
+    
+    // Check if already exists
+    const exists = dictionary.some(item => 
+      item.arabic === arabicWord && item.english === englishDef
+    );
+    
+    console.log('Already exists?', exists);
+    
+    if (!exists) {
+      const newEntry = { arabic: arabicWord, english: englishDef };
+      const newDictionary = [...dictionary, newEntry];
+      console.log('New dictionary will be:', newDictionary);
+      setDictionary(newDictionary);
+      console.log('Added to dictionary:', arabicWord, '-', englishDef);
+    } else {
+      console.log('Already in dictionary');
+    }
+  };
+
   useEffect(() => {
+    const trackMouse = (e) => {
+      window.lastMouseX = e.clientX;
+      window.lastMouseY = e.clientY;
+    };
+    document.addEventListener('mousemove', trackMouse);
     document.addEventListener('mouseup', handleTextSelection);
     return () => {
+      document.removeEventListener('mousemove', trackMouse);
       document.removeEventListener('mouseup', handleTextSelection);
     };
   }, []);
@@ -203,6 +252,8 @@ function App() {
             left: `${buttonPosition.x}px`,
             top: `${buttonPosition.y}px`
           }}
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
           {translating ? (
             <div className="translation-loading">Translating...</div>
@@ -218,7 +269,16 @@ function App() {
                   <div 
                     key={idx}
                     className="definition-row"
-                    onClick={() => console.log('Clicked:', def)}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      console.log('Row clicked!');
+                      addToDictionary(def);
+                    }}
                   >
                     {!def.isAI && <span className="def-number">{idx + 1}.</span>}
                     <span className="voc-form">{form}</span>
@@ -264,6 +324,28 @@ function App() {
         
         {showSidebar && (
           <div className="sidebar-content">
+            {/* Dictionary Section */}
+            <div className="dictionary-section">
+              <h3>My Dictionary ({dictionary.length})</h3>
+              {dictionary.length === 0 ? (
+                <p className="empty-dict">Click on definitions to add words</p>
+              ) : (
+                <div className="dictionary-list">
+                  {dictionary.slice(-10).reverse().map((item, idx) => (
+                    <div key={idx} className="dict-item">
+                      <div className="dict-arabic">{item.arabic}</div>
+                      <div className="dict-english">{item.english}</div>
+                    </div>
+                  ))}
+                  {dictionary.length > 10 && (
+                    <div className="dict-more">...and {dictionary.length - 10} more</div>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            <div className="divider"></div>
+            
             {!selectedBook ? (
               <>
                 {loading && <p className="loading">Loading books...</p>}

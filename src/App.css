@@ -56,6 +56,73 @@
   padding: 10px;
 }
 
+/* Dictionary Section */
+.dictionary-section {
+  padding: 10px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.dictionary-section h3 {
+  color: white;
+  font-size: 0.95rem;
+  margin: 0 0 10px 0;
+  text-align: left;
+}
+
+.empty-dict {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.85rem;
+  font-style: italic;
+  text-align: center;
+  padding: 10px;
+}
+
+.dictionary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.dict-item {
+  padding: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+}
+
+.dict-arabic {
+  font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #3498db;
+  direction: rtl;
+  text-align: right;
+  margin-bottom: 3px;
+}
+
+.dict-english {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.8);
+  text-align: left;
+}
+
+.dict-more {
+  text-align: center;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.8rem;
+  font-style: italic;
+  padding: 5px;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+  margin: 15px 0;
+}
+
 .pdf-list {
   display: flex;
   flex-direction: column;
