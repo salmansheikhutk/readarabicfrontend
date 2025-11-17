@@ -15,6 +15,7 @@ function App() {
   const [showTranslation, setShowTranslation] = useState(false);
   const [translating, setTranslating] = useState(false);
   const [isArabicContent, setIsArabicContent] = useState(true);
+  const [definitions, setDefinitions] = useState([]);
 
   useEffect(() => {
     fetchBooks();
@@ -87,39 +88,36 @@ function App() {
         // For single words, use AraTools via backend
         const words = text.split(/\s+/);
         if (words.length === 1) {
+          console.log('Single word detected, calling AraTools:', text);
           const response = await fetch(`/api/define/${encodeURIComponent(text)}`);
           const data = await response.json();
           
+          console.log('AraTools response:', data);
+          
           if (data.success) {
-            // Format the definition from AraTools response
-            let formattedDefinition = '';
+            // Store definitions for rendering as rows
             if (data.definition && data.definition.words) {
-              formattedDefinition = data.definition.words.map((result, idx) => {
-                const form = result.voc_form || result.form || 'N/A';
-                const gloss = result.nice_gloss || 'N/A';
-                const root = (result.root && typeof result.root === 'string') 
-                  ? result.root.split('').join('-') 
-                  : '';
-                return `${idx + 1}. <strong class="voc-form">${form}</strong> - ${gloss}${root ? ' - ' + root : ''}`;
-              }).join('\n\n');
+              console.log('Got', data.definition.words.length, 'definitions from AraTools');
+              setDefinitions(data.definition.words);
+            } else {
+              console.log('No words in AraTools response');
+              setDefinitions([]);
             }
-            setTranslation(formattedDefinition || 'No definition found');
+            setTranslation(''); // Clear text translation
           } else {
             // If AraTools fails, fall back to AI
             console.log('AraTools failed, falling back to AI');
-            setIsArabicContent(false);
             await translateWithAI(text);
           }
         } else {
           // For phrases, use AI
-          setIsArabicContent(false);
           await translateWithAI(text);
         }
       } catch (error) {
         console.error('Definition/Translation error:', error);
         // If there's an error, try AI as fallback
         try {
-          setIsArabicContent(false);
+          await translateWithAI(text);
           await translateWithAI(text);
         } catch (aiError) {
           console.error('AI fallback also failed:', aiError);
@@ -163,7 +161,16 @@ function App() {
     if (data.error) {
       throw new Error(data.error.message || 'API Error');
     } else if (data.choices && data.choices[0]) {
-      setTranslation(data.choices[0].message.content);
+      const translationText = data.choices[0].message.content;
+      setTranslation(translationText);
+      // Create a fake definition object for AI translations so they can be hoverable
+      setDefinitions([{
+        form: text,
+        voc_form: text,
+        nice_gloss: translationText,
+        root: null,
+        isAI: true
+      }]);
     } else {
       throw new Error('Translation failed - unexpected response');
     }
@@ -199,15 +206,46 @@ function App() {
         >
           {translating ? (
             <div className="translation-loading">Translating...</div>
-          ) : (
+          ) : definitions.length > 0 ? (
+            <div className="definitions-list">
+              {definitions.map((def, idx) => {
+                const form = def.voc_form || def.form || 'N/A';
+                const gloss = def.nice_gloss || 'N/A';
+                const root = (def.root && typeof def.root === 'string') 
+                  ? def.root.split('').join('-') 
+                  : '';
+                return (
+                  <div 
+                    key={idx}
+                    className="definition-row"
+                    onClick={() => console.log('Clicked:', def)}
+                  >
+                    {!def.isAI && <span className="def-number">{idx + 1}.</span>}
+                    <span className="voc-form">{form}</span>
+                    <span className="def-separator">-</span>
+                    <span className="def-gloss">{gloss}</span>
+                    {root && (
+                      <>
+                        <span className="def-separator">-</span>
+                        <span className="def-root">{root}</span>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : translation ? (
             <div 
               className="translation-text" 
               style={{
                 direction: isArabicContent ? 'rtl' : 'ltr',
                 textAlign: isArabicContent ? 'right' : 'left'
               }}
-              dangerouslySetInnerHTML={{ __html: translation }}
-            ></div>
+            >
+              {translation}
+            </div>
+          ) : (
+            <div className="translation-text">No definition found</div>
           )}
         </div>
       )}

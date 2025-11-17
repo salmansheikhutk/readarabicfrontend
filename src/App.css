@@ -306,6 +306,54 @@
   font-weight: 700;
 }
 
+/* Definition Rows */
+.definitions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.definition-row {
+  padding: 8px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  direction: rtl;
+  text-align: right;
+}
+
+.definition-row:hover {
+  background-color: #27ae60;
+  color: white;
+}
+
+.def-number {
+  font-weight: 500;
+  min-width: 20px;
+}
+
+.definition-row .voc-form {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif;
+}
+
+.def-separator {
+  opacity: 0.6;
+}
+
+.def-gloss {
+  font-size: 0.95rem;
+}
+
+.def-root {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
 /* Table of Contents */
 .toc-header {
   padding: 15px;
