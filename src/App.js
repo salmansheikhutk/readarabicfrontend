@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
+  const [bookId, setBookId] = useState('');
+  const [bookIdSubmitted, setBookIdSubmitted] = useState(false);
   const [books, setBooks] = useState([]);
   const [selectedBook, setSelectedBook] = useState(null);
   const [bookData, setBookData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showSidebar, setShowSidebar] = useState(true);
   const [showToc, setShowToc] = useState(false);
@@ -31,10 +33,6 @@ function App() {
   const [editingInlineValue, setEditingInlineValue] = useState('');
 
   useEffect(() => {
-    fetchBooks();
-  }, []);
-
-  useEffect(() => {
     localStorage.setItem('readarabic-dictionary', JSON.stringify(dictionary));
   }, [dictionary]);
 
@@ -42,21 +40,43 @@ function App() {
     localStorage.setItem('readarabic-inline-translations', JSON.stringify(inlineTranslations));
   }, [inlineTranslations]);
 
-  const fetchBooks = async () => {
+  const fetchBooks = async (inputBookId) => {
     try {
       setLoading(true);
-      const response = await fetch('/api/books');
+      setError(null);
+      
+      // Directly load the book data by ID
+      const response = await fetch(`/api/book/${inputBookId}`);
       const data = await response.json();
       
-      if (data.success) {
-        setBooks(data.books);
+      if (data.success && data.book) {
+        // Create a book object with metadata
+        const book = {
+          id: inputBookId,
+          title: data.book.meta?.name || `Book ${inputBookId}`,
+          author: 'Unknown',
+          url: `/api/book/${inputBookId}`
+        };
+        
+        // Set both the book list and immediately load it
+        setBooks([book]);
+        setBookData(data.book);
+        setSelectedBook(book);
+        setBookIdSubmitted(true);
       } else {
-        setError(data.error);
+        setError(data.error || 'Book not found');
       }
     } catch (err) {
-      setError('Failed to fetch books: ' + err.message);
+      setError('Failed to fetch book: ' + err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBookIdSubmit = (e) => {
+    e.preventDefault();
+    if (bookId.trim()) {
+      fetchBooks(bookId.trim());
     }
   };
 
@@ -502,7 +522,25 @@ function App() {
             
             <div className="divider"></div>
             
-            {!selectedBook ? (
+            {!bookIdSubmitted ? (
+              <div className="book-id-input-section">
+                <h3>Enter Book ID</h3>
+                <form onSubmit={handleBookIdSubmit}>
+                  <input
+                    type="text"
+                    className="book-id-input"
+                    value={bookId}
+                    onChange={(e) => setBookId(e.target.value)}
+                    placeholder="Enter book ID (e.g., 1)"
+                    disabled={loading}
+                  />
+                  <button type="submit" className="book-id-submit" disabled={loading || !bookId.trim()}>
+                    {loading ? 'Loading...' : 'Load Book'}
+                  </button>
+                </form>
+                {error && <p className="error-message">{error}</p>}
+              </div>
+            ) : !selectedBook ? (
               <>
                 {loading && <p className="loading">Loading books...</p>}
                 {error && <p className="error">{error}</p>}
@@ -570,92 +608,12 @@ function App() {
                     <span>Volume: {page.vol}</span>
                     <span>Page: {page.page}</span>
                   </div>
-                  <div className="page-text">
-                    {page.text.split(' ').map((word, wordIdx) => {
-                      // Remove common Arabic punctuation for matching
-                      const cleanWord = word.trim().replace(/[،؛؟.!:()\[\]{}«»""'']/g, '');
-                      const hasTranslation = inlineTranslations[cleanWord];
-                      const currentPosition = `${index}-${wordIdx}`;
-                      const isEditing = editingInlinePosition === currentPosition;
-                      
-                      return (
-                        <span key={wordIdx} className="word-wrapper">
-                          <span className={hasTranslation ? 'word-with-translation' : ''}>
-                            {hasTranslation && (
-                              isEditing ? (
-                                <span 
-                                  className="inline-translation-edit"
-                                  onMouseDown={(e) => e.stopPropagation()}
-                                  onMouseUp={(e) => e.stopPropagation()}
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <input
-                                    type="text"
-                                    className="inline-edit-input"
-                                    value={editingInlineValue}
-                                    onChange={(e) => setEditingInlineValue(e.target.value)}
-                                    onKeyDown={(e) => {
-                                      e.stopPropagation();
-                                      if (e.key === 'Enter') {
-                                        e.preventDefault();
-                                        saveEditInline();
-                                      }
-                                      if (e.key === 'Escape') {
-                                        e.preventDefault();
-                                        cancelEditInline();
-                                      }
-                                    }}
-                                    autoFocus
-                                    onMouseDown={(e) => e.stopPropagation()}
-                                    onMouseUp={(e) => e.stopPropagation()}
-                                    onClick={(e) => e.stopPropagation()}
-                                  />
-                                  <button 
-                                    className="inline-save-btn"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      saveEditInline();
-                                    }}
-                                    onMouseDown={(e) => e.stopPropagation()}
-                                  >✓</button>
-                                  <button 
-                                    className="inline-cancel-btn"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      cancelEditInline();
-                                    }}
-                                    onMouseDown={(e) => e.stopPropagation()}
-                                  >✕</button>
-                                </span>
-                              ) : (
-                                <span 
-                                  className="inline-translation"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                    startEditingInline(index, wordIdx, cleanWord, inlineTranslations[cleanWord], e);
-                                  }}
-                                  onMouseDown={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                  }}
-                                  onMouseUp={(e) => {
-                                    e.stopPropagation();
-                                    e.preventDefault();
-                                  }}
-                                  title="Click to edit translation"
-                                >
-                                  {inlineTranslations[cleanWord]}
-                                </span>
-                              )
-                            )}
-                            {word}
-                          </span>
-                          {' '}
-                        </span>
-                      );
-                    })}
-                  </div>
+                  <div 
+                    className="page-text" 
+                    dangerouslySetInnerHTML={{ 
+                      __html: page.text.replace(/(<span[^>]*data-type="title"[^>]*>)\[/g, '$1').replace(/\](<\/span>)/g, '$1')
+                    }} 
+                  />
                 </div>
               ))}
             </div>
