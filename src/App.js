@@ -20,6 +20,7 @@ function App() {
     const saved = localStorage.getItem('readarabic-dictionary');
     return saved ? JSON.parse(saved) : [];
   });
+  const [inlineTranslations, setInlineTranslations] = useState({});
 
   useEffect(() => {
     fetchBooks();
@@ -200,30 +201,32 @@ function App() {
   };
 
   const addToDictionary = (def) => {
+    console.log('==== NEW VERSION OF addToDictionary ====');
     console.log('addToDictionary called with:', def);
     
     const arabicWord = def.voc_form || def.form;
     const englishDef = def.nice_gloss;
     
-    console.log('Extracted - Arabic:', arabicWord, 'English:', englishDef);
-    console.log('Current dictionary:', dictionary);
-    
-    // Check if already exists
+    // Add to dictionary
     const exists = dictionary.some(item => 
       item.arabic === arabicWord && item.english === englishDef
     );
     
-    console.log('Already exists?', exists);
-    
     if (!exists) {
-      const newEntry = { arabic: arabicWord, english: englishDef };
-      const newDictionary = [...dictionary, newEntry];
-      console.log('New dictionary will be:', newDictionary);
-      setDictionary(newDictionary);
-      console.log('Added to dictionary:', arabicWord, '-', englishDef);
-    } else {
-      console.log('Already in dictionary');
+      setDictionary([...dictionary, { arabic: arabicWord, english: englishDef }]);
     }
+    
+    // Add inline translation using the FORM (no diacritics) as key
+    const wordKey = def.form; // This is the plain word without diacritics
+    console.log('Adding inline translation for word:', wordKey, '=', englishDef);
+    
+    setInlineTranslations(prev => {
+      const updated = { ...prev, [wordKey]: englishDef };
+      console.log('Inline translations updated:', updated);
+      return updated;
+    });
+    
+    setShowTranslation(false);
   };
 
   useEffect(() => {
@@ -415,7 +418,26 @@ function App() {
                     <span>Page: {page.page}</span>
                   </div>
                   <div className="page-text">
-                    {page.text}
+                    {page.text.split(' ').map((word, wordIdx) => {
+                      const cleanWord = word.trim();
+                      const hasTranslation = inlineTranslations[cleanWord];
+                      if (hasTranslation && wordIdx < 5) {
+                        console.log('Rendering word with translation:', cleanWord, hasTranslation);
+                      }
+                      return (
+                        <span key={wordIdx} className="word-wrapper">
+                          <span className={hasTranslation ? 'word-with-translation' : ''}>
+                            {hasTranslation && (
+                              <span className="inline-translation">
+                                {inlineTranslations[cleanWord]}
+                              </span>
+                            )}
+                            {word}
+                          </span>
+                          {' '}
+                        </span>
+                      );
+                    })}
                   </div>
                 </div>
               ))}
