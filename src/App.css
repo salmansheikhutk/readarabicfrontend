@@ -393,6 +393,71 @@
   margin-bottom: 3px;
   font-family: Arial, sans-serif;
   line-height: 1.2;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.inline-translation:hover {
+  background: rgba(41, 128, 185, 0.1);
+  color: #1a5490;
+}
+
+.inline-translation-edit {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 3px;
+  align-items: center;
+  justify-content: center;
+}
+
+.inline-edit-input {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border: 1px solid #3498db;
+  border-radius: 3px;
+  background: white;
+  color: #2c3e50;
+  font-family: Arial, sans-serif;
+  width: 100px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.inline-edit-input:focus {
+  outline: none;
+  border-color: #2980b9;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.inline-save-btn,
+.inline-cancel-btn {
+  font-size: 0.65rem;
+  padding: 2px 5px;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.inline-save-btn {
+  background: #27ae60;
+  color: white;
+}
+
+.inline-save-btn:hover {
+  background: #229954;
+}
+
+.inline-cancel-btn {
+  background: #95a5a6;
+  color: white;
+}
+
+.inline-cancel-btn:hover {
+  background: #7f8c8d;
 }
 
 /* Loading and Error States */

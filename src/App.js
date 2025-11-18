@@ -26,6 +26,8 @@ function App() {
   });
   const [editingDictIndex, setEditingDictIndex] = useState(null);
   const [editingDictValue, setEditingDictValue] = useState('');
+  const [editingInlineKey, setEditingInlineKey] = useState(null);
+  const [editingInlineValue, setEditingInlineValue] = useState('');
 
   useEffect(() => {
     fetchBooks();
@@ -242,6 +244,59 @@ function App() {
   const cancelEditDict = () => {
     setEditingDictIndex(null);
     setEditingDictValue('');
+  };
+
+  const startEditingInline = (wordKey, currentValue, e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    console.log('Starting to edit inline:', wordKey, currentValue);
+    setEditingInlineKey(wordKey);
+    setEditingInlineValue(currentValue);
+  };
+
+  const saveEditInline = () => {
+    if (!editingInlineKey) return; // Guard against double calls
+    
+    console.log('Saving inline edit for key:', editingInlineKey, 'new value:', editingInlineValue);
+    
+    setInlineTranslations(prev => ({
+      ...prev,
+      [editingInlineKey]: editingInlineValue
+    }));
+    
+    // Also update dictionary if this word exists there
+    console.log('Looking for dictionary entry with selectedWord or arabic matching:', editingInlineKey);
+    console.log('Dictionary entries:', dictionary.map(item => ({ 
+      arabic: item.arabic, 
+      selectedWord: item.selectedWord, 
+      english: item.english 
+    })));
+    
+    const dictIndex = dictionary.findIndex(item => 
+      item.selectedWord === editingInlineKey || item.arabic === editingInlineKey
+    );
+    
+    console.log('Found dictionary index:', dictIndex);
+    
+    if (dictIndex !== -1) {
+      const updatedDict = [...dictionary];
+      updatedDict[dictIndex] = {
+        ...updatedDict[dictIndex],
+        english: editingInlineValue
+      };
+      setDictionary(updatedDict);
+      console.log('Updated dictionary entry at index', dictIndex);
+    } else {
+      console.log('No matching dictionary entry found');
+    }
+    
+    setEditingInlineKey(null);
+    setEditingInlineValue('');
+  };
+
+  const cancelEditInline = () => {
+    setEditingInlineKey(null);
+    setEditingInlineValue('');
   };
 
   const deleteDictItem = (index) => {
@@ -516,19 +571,76 @@ function App() {
                       const cleanWord = word.trim().replace(/[،؛؟.!:()\[\]{}«»""'']/g, '');
                       const hasTranslation = inlineTranslations[cleanWord];
                       
-                      // Debug logging for صورة
-                      if (word.includes('صورة') || cleanWord === 'صورة') {
-                        console.log('Found صورة - original:', word, 'cleaned:', cleanWord, 'hasTranslation:', hasTranslation);
-                        console.log('Available translations:', Object.keys(inlineTranslations));
-                      }
-                      
                       return (
                         <span key={wordIdx} className="word-wrapper">
                           <span className={hasTranslation ? 'word-with-translation' : ''}>
                             {hasTranslation && (
-                              <span className="inline-translation">
-                                {inlineTranslations[cleanWord]}
-                              </span>
+                              editingInlineKey === cleanWord ? (
+                                <span 
+                                  className="inline-translation-edit"
+                                  onMouseDown={(e) => e.stopPropagation()}
+                                  onMouseUp={(e) => e.stopPropagation()}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <input
+                                    type="text"
+                                    className="inline-edit-input"
+                                    value={editingInlineValue}
+                                    onChange={(e) => setEditingInlineValue(e.target.value)}
+                                    onKeyDown={(e) => {
+                                      e.stopPropagation();
+                                      if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        saveEditInline();
+                                      }
+                                      if (e.key === 'Escape') {
+                                        e.preventDefault();
+                                        cancelEditInline();
+                                      }
+                                    }}
+                                    autoFocus
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onMouseUp={(e) => e.stopPropagation()}
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                  <button 
+                                    className="inline-save-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      saveEditInline();
+                                    }}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                  >✓</button>
+                                  <button 
+                                    className="inline-cancel-btn"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      cancelEditInline();
+                                    }}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                  >✕</button>
+                                </span>
+                              ) : (
+                                <span 
+                                  className="inline-translation"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                    startEditingInline(cleanWord, inlineTranslations[cleanWord], e);
+                                  }}
+                                  onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                  }}
+                                  onMouseUp={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                  }}
+                                  title="Click to edit translation"
+                                >
+                                  {inlineTranslations[cleanWord]}
+                                </span>
+                              )
                             )}
                             {word}
                           </span>
