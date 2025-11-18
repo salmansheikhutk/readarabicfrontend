@@ -201,8 +201,8 @@ function App() {
   };
 
   const addToDictionary = (def) => {
-    console.log('==== NEW VERSION OF addToDictionary ====');
     console.log('addToDictionary called with:', def);
+    console.log('Selected text was:', selectedText);
     
     const arabicWord = def.voc_form || def.form;
     const englishDef = def.nice_gloss;
@@ -216,8 +216,8 @@ function App() {
       setDictionary([...dictionary, { arabic: arabicWord, english: englishDef }]);
     }
     
-    // Add inline translation using the FORM (no diacritics) as key
-    const wordKey = def.form; // This is the plain word without diacritics
+    // Add inline translation using the ACTUAL SELECTED WORD as key
+    const wordKey = selectedText.trim();
     console.log('Adding inline translation for word:', wordKey, '=', englishDef);
     
     setInlineTranslations(prev => {
