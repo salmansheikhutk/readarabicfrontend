@@ -344,8 +344,10 @@ function App() {
     
     const arabicWord = def.voc_form || def.form;
     const englishDef = def.nice_gloss;
-    // Remove punctuation from selected word for consistent matching
-    const selectedWord = selectedText.trim().replace(/[،؛؟.!:()\[\]{}«»""'']/g, '');
+    // Remove diacritics and punctuation from selected word for consistent matching
+    const selectedWord = selectedText.trim()
+      .replace(/[\u064B-\u065F\u0670]/g, '') // Remove diacritics
+      .replace(/[،؛؟.!:()\[\]{}«»""'']/g, ''); // Remove punctuation
     
     console.log('Cleaned selected word:', selectedWord);
     
@@ -389,6 +391,139 @@ function App() {
 
   const totalPages = bookData?.pages?.length || 0;
   const headings = bookData?.indexes?.headings || [];
+
+  // Helper to render page text with title spans and word-by-word translation
+  const renderPageText = (text, pageIndex) => {
+    const elements = [];
+    let wordCounter = 0;
+    
+    // Parse text to find title spans
+    const titleRegex = /<span[^>]*data-type="title"[^>]*id="([^"]*)"[^>]*>\[?([^\]<]+)\]?<\/span>/g;
+    let lastIndex = 0;
+    let match;
+    
+    while ((match = titleRegex.exec(text)) !== null) {
+      // Render text before this title
+      if (match.index > lastIndex) {
+        const beforeText = text.substring(lastIndex, match.index);
+        elements.push(renderTextWords(beforeText, pageIndex, wordCounter));
+        wordCounter += beforeText.split(' ').filter(w => w.trim()).length;
+      }
+      
+      // Render the title
+      const titleId = match[1];
+      const titleText = match[2];
+      elements.push(
+        <span key={`title-${titleId}`} className="page-title-inline" data-type="title">
+          {titleText}
+        </span>
+      );
+      
+      lastIndex = match.index + match[0].length;
+    }
+    
+    // Render remaining text
+    if (lastIndex < text.length) {
+      const remainingText = text.substring(lastIndex);
+      elements.push(renderTextWords(remainingText, pageIndex, wordCounter));
+    }
+    
+    return elements;
+  };
+  
+  // Helper to render regular text word-by-word with translations
+  const renderTextWords = (text, pageIndex, startWordIdx) => {
+    return text.split(' ').map((word, localIdx) => {
+      if (!word.trim()) return ' ';
+      
+      const wordIdx = startWordIdx + localIdx;
+      // Remove diacritics and punctuation for matching
+      const cleanWord = word.trim()
+        .replace(/[\u064B-\u065F\u0670]/g, '') // Remove diacritics
+        .replace(/[،؛؟.!:()\[\]{}«»""'']/g, ''); // Remove punctuation
+      
+      const hasTranslation = inlineTranslations[cleanWord];
+      const currentPosition = `${pageIndex}-${wordIdx}`;
+      const isEditing = editingInlinePosition === currentPosition;
+      
+      return (
+        <span key={`${pageIndex}-${wordIdx}`} className="word-wrapper">
+          <span className={hasTranslation ? 'word-with-translation' : ''}>
+            {hasTranslation && (
+              isEditing ? (
+                <span 
+                  className="inline-translation-edit"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onMouseUp={(e) => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <input
+                    type="text"
+                    className="inline-edit-input"
+                    value={editingInlineValue}
+                    onChange={(e) => setEditingInlineValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      e.stopPropagation();
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        saveEditInline();
+                      }
+                      if (e.key === 'Escape') {
+                        e.preventDefault();
+                        cancelEditInline();
+                      }
+                    }}
+                    autoFocus
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onMouseUp={(e) => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  <button 
+                    className="inline-save-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      saveEditInline();
+                    }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                  >✓</button>
+                  <button 
+                    className="inline-cancel-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      cancelEditInline();
+                    }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                  >✕</button>
+                </span>
+              ) : (
+                <span 
+                  className="inline-translation"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    startEditingInline(pageIndex, wordIdx, cleanWord, inlineTranslations[cleanWord], e);
+                  }}
+                  onMouseDown={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
+                  onMouseUp={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }}
+                  title="Click to edit translation"
+                >
+                  {inlineTranslations[cleanWord]}
+                </span>
+              )
+            )}
+            {word}
+          </span>
+          {' '}
+        </span>
+      );
+    });
+  };
 
   return (
     <div className="app">
@@ -608,12 +743,9 @@ function App() {
                     <span>Volume: {page.vol}</span>
                     <span>Page: {page.page}</span>
                   </div>
-                  <div 
-                    className="page-text" 
-                    dangerouslySetInnerHTML={{ 
-                      __html: page.text.replace(/(<span[^>]*data-type="title"[^>]*>)\[/g, '$1').replace(/\](<\/span>)/g, '$1')
-                    }} 
-                  />
+                  <div className="page-text">
+                    {renderPageText(page.text, index)}
+                  </div>
                 </div>
               ))}
             </div>

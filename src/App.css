@@ -442,7 +442,8 @@
 }
 
 /* Style for chapter/section titles in the page text */
-.page-text span[data-type="title"] {
+.page-text span[data-type="title"],
+.page-title-inline {
   display: block;
   font-size: 1.8rem;
   font-weight: 700;
@@ -453,16 +454,6 @@
   text-align: center;
   line-height: 1.8;
   font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif;
-}
-
-/* Remove brackets from titles */
-.page-text span[data-type="title"]::before,
-.page-text span[data-type="title"]::after {
-  content: '';
-}
-
-.page-text span[data-type="title"]:contains('[') {
-  content: attr(data-title);
 }
 
 .word-wrapper {
