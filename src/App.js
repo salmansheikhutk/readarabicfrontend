@@ -26,7 +26,8 @@ function App() {
   });
   const [editingDictIndex, setEditingDictIndex] = useState(null);
   const [editingDictValue, setEditingDictValue] = useState('');
-  const [editingInlineKey, setEditingInlineKey] = useState(null);
+  const [editingInlinePosition, setEditingInlinePosition] = useState(null); // pageIndex-wordIndex
+  const [editingInlineKey, setEditingInlineKey] = useState(null); // the actual word
   const [editingInlineValue, setEditingInlineValue] = useState('');
 
   useEffect(() => {
@@ -246,10 +247,12 @@ function App() {
     setEditingDictValue('');
   };
 
-  const startEditingInline = (wordKey, currentValue, e) => {
+  const startEditingInline = (pageIndex, wordIdx, wordKey, currentValue, e) => {
     e.stopPropagation();
     e.preventDefault();
-    console.log('Starting to edit inline:', wordKey, currentValue);
+    const position = `${pageIndex}-${wordIdx}`;
+    console.log('Starting to edit inline at position:', position, 'word:', wordKey, currentValue);
+    setEditingInlinePosition(position);
     setEditingInlineKey(wordKey);
     setEditingInlineValue(currentValue);
   };
@@ -290,11 +293,13 @@ function App() {
       console.log('No matching dictionary entry found');
     }
     
+    setEditingInlinePosition(null);
     setEditingInlineKey(null);
     setEditingInlineValue('');
   };
 
   const cancelEditInline = () => {
+    setEditingInlinePosition(null);
     setEditingInlineKey(null);
     setEditingInlineValue('');
   };
@@ -570,12 +575,14 @@ function App() {
                       // Remove common Arabic punctuation for matching
                       const cleanWord = word.trim().replace(/[،؛؟.!:()\[\]{}«»""'']/g, '');
                       const hasTranslation = inlineTranslations[cleanWord];
+                      const currentPosition = `${index}-${wordIdx}`;
+                      const isEditing = editingInlinePosition === currentPosition;
                       
                       return (
                         <span key={wordIdx} className="word-wrapper">
                           <span className={hasTranslation ? 'word-with-translation' : ''}>
                             {hasTranslation && (
-                              editingInlineKey === cleanWord ? (
+                              isEditing ? (
                                 <span 
                                   className="inline-translation-edit"
                                   onMouseDown={(e) => e.stopPropagation()}
@@ -626,7 +633,7 @@ function App() {
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     e.preventDefault();
-                                    startEditingInline(cleanWord, inlineTranslations[cleanWord], e);
+                                    startEditingInline(index, wordIdx, cleanWord, inlineTranslations[cleanWord], e);
                                   }}
                                   onMouseDown={(e) => {
                                     e.stopPropagation();
