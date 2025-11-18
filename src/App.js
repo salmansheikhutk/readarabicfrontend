@@ -264,7 +264,10 @@ function App() {
     
     const arabicWord = def.voc_form || def.form;
     const englishDef = def.nice_gloss;
-    const selectedWord = selectedText.trim();
+    // Remove punctuation from selected word for consistent matching
+    const selectedWord = selectedText.trim().replace(/[،؛؟.!:()\[\]{}«»""'']/g, '');
+    
+    console.log('Cleaned selected word:', selectedWord);
     
     // Add to dictionary with the selected word as reference
     const exists = dictionary.some(item => 
@@ -423,7 +426,7 @@ function App() {
                             <div className="dict-english">{item.english}</div>
                             <div className="dict-actions">
                               <button className="dict-btn dict-btn-edit" onClick={() => startEditingDict(actualIndex, item.english)}>✎</button>
-                              <button className="dict-btn dict-btn-delete" onClick={() => deleteDictItem(actualIndex)}>🗑</button>
+                              <button className="dict-btn dict-btn-delete" onClick={() => deleteDictItem(actualIndex)}>✕</button>
                             </div>
                           </>
                         )}
@@ -509,11 +512,16 @@ function App() {
                   </div>
                   <div className="page-text">
                     {page.text.split(' ').map((word, wordIdx) => {
-                      const cleanWord = word.trim();
+                      // Remove common Arabic punctuation for matching
+                      const cleanWord = word.trim().replace(/[،؛؟.!:()\[\]{}«»""'']/g, '');
                       const hasTranslation = inlineTranslations[cleanWord];
-                      if (hasTranslation && wordIdx < 5) {
-                        console.log('Rendering word with translation:', cleanWord, hasTranslation);
+                      
+                      // Debug logging for صورة
+                      if (word.includes('صورة') || cleanWord === 'صورة') {
+                        console.log('Found صورة - original:', word, 'cleaned:', cleanWord, 'hasTranslation:', hasTranslation);
+                        console.log('Available translations:', Object.keys(inlineTranslations));
                       }
+                      
                       return (
                         <span key={wordIdx} className="word-wrapper">
                           <span className={hasTranslation ? 'word-with-translation' : ''}>
