@@ -20,7 +20,12 @@ function App() {
     const saved = localStorage.getItem('readarabic-dictionary');
     return saved ? JSON.parse(saved) : [];
   });
-  const [inlineTranslations, setInlineTranslations] = useState({});
+  const [inlineTranslations, setInlineTranslations] = useState(() => {
+    const saved = localStorage.getItem('readarabic-inline-translations');
+    return saved ? JSON.parse(saved) : {};
+  });
+  const [editingDictIndex, setEditingDictIndex] = useState(null);
+  const [editingDictValue, setEditingDictValue] = useState('');
 
   useEffect(() => {
     fetchBooks();
@@ -29,6 +34,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem('readarabic-dictionary', JSON.stringify(dictionary));
   }, [dictionary]);
+
+  useEffect(() => {
+    localStorage.setItem('readarabic-inline-translations', JSON.stringify(inlineTranslations));
+  }, [inlineTranslations]);
 
   const fetchBooks = async () => {
     try {
@@ -200,28 +209,81 @@ function App() {
     alert(`Translation for: ${selectedText}\n\n(Translation API integration coming soon)`);
   };
 
+  const startEditingDict = (index, currentValue) => {
+    setEditingDictIndex(index);
+    setEditingDictValue(currentValue);
+  };
+
+  const saveEditDict = (index) => {
+    const updatedDict = [...dictionary];
+    const oldItem = updatedDict[index];
+    const newEnglish = editingDictValue;
+    
+    updatedDict[index] = {
+      ...oldItem,
+      english: newEnglish
+    };
+    setDictionary(updatedDict);
+    
+    // Update inline translations - use the selectedWord if available, otherwise the arabic word
+    const wordToUpdate = oldItem.selectedWord || oldItem.arabic;
+    setInlineTranslations(prev => {
+      const updated = { ...prev };
+      if (updated[wordToUpdate]) {
+        updated[wordToUpdate] = newEnglish;
+      }
+      return updated;
+    });
+    
+    setEditingDictIndex(null);
+    setEditingDictValue('');
+  };
+
+  const cancelEditDict = () => {
+    setEditingDictIndex(null);
+    setEditingDictValue('');
+  };
+
+  const deleteDictItem = (index) => {
+    const itemToDelete = dictionary[index];
+    const updatedDict = dictionary.filter((_, idx) => idx !== index);
+    setDictionary(updatedDict);
+    
+    // Remove inline translation - use selectedWord if available
+    const wordToRemove = itemToDelete.selectedWord || itemToDelete.arabic;
+    setInlineTranslations(prev => {
+      const updated = { ...prev };
+      delete updated[wordToRemove];
+      return updated;
+    });
+  };
+
   const addToDictionary = (def) => {
     console.log('addToDictionary called with:', def);
     console.log('Selected text was:', selectedText);
     
     const arabicWord = def.voc_form || def.form;
     const englishDef = def.nice_gloss;
+    const selectedWord = selectedText.trim();
     
-    // Add to dictionary
+    // Add to dictionary with the selected word as reference
     const exists = dictionary.some(item => 
       item.arabic === arabicWord && item.english === englishDef
     );
     
     if (!exists) {
-      setDictionary([...dictionary, { arabic: arabicWord, english: englishDef }]);
+      setDictionary([...dictionary, { 
+        arabic: arabicWord, 
+        english: englishDef,
+        selectedWord: selectedWord // Store the actual selected word
+      }]);
     }
     
     // Add inline translation using the ACTUAL SELECTED WORD as key
-    const wordKey = selectedText.trim();
-    console.log('Adding inline translation for word:', wordKey, '=', englishDef);
+    console.log('Adding inline translation for word:', selectedWord, '=', englishDef);
     
     setInlineTranslations(prev => {
-      const updated = { ...prev, [wordKey]: englishDef };
+      const updated = { ...prev, [selectedWord]: englishDef };
       console.log('Inline translations updated:', updated);
       return updated;
     });
@@ -334,12 +396,40 @@ function App() {
                 <p className="empty-dict">Click on definitions to add words</p>
               ) : (
                 <div className="dictionary-list">
-                  {dictionary.slice(-10).reverse().map((item, idx) => (
-                    <div key={idx} className="dict-item">
-                      <div className="dict-arabic">{item.arabic}</div>
-                      <div className="dict-english">{item.english}</div>
-                    </div>
-                  ))}
+                  {dictionary.slice(-10).reverse().map((item, idx) => {
+                    const actualIndex = dictionary.length - 1 - idx;
+                    const isEditing = editingDictIndex === actualIndex;
+                    return (
+                      <div key={idx} className="dict-item">
+                        <div className="dict-arabic">{item.arabic}</div>
+                        {isEditing ? (
+                          <div className="dict-edit-controls">
+                            <input
+                              type="text"
+                              className="dict-edit-input"
+                              value={editingDictValue}
+                              onChange={(e) => setEditingDictValue(e.target.value)}
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') saveEditDict(actualIndex);
+                                if (e.key === 'Escape') cancelEditDict();
+                              }}
+                            />
+                            <button className="dict-btn dict-btn-save" onClick={() => saveEditDict(actualIndex)}>✓</button>
+                            <button className="dict-btn dict-btn-cancel" onClick={cancelEditDict}>✗</button>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="dict-english">{item.english}</div>
+                            <div className="dict-actions">
+                              <button className="dict-btn dict-btn-edit" onClick={() => startEditingDict(actualIndex, item.english)}>✎</button>
+                              <button className="dict-btn dict-btn-delete" onClick={() => deleteDictItem(actualIndex)}>🗑</button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })}
                   {dictionary.length > 10 && (
                     <div className="dict-more">...and {dictionary.length - 10} more</div>
                   )}

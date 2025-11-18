@@ -91,6 +91,9 @@
   padding: 8px;
   background: rgba(255,255,255,0.08);
   border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .dict-arabic {
@@ -107,6 +110,82 @@
   font-size: 0.85rem;
   color: rgba(255,255,255,0.8);
   text-align: left;
+  flex: 1;
+}
+
+.dict-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.dict-btn {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.dict-btn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.dict-btn-edit {
+  background: rgba(52, 152, 219, 0.3);
+}
+
+.dict-btn-edit:hover {
+  background: rgba(52, 152, 219, 0.5);
+}
+
+.dict-btn-delete {
+  background: rgba(231, 76, 60, 0.3);
+}
+
+.dict-btn-delete:hover {
+  background: rgba(231, 76, 60, 0.5);
+}
+
+.dict-btn-save {
+  background: rgba(46, 204, 113, 0.3);
+}
+
+.dict-btn-save:hover {
+  background: rgba(46, 204, 113, 0.5);
+}
+
+.dict-btn-cancel {
+  background: rgba(149, 165, 166, 0.3);
+}
+
+.dict-btn-cancel:hover {
+  background: rgba(149, 165, 166, 0.5);
+}
+
+.dict-edit-controls {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.dict-edit-input {
+  flex: 1;
+  padding: 6px 8px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 3px;
+  color: white;
+  font-size: 0.85rem;
+}
+
+.dict-edit-input:focus {
+  outline: none;
+  border-color: #3498db;
+  background: rgba(255,255,255,0.2);
 }
 
 .dict-more {
