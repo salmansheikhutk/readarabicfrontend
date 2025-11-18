@@ -397,8 +397,8 @@ function App() {
     const elements = [];
     let wordCounter = 0;
     
-    // Parse text to find title spans
-    const titleRegex = /<span[^>]*data-type="title"[^>]*id="([^"]*)"[^>]*>\[?([^\]<]+)\]?<\/span>/g;
+    // Parse text to find title spans - match with single or double quotes, with or without brackets
+    const titleRegex = /<span[^>]*data-type=["']title["'][^>]*id=([^\s>]+)[^>]*>(.+?)<\/span>/g;
     let lastIndex = 0;
     let match;
     
@@ -410,9 +410,12 @@ function App() {
         wordCounter += beforeText.split(' ').filter(w => w.trim()).length;
       }
       
-      // Render the title
-      const titleId = match[1];
-      const titleText = match[2];
+      // Render the title - strip brackets if present
+      const titleId = match[1].replace(/^["']|["']$/g, ''); // Remove quotes if present
+      let titleText = match[2];
+      // Remove brackets
+      titleText = titleText.replace(/^\[/, '').replace(/\]$/, '');
+      
       elements.push(
         <span key={`title-${titleId}`} className="page-title-inline" data-type="title">
           {titleText}
