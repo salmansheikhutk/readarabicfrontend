@@ -468,6 +468,14 @@
   border-radius: 3px;
 }
 
+.inline-translation-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  margin-bottom: 3px;
+}
+
 .inline-translation {
   display: block;
   font-size: 0.7rem;
@@ -475,7 +483,6 @@
   font-weight: 600;
   direction: ltr;
   text-align: center;
-  margin-bottom: 3px;
   font-family: Arial, sans-serif;
   line-height: 1.2;
   cursor: pointer;
@@ -487,6 +494,28 @@
 .inline-translation:hover {
   background: rgba(41, 128, 185, 0.1);
   color: #1a5490;
+}
+
+.inline-delete-btn {
+  font-size: 0.6rem;
+  padding: 1px 3px;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  background: rgba(231, 76, 60, 0.7);
+  color: white;
+  opacity: 0;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.inline-translation-wrapper:hover .inline-delete-btn {
+  opacity: 1;
+}
+
+.inline-delete-btn:hover {
+  background: #e74c3c;
+  transform: scale(1.1);
 }
 
 .inline-translation-edit {

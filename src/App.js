@@ -499,24 +499,41 @@ function App() {
                   >✕</button>
                 </span>
               ) : (
-                <span 
-                  className="inline-translation"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    startEditingInline(pageIndex, wordIdx, cleanWord, inlineTranslations[cleanWord], e);
-                  }}
-                  onMouseDown={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                  }}
-                  onMouseUp={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                  }}
-                  title="Click to edit translation"
-                >
-                  {inlineTranslations[cleanWord]}
+                <span className="inline-translation-wrapper">
+                  <span 
+                    className="inline-translation"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      startEditingInline(pageIndex, wordIdx, cleanWord, inlineTranslations[cleanWord], e);
+                    }}
+                    onMouseDown={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                    }}
+                    onMouseUp={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                    }}
+                    title="Click to edit translation"
+                  >
+                    {inlineTranslations[cleanWord]}
+                  </span>
+                  <button
+                    className="inline-delete-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      const newTranslations = { ...inlineTranslations };
+                      delete newTranslations[cleanWord];
+                      setInlineTranslations(newTranslations);
+                      localStorage.setItem('readarabic-inline-translations', JSON.stringify(newTranslations));
+                    }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    title="Delete translation"
+                  >
+                    ✕
+                  </button>
                 </span>
               )
             )}
@@ -610,8 +627,8 @@ function App() {
         
         {showSidebar && (
           <div className="sidebar-content">
-            {/* Dictionary Section */}
-            <div className="dictionary-section">
+            {/* Dictionary Section - Hidden for now */}
+            {/* <div className="dictionary-section">
               <h3>My Dictionary ({dictionary.length})</h3>
               {dictionary.length === 0 ? (
                 <p className="empty-dict">Click on definitions to add words</p>
@@ -658,7 +675,7 @@ function App() {
               )}
             </div>
             
-            <div className="divider"></div>
+            <div className="divider"></div> */}
             
             {!bookIdSubmitted ? (
               <div className="book-id-input-section">
