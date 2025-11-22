@@ -23,14 +23,17 @@ function App() {
     return saved ? JSON.parse(saved) : [];
   });
   const [inlineTranslations, setInlineTranslations] = useState(() => {
-    const saved = localStorage.getItem('readarabic-inline-translations');
-    return saved ? JSON.parse(saved) : {};
+    // Clear old format and start fresh
+    localStorage.removeItem('readarabic-inline-translations');
+    return {};
   });
   const [editingDictIndex, setEditingDictIndex] = useState(null);
   const [editingDictValue, setEditingDictValue] = useState('');
   const [editingInlinePosition, setEditingInlinePosition] = useState(null); // pageIndex-wordIndex
   const [editingInlineKey, setEditingInlineKey] = useState(null); // the actual word
   const [editingInlineValue, setEditingInlineValue] = useState('');
+  const [showDuplicateOptions, setShowDuplicateOptions] = useState(false); // Show options for existing words
+  const selectionRangeRef = React.useRef(null); // Store the selection range
 
   useEffect(() => {
     localStorage.setItem('readarabic-dictionary', JSON.stringify(dictionary));
@@ -121,6 +124,10 @@ function App() {
     if (text.length > 0) {
       const range = selection.getRangeAt(0);
       const rect = range.getBoundingClientRect();
+      
+      // Store the selection range so we can find the exact word later
+      selectionRangeRef.current = range.cloneRange();
+      setShowDuplicateOptions(false);
       
       setSelectedText(text);
       setButtonPosition({
@@ -278,40 +285,16 @@ function App() {
   };
 
   const saveEditInline = () => {
-    if (!editingInlineKey) return; // Guard against double calls
+    if (!editingInlineKey || !editingInlinePosition) return;
     
-    console.log('Saving inline edit for key:', editingInlineKey, 'new value:', editingInlineValue);
-    
-    setInlineTranslations(prev => ({
-      ...prev,
-      [editingInlineKey]: editingInlineValue
-    }));
-    
-    // Also update dictionary if this word exists there
-    console.log('Looking for dictionary entry with selectedWord or arabic matching:', editingInlineKey);
-    console.log('Dictionary entries:', dictionary.map(item => ({ 
-      arabic: item.arabic, 
-      selectedWord: item.selectedWord, 
-      english: item.english 
-    })));
-    
-    const dictIndex = dictionary.findIndex(item => 
-      item.selectedWord === editingInlineKey || item.arabic === editingInlineKey
-    );
-    
-    console.log('Found dictionary index:', dictIndex);
-    
-    if (dictIndex !== -1) {
-      const updatedDict = [...dictionary];
-      updatedDict[dictIndex] = {
-        ...updatedDict[dictIndex],
-        english: editingInlineValue
-      };
-      setDictionary(updatedDict);
-      console.log('Updated dictionary entry at index', dictIndex);
-    } else {
-      console.log('No matching dictionary entry found');
-    }
+    setInlineTranslations(prev => {
+      const updated = { ...prev };
+      if (!updated[editingInlineKey]) {
+        updated[editingInlineKey] = {};
+      }
+      updated[editingInlineKey][editingInlinePosition] = editingInlineValue;
+      return updated;
+    });
     
     setEditingInlinePosition(null);
     setEditingInlineKey(null);
@@ -338,10 +321,7 @@ function App() {
     });
   };
 
-  const addToDictionary = (def) => {
-    console.log('addToDictionary called with:', def);
-    console.log('Selected text was:', selectedText);
-    
+  const addToDictionary = (def, useExisting = false) => {
     const arabicWord = def.voc_form || def.form;
     const englishDef = def.nice_gloss;
     // Remove diacritics and punctuation from selected word for consistent matching
@@ -349,7 +329,47 @@ function App() {
       .replace(/[\u064B-\u065F\u0670]/g, '') // Remove diacritics
       .replace(/[،؛؟.!:()\[\]{}«»""'']/g, ''); // Remove punctuation
     
-    console.log('Cleaned selected word:', selectedWord);
+    // Find the exact word wrapper by searching for one that contains the selected text
+    let position = null;
+    if (selectionRangeRef.current) {
+      const range = selectionRangeRef.current;
+      const allWrappers = document.querySelectorAll('.word-wrapper');
+      
+      // Find wrapper that contains this range
+      for (const wrapper of allWrappers) {
+        if (wrapper.contains(range.startContainer) || wrapper.contains(range.endContainer)) {
+          // Check if the wrapper's text matches our selected word
+          const wrapperText = wrapper.textContent.trim()
+            .replace(/[\u064B-\u065F\u0670]/g, '')
+            .replace(/[،؛؟.!:()\[\]{}«»""'']/g, '');
+          
+          if (wrapperText === selectedWord) {
+            position = wrapper.getAttribute('data-position');
+            console.log('=== SAVING ===');
+            console.log('Selected text:', selectedText);
+            console.log('Cleaned word:', selectedWord);
+            console.log('Position:', position);
+            break;
+          }
+        }
+      }
+    }
+    
+    if (!position) {
+      console.error('Could not determine word position');
+      return;
+    }
+    
+    // Check if this word already has a translation at a DIFFERENT location
+    const existingTranslation = inlineTranslations[selectedWord];
+    const hasTranslationAtThisLocation = existingTranslation?.[position];
+    
+    // Only show duplicate options if word exists elsewhere AND not already at this location AND we haven't shown options yet
+    if (existingTranslation && !hasTranslationAtThisLocation && !showDuplicateOptions) {
+      // Word exists at different location - show options instead of saving immediately
+      setShowDuplicateOptions(true);
+      return;
+    }
     
     // Add to dictionary with the selected word as reference
     const exists = dictionary.some(item => 
@@ -360,20 +380,74 @@ function App() {
       setDictionary([...dictionary, { 
         arabic: arabicWord, 
         english: englishDef,
-        selectedWord: selectedWord // Store the actual selected word
+        selectedWord: selectedWord
       }]);
     }
     
-    // Add inline translation using the ACTUAL SELECTED WORD as key
-    console.log('Adding inline translation for word:', selectedWord, '=', englishDef);
-    
+    // Add inline translation for THIS SPECIFIC LOCATION ONLY
     setInlineTranslations(prev => {
-      const updated = { ...prev, [selectedWord]: englishDef };
-      console.log('Inline translations updated:', updated);
+      const updated = { ...prev };
+      
+      if (!updated[selectedWord]) {
+        updated[selectedWord] = {};
+      }
+      
+      // Store translation for this specific location
+      updated[selectedWord][position] = englishDef;
+      
+      console.log('Saved translation:', {
+        word: selectedWord,
+        position: position,
+        translation: englishDef,
+        fullData: updated[selectedWord]
+      });
+      
       return updated;
     });
     
     setShowTranslation(false);
+    setShowDuplicateOptions(false);
+  };
+  
+  const applyExistingTranslation = () => {
+    const selectedWord = selectedText.trim()
+      .replace(/[\u064B-\u065F\u0670]/g, '')
+      .replace(/[،؛؟.!:()\[\]{}«»""'']/g, '');
+    
+    const existingData = inlineTranslations[selectedWord];
+    if (!existingData) return;
+    
+    // Find position from stored selection
+    let position = null;
+    if (selectionRangeRef.current) {
+      let element = selectionRangeRef.current.startContainer;
+      if (element.nodeType === Node.TEXT_NODE) {
+        element = element.parentElement;
+      }
+      const wrapper = element?.closest('.word-wrapper');
+      if (wrapper) {
+        position = wrapper.getAttribute('data-position');
+      }
+    }
+    
+    if (!position) return;
+    
+    // Get the first translation (they should all be the same for a word)
+    const translation = Object.values(existingData)[0];
+    
+    setInlineTranslations(prev => {
+      const updated = { ...prev };
+      updated[selectedWord][position] = translation;
+      return updated;
+    });
+    
+    setShowTranslation(false);
+    setShowDuplicateOptions(false);
+  };
+  
+  const lookupOtherDefinitions = () => {
+    // Just hide the duplicate options and show the normal definitions
+    setShowDuplicateOptions(false);
   };
 
   useEffect(() => {
@@ -445,12 +519,18 @@ function App() {
         .replace(/[\u064B-\u065F\u0670]/g, '') // Remove diacritics
         .replace(/[،؛؟.!:()\[\]{}«»""'']/g, ''); // Remove punctuation
       
-      const hasTranslation = inlineTranslations[cleanWord];
       const currentPosition = `${pageIndex}-${wordIdx}`;
+      // Check if THIS SPECIFIC LOCATION has a translation
+      const hasTranslation = inlineTranslations[cleanWord]?.[currentPosition];
       const isEditing = editingInlinePosition === currentPosition;
       
+      // Debug - show ALL words with their positions on first page
+      if (pageIndex === 0 && wordIdx < 30) {
+        console.log(`Word #${wordIdx}: "${word}" -> clean: "${cleanWord}" -> position: ${currentPosition}`);
+      }
+      
       return (
-        <span key={`${pageIndex}-${wordIdx}`} className="word-wrapper">
+        <span key={`${pageIndex}-${wordIdx}`} className="word-wrapper" data-position={currentPosition}>
           <span className={hasTranslation ? 'word-with-translation' : ''}>
             {hasTranslation && (
               isEditing ? (
@@ -505,7 +585,7 @@ function App() {
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
-                      startEditingInline(pageIndex, wordIdx, cleanWord, inlineTranslations[cleanWord], e);
+                      startEditingInline(pageIndex, wordIdx, cleanWord, inlineTranslations[cleanWord]?.[currentPosition], e);
                     }}
                     onMouseDown={(e) => {
                       e.stopPropagation();
@@ -517,17 +597,24 @@ function App() {
                     }}
                     title="Click to edit translation"
                   >
-                    {inlineTranslations[cleanWord]}
+                    {inlineTranslations[cleanWord]?.[currentPosition]}
                   </span>
                   <button
                     className="inline-delete-btn"
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
-                      const newTranslations = { ...inlineTranslations };
-                      delete newTranslations[cleanWord];
-                      setInlineTranslations(newTranslations);
-                      localStorage.setItem('readarabic-inline-translations', JSON.stringify(newTranslations));
+                      setInlineTranslations(prev => {
+                        const updated = { ...prev };
+                        if (updated[cleanWord]) {
+                          delete updated[cleanWord][currentPosition];
+                          // If no more locations for this word, remove the word entry
+                          if (Object.keys(updated[cleanWord]).length === 0) {
+                            delete updated[cleanWord];
+                          }
+                        }
+                        return updated;
+                      });
                     }}
                     onMouseDown={(e) => e.stopPropagation()}
                     title="Delete translation"
@@ -560,6 +647,38 @@ function App() {
         >
           {translating ? (
             <div className="translation-loading">Translating...</div>
+          ) : showDuplicateOptions ? (
+            <div className="duplicate-options">
+              <div className="duplicate-header">This word already has a translation:</div>
+              <button
+                className="duplicate-option-btn use-existing"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  applyExistingTranslation();
+                }}
+              >
+                <span className="option-icon">✓</span>
+                <div className="option-content">
+                  <div className="option-title">Use existing translation</div>
+                  <div className="option-subtitle">
+                    "{Object.values(inlineTranslations[selectedText.trim().replace(/[\u064B-\u065F\u0670]/g, '').replace(/[،؛؟.!:()\[\]{}«»""'']/g, '')] || {})[0]}"
+                  </div>
+                </div>
+              </button>
+              <button
+                className="duplicate-option-btn lookup-other"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  lookupOtherDefinitions();
+                }}
+              >
+                <span className="option-icon">🔍</span>
+                <div className="option-content">
+                  <div className="option-title">Look up other definitions</div>
+                  <div className="option-subtitle">Choose a different meaning</div>
+                </div>
+              </button>
+            </div>
           ) : definitions.length > 0 ? (
             <div className="definitions-list">
               {definitions.map((def, idx) => {
