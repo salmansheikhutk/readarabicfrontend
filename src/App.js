@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
-  const [bookId, setBookId] = useState('');
-  const [bookIdSubmitted, setBookIdSubmitted] = useState(false);
   const [books, setBooks] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedBook, setSelectedBook] = useState(null);
   const [bookData, setBookData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingBooks, setLoadingBooks] = useState(false);
   const [error, setError] = useState(null);
   const [showSidebar, setShowSidebar] = useState(true);
   const [showToc, setShowToc] = useState(false);
@@ -43,52 +44,69 @@ function App() {
     localStorage.setItem('readarabic-inline-translations', JSON.stringify(inlineTranslations));
   }, [inlineTranslations]);
 
-  const fetchBooks = async (inputBookId) => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // Directly load the book data by ID
-      const response = await fetch(`/api/book/${inputBookId}`);
-      const data = await response.json();
-      
-      if (data.success && data.book) {
-        // Create a book object with metadata
-        const book = {
-          id: inputBookId,
-          title: data.book.meta?.name || `Book ${inputBookId}`,
-          author: 'Unknown',
-          url: `/api/book/${inputBookId}`
-        };
-        
-        // Set both the book list and immediately load it
-        setBooks([book]);
-        setBookData(data.book);
-        setSelectedBook(book);
-        setBookIdSubmitted(true);
-      } else {
-        setError(data.error || 'Book not found');
+  // Fetch categories on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/categories');
+        const data = await response.json();
+        if (data.success) {
+          setCategories(data.categories);
+        }
+      } catch (err) {
+        console.error('Failed to fetch categories:', err);
       }
-    } catch (err) {
-      setError('Failed to fetch book: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    fetchCategories();
+  }, []);
 
-  const handleBookIdSubmit = (e) => {
-    e.preventDefault();
-    if (bookId.trim()) {
-      fetchBooks(bookId.trim());
-    }
-  };
+  // Fetch books on mount and when category changes
+  useEffect(() => {
+    const fetchBooks = async () => {
+      try {
+        setLoadingBooks(true);
+        setError(null);
+        
+        let url = '/api/books';
+        const params = [];
+        if (selectedCategory) {
+          params.push(`category=${selectedCategory}`);
+        }
+        if (params.length > 0) {
+          url += '?' + params.join('&');
+        }
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.success) {
+          setBooks(data.books);
+        } else {
+          setError(data.error || 'Failed to fetch books');
+        }
+      } catch (err) {
+        setError('Failed to fetch books: ' + err.message);
+      } finally {
+        setLoadingBooks(false);
+      }
+    };
+
+    fetchBooks();
+  }, [selectedCategory]);
+
+
+
+
 
   const handleBookSelect = async (book) => {
     setSelectedBook(book);
     setBookData(null);
+    setLoading(true);
+    setError(null);
     
     try {
-      const response = await fetch(book.url);
+      // Use book.id to fetch the actual book content
+      const response = await fetch(`/api/book/${book.id}`);
       const data = await response.json();
       
       if (data.success) {
@@ -98,6 +116,8 @@ function App() {
       }
     } catch (err) {
       setError('Failed to load book: ' + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -107,6 +127,13 @@ function App() {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setShowToc(false);
     }
+  };
+
+  const findPageIndexByPageNumber = (pageNumber) => {
+    // Find the array index for a given book page number
+    if (!bookData?.pages) return 0;
+    const index = bookData.pages.findIndex(p => p.page === pageNumber);
+    return index >= 0 ? index : 0;
   };
 
   const handleTextSelection = async () => {
@@ -744,134 +771,44 @@ function App() {
           </button>
         </div>
         
-        {showSidebar && (
+        {showSidebar && selectedBook && (
           <div className="sidebar-content">
-            {/* Dictionary Section - Hidden for now */}
-            {/* <div className="dictionary-section">
-              <h3>My Dictionary ({dictionary.length})</h3>
-              {dictionary.length === 0 ? (
-                <p className="empty-dict">Click on definitions to add words</p>
-              ) : (
-                <div className="dictionary-list">
-                  {dictionary.slice(-10).reverse().map((item, idx) => {
-                    const actualIndex = dictionary.length - 1 - idx;
-                    const isEditing = editingDictIndex === actualIndex;
-                    return (
-                      <div key={idx} className="dict-item">
-                        <div className="dict-arabic">{item.arabic}</div>
-                        {isEditing ? (
-                          <div className="dict-edit-controls">
-                            <input
-                              type="text"
-                              className="dict-edit-input"
-                              value={editingDictValue}
-                              onChange={(e) => setEditingDictValue(e.target.value)}
-                              autoFocus
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter') saveEditDict(actualIndex);
-                                if (e.key === 'Escape') cancelEditDict();
-                              }}
-                            />
-                            <button className="dict-btn dict-btn-save" onClick={() => saveEditDict(actualIndex)}>✓</button>
-                            <button className="dict-btn dict-btn-cancel" onClick={cancelEditDict}>✗</button>
-                          </div>
-                        ) : (
-                          <>
-                            <div className="dict-english">{item.english}</div>
-                            <div className="dict-actions">
-                              <button className="dict-btn dict-btn-edit" onClick={() => startEditingDict(actualIndex, item.english)}>✎</button>
-                              <button className="dict-btn dict-btn-delete" onClick={() => deleteDictItem(actualIndex)}>✕</button>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    );
-                  })}
-                  {dictionary.length > 10 && (
-                    <div className="dict-more">...and {dictionary.length - 10} more</div>
-                  )}
-                </div>
-              )}
+            <div className="toc-header">
+              <button className="back-button" onClick={() => {
+                setSelectedBook(null);
+                setBookData(null);
+              }}>← Back to Books</button>
+              <h3>Table of Contents</h3>
             </div>
-            
-            <div className="divider"></div> */}
-            
-            {!bookIdSubmitted ? (
-              <div className="book-id-input-section">
-                <h3>Enter Book ID</h3>
-                <form onSubmit={handleBookIdSubmit}>
-                  <input
-                    type="text"
-                    className="book-id-input"
-                    value={bookId}
-                    onChange={(e) => setBookId(e.target.value)}
-                    placeholder="Enter book ID (e.g., 1)"
-                    disabled={loading}
-                  />
-                  <button type="submit" className="book-id-submit" disabled={loading || !bookId.trim()}>
-                    {loading ? 'Loading...' : 'Load Book'}
-                  </button>
-                </form>
-                {error && <p className="error-message">{error}</p>}
-              </div>
-            ) : !selectedBook ? (
-              <>
-                {loading && <p className="loading">Loading books...</p>}
-                {error && <p className="error">{error}</p>}
-                
-                <div className="pdf-list">
-                  {books.map((book, index) => (
-                    <div
-                      key={index}
-                      className={`pdf-item ${selectedBook?.id === book.id ? 'active' : ''}`}
-                      onClick={() => handleBookSelect(book)}
-                    >
-                      <div className="pdf-name">{book.title}</div>
-                      <div className="pdf-info">{book.author}</div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="toc-header">
-                  <button className="back-button" onClick={() => setSelectedBook(null)}>← Back to Books</button>
-                  <h3>Table of Contents</h3>
-                </div>
-                <div className="toc-list">
-                  {headings.map((heading, index) => (
-                    <div
-                      key={index}
-                      className={`toc-item level-${heading.level}`}
-                      onClick={() => scrollToPage(heading.page - 1)}
-                    >
-                      <span className="toc-title">{heading.title}</span>
-                      <span className="toc-page">p. {heading.page}</span>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
+            <div className="toc-list">
+              {headings.map((heading, index) => {
+                // heading.page is the array index (0-based or 1-based)
+                // We need to get the actual page number from the pages array
+                const pageIndex = heading.page - 1; // Convert to 0-based index
+                const actualPageNumber = bookData?.pages?.[pageIndex]?.page || heading.page;
+                return (
+                  <div
+                    key={index}
+                    className={`toc-item level-${heading.level}`}
+                    onClick={() => scrollToPage(pageIndex)}
+                  >
+                    <span className="toc-title">{heading.title}</span>
+                    <span className="toc-page">p. {actualPageNumber}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>
 
       {/* Main Content */}
       <div className="main-content">
-        {!selectedBook ? (
-          <div className="empty-state">
-            <h2>Welcome to ReadArabic</h2>
-            <p>Select a book from the sidebar to start reading</p>
-          </div>
-        ) : !bookData ? (
-          <div className="empty-state">
-            <p className="loading">Loading book...</p>
-          </div>
-        ) : (
+        {selectedBook && bookData ? (
           <div className="pdf-viewer">
             <div className="pdf-controls">
               <span className="page-info">
-                {bookData?.meta?.name || 'Book'} - {totalPages} Pages
+                {bookData?.meta?.name || 'Book'} - {bookData?.pages?.length || 0} Pages
               </span>
             </div>
 
@@ -888,6 +825,102 @@ function App() {
                 </div>
               ))}
             </div>
+          </div>
+        ) : !selectedBook ? (
+          <div className="book-selection-screen">
+                        <div className="welcome-header">
+              <h1>Welcome to ReadArabic</h1>
+              <p>Select a book to start reading</p>
+            </div>
+
+            {/* Categories Filter */}
+            <div className="main-categories-section">
+              <h3>Browse by Category</h3>
+              <div className="main-categories-grid">
+                <button
+                  className={`main-category-card ${!selectedCategory ? 'active' : ''}`}
+                  onClick={() => setSelectedCategory(null)}
+                >
+                  <div className="category-name">All Books</div>
+                  <div className="category-count">{loadingBooks ? '...' : books.length}</div>
+                </button>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.cat_id}
+                    className={`main-category-card ${selectedCategory === cat.cat_id ? 'active' : ''}`}
+                    onClick={() => setSelectedCategory(cat.cat_id)}
+                  >
+                    <div className="category-name">{cat.category_name}</div>
+                    <div className="category-count">{cat.book_count}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Books Grid */}
+            <div className="main-books-section">
+              <h3>
+                {selectedCategory 
+                  ? categories.find(c => c.cat_id === selectedCategory)?.category_name || 'Category'
+                  : 'All Books'
+                }
+              </h3>
+              
+              {loadingBooks ? (
+                <div className="loading-state">
+                  <div className="spinner"></div>
+                  <p>Loading books...</p>
+                </div>
+              ) : error ? (
+                <div className="error-state">
+                  <p className="error-message">{error}</p>
+                  <button className="retry-btn" onClick={() => setSelectedCategory(null)}>Try Again</button>
+                </div>
+              ) : books.length === 0 ? (
+                <div className="empty-books-state">
+                  <p>No books found</p>
+                  <p className="empty-subtitle">Try a different category or search term</p>
+                </div>
+              ) : (
+                <div className="main-books-grid">
+                  {books.map((book) => {
+                    // Extract author from info field
+                    const authorMatch = book.info?.match(/المؤلف:\s*(.+?)(?:\n|\[|$)/);
+                    const author = authorMatch ? authorMatch[1].trim() : null;
+                    
+                    // Extract page count from info field
+                    const pageMatch = book.info?.match(/عدد الصفحات:\s*(\d+)/);
+                    const pageCount = pageMatch ? pageMatch[1] : null;
+                    
+                    return (
+                      <div
+                        key={book.id}
+                        className="main-book-card"
+                        onClick={() => handleBookSelect(book)}
+                      >
+                        <div className="book-card-body">
+                          <h4 className="book-title">{book.name}</h4>
+                          {book.category_name && (
+                            <div className="book-category-badge">{book.category_name}</div>
+                          )}
+                          {author && (
+                            <p className="book-author">{author}</p>
+                          )}
+                          {pageCount && (
+                            <p className="book-pages">{pageCount} صفحة</p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="empty-state">
+            <div className="spinner"></div>
+            <p className="loading">Loading book...</p>
           </div>
         )}
       </div>

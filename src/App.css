@@ -320,8 +320,9 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  background: #f5f5f5;
+  overflow-y: auto;
+  background: #f6f8fa;
+  height: 100vh;
 }
 
 .empty-state {
@@ -850,6 +851,459 @@
   font-size: 0.85rem;
   margin-left: 10px;
   direction: ltr;
+}
+
+/* Book Selection Screen - Main Content */
+.book-selection-screen {
+  padding: 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  overflow-y: auto;
+}
+
+.welcome-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.welcome-header h1 {
+  font-size: 2.8rem;
+  color: #1a1a1a;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
+.welcome-header p {
+  font-size: 1.3rem;
+  color: #666;
+  margin: 0;
+  font-weight: 400;
+}
+
+.main-search-bar {
+  margin-bottom: 40px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.main-search-input {
+  width: 100%;
+  padding: 16px 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  transition: all 0.3s;
+  box-sizing: border-box;
+}
+
+.main-search-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.main-categories-section {
+  margin-bottom: 40px;
+}
+
+.main-categories-section h3 {
+  font-size: 1.7rem;
+  color: #2c3e50;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.main-authors-section {
+  margin-bottom: 40px;
+}
+
+.main-authors-section h3 {
+  font-size: 1.7rem;
+  color: #2c3e50;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.main-authors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.main-categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.main-category-card {
+  background: #f8f9fa;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 60px;
+}
+
+.main-category-card:hover {
+  background: #fff;
+  border-color: #0366d6;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.main-category-card.active {
+  background: #0366d6;
+  border-color: #0366d6;
+  color: white;
+  box-shadow: 0 2px 8px rgba(3,102,214,0.3);
+}
+
+.category-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-family: 'Amiri', 'Scheherazade New', 'Traditional Arabic', 'Noto Naskh Arabic', serif;
+  direction: rtl;
+  text-align: center;
+}
+
+.category-count {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0,0,0,0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.main-category-card.active .category-count {
+  background: rgba(255,255,255,0.25);
+}
+
+.main-books-section {
+  margin-top: 40px;
+}
+
+.main-books-section h3 {
+  font-size: 1.7rem;
+  color: #2c3e50;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.main-books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding-bottom: 40px;
+}
+
+.main-book-card {
+  background: #fff;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.main-book-card:hover {
+  border-color: #0366d6;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+}
+
+.book-category-badge {
+  background: #f1f8ff;
+  color: #0366d6;
+  padding: 5px 14px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 8px;
+  font-family: 'Amiri', 'Scheherazade New', 'Traditional Arabic', 'Noto Naskh Arabic', serif;
+}
+
+.book-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.book-title {
+  font-size: 1.3rem;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+  line-height: 1.6;
+  font-family: 'Amiri', 'Scheherazade New', 'Traditional Arabic', 'Noto Naskh Arabic', serif;
+  direction: rtl;
+  text-align: right;
+}
+
+.book-author {
+  font-size: 1.05rem;
+  color: #586069;
+  line-height: 1.5;
+  margin: 0 0 6px 0;
+  font-family: 'Amiri', 'Scheherazade New', 'Traditional Arabic', 'Noto Naskh Arabic', serif;
+  direction: rtl;
+  text-align: right;
+}
+
+.book-pages {
+  font-size: 0.95rem;
+  color: #959da5;
+  margin: 0;
+  font-family: 'Amiri', 'Scheherazade New', 'Traditional Arabic', 'Noto Naskh Arabic', serif;
+  direction: rtl;
+  text-align: right;
+  font-weight: 500;
+}
+
+.book-description {
+  font-size: 0.9rem;
+  color: #586069;
+  line-height: 1.7;
+  margin: 0;
+  font-family: 'Amiri', 'Scheherazade New', 'Traditional Arabic', 'Noto Naskh Arabic', serif;
+  direction: rtl;
+  text-align: right;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.retry-btn {
+  margin-top: 20px;
+  padding: 10px 24px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.retry-btn:hover {
+  background: #2980b9;
+}
+
+.empty-books-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #7f8c8d;
+}
+
+.empty-subtitle {
+  font-size: 0.9rem;
+  margin-top: 10px;
+  opacity: 0.7;
+}
+
+/* Browse Books Styles */
+.browse-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 10px;
+}
+
+.browse-section h3 {
+  margin: 0 0 10px 0;
+  color: white;
+  font-size: 1.2rem;
+}
+
+.browse-section h4 {
+  margin: 0 0 10px 0;
+  color: rgba(255,255,255,0.9);
+  font-size: 0.95rem;
+}
+
+.search-bar {
+  margin-bottom: 10px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.search-input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3498db;
+  background: rgba(255,255,255,0.15);
+}
+
+.categories-section {
+  background: rgba(255,255,255,0.05);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.categories-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.category-btn {
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.08);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.category-btn:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.2);
+}
+
+.category-btn.active {
+  background: #3498db;
+  border-color: #3498db;
+  font-weight: 600;
+}
+
+.books-section {
+  margin-top: 10px;
+}
+
+.no-results {
+  color: rgba(255,255,255,0.6);
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+}
+
+.pdf-category {
+  color: #3498db;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.browse-btn {
+  width: 100%;
+  padding: 12px 20px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.browse-btn:hover:not(:disabled) {
+  background: #229954;
+}
+
+.browse-btn:disabled {
+  background: #7f8c8d;
+  cursor: not-allowed;
+}
+
+.divider-text {
+  text-align: center;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.9rem;
+  margin: 10px 0;
+  position: relative;
+}
+
+.divider-text::before,
+.divider-text::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background: rgba(255,255,255,0.2);
+}
+
+.divider-text::before {
+  left: 0;
+}
+
+.divider-text::after {
+  right: 0;
+}
+
+.input-option {
+  margin-bottom: 15px;
+}
+
+.input-option h4 {
+  margin: 0 0 10px 0;
+  color: white;
+  font-size: 1rem;
 }
 
 @media (max-width: 768px) {
