@@ -1,48 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
 
-function App() {
+function Home() {
+  const navigate = useNavigate();
   const [books, setBooks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedBook, setSelectedBook] = useState(null);
-  const [bookData, setBookData] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [loadingBooks, setLoadingBooks] = useState(false);
   const [error, setError] = useState(null);
-  const [showSidebar, setShowSidebar] = useState(true);
-  const [showToc, setShowToc] = useState(false);
-  const [selectedText, setSelectedText] = useState('');
-  const [translation, setTranslation] = useState('');
-  const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0 });
-  const [showTranslation, setShowTranslation] = useState(false);
-  const [translating, setTranslating] = useState(false);
-  const [isArabicContent, setIsArabicContent] = useState(true);
-  const [definitions, setDefinitions] = useState([]);
-  const [dictionary, setDictionary] = useState(() => {
-    const saved = localStorage.getItem('readarabic-dictionary');
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [inlineTranslations, setInlineTranslations] = useState(() => {
-    // Clear old format and start fresh
-    localStorage.removeItem('readarabic-inline-translations');
-    return {};
-  });
-  const [editingDictIndex, setEditingDictIndex] = useState(null);
-  const [editingDictValue, setEditingDictValue] = useState('');
-  const [editingInlinePosition, setEditingInlinePosition] = useState(null); // pageIndex-wordIndex
-  const [editingInlineKey, setEditingInlineKey] = useState(null); // the actual word
-  const [editingInlineValue, setEditingInlineValue] = useState('');
-  const [showDuplicateOptions, setShowDuplicateOptions] = useState(false); // Show options for existing words
-  const selectionRangeRef = React.useRef(null); // Store the selection range
-
-  useEffect(() => {
-    localStorage.setItem('readarabic-dictionary', JSON.stringify(dictionary));
-  }, [dictionary]);
-
-  useEffect(() => {
-    localStorage.setItem('readarabic-inline-translations', JSON.stringify(inlineTranslations));
-  }, [inlineTranslations]);
 
   // Fetch categories on mount
   useEffect(() => {
@@ -94,32 +60,174 @@ function App() {
     fetchBooks();
   }, [selectedCategory]);
 
-
-
-
-
-  const handleBookSelect = async (book) => {
-    setSelectedBook(book);
-    setBookData(null);
-    setLoading(true);
-    setError(null);
-    
-    try {
-      // Use book.id to fetch the actual book content
-      const response = await fetch(`/api/book/${book.id}`);
-      const data = await response.json();
-      
-      if (data.success) {
-        setBookData(data.book);
-      } else {
-        setError('Failed to load book');
-      }
-    } catch (err) {
-      setError('Failed to load book: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
+  const handleBookSelect = (book) => {
+    navigate(`/book/${book.id}`);
   };
+
+  return (
+    <div className="book-selection-screen">
+      <div className="welcome-header">
+        <h1>Welcome to ReadArabic</h1>
+        <p>Select a book to start reading</p>
+      </div>
+
+      {/* Categories Filter */}
+      <div className="main-categories-section">
+        <h3>Browse by Category</h3>
+        <div className="main-categories-grid">
+          <button
+            className={`main-category-card ${!selectedCategory ? 'active' : ''}`}
+            onClick={() => setSelectedCategory(null)}
+          >
+            <div className="category-name">All Books</div>
+            <div className="category-count">{loadingBooks ? '...' : books.length}</div>
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat.cat_id}
+              className={`main-category-card ${selectedCategory === cat.cat_id ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(cat.cat_id)}
+            >
+              <div className="category-name">{cat.category_name}</div>
+              <div className="category-count">{cat.book_count}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Books Grid */}
+      <div className="main-books-section">
+        <h3>
+          {selectedCategory 
+            ? categories.find(c => c.cat_id === selectedCategory)?.category_name || 'Category'
+            : 'All Books'
+          }
+        </h3>
+        
+        {loadingBooks ? (
+          <div className="loading-state">
+            <div className="spinner"></div>
+            <p>Loading books...</p>
+          </div>
+        ) : error ? (
+          <div className="error-state">
+            <p className="error-message">{error}</p>
+            <button className="retry-btn" onClick={() => setSelectedCategory(null)}>Try Again</button>
+          </div>
+        ) : books.length === 0 ? (
+          <div className="empty-books-state">
+            <p>No books found</p>
+            <p className="empty-subtitle">Try a different category</p>
+          </div>
+        ) : (
+          <div className="main-books-grid">
+            {books.map((book) => {
+              // Extract author from info field
+              const authorMatch = book.info?.match(/المؤلف:\s*(.+?)(?:\n|\[|$)/);
+              const author = authorMatch ? authorMatch[1].trim() : null;
+              
+              // Extract page count from info field
+              const pageMatch = book.info?.match(/عدد الصفحات:\s*(\d+)/);
+              const pageCount = pageMatch ? pageMatch[1] : null;
+              
+              return (
+                <div
+                  key={book.id}
+                  className="main-book-card"
+                  onClick={() => handleBookSelect(book)}
+                >
+                  <div className="book-card-body">
+                    <h4 className="book-title">{book.name}</h4>
+                    {book.category_name && (
+                      <div className="book-category-badge">{book.category_name}</div>
+                    )}
+                    {author && (
+                      <p className="book-author">{author}</p>
+                    )}
+                    {pageCount && (
+                      <p className="book-pages">{pageCount} صفحة</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function BookReader() {
+  const { bookId } = useParams();
+  const navigate = useNavigate();
+  const [bookData, setBookData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [showSidebar, setShowSidebar] = useState(true);
+  const [showToc, setShowToc] = useState(false);
+  const [selectedText, setSelectedText] = useState('');
+  const [translation, setTranslation] = useState('');
+  const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0 });
+  const [showTranslation, setShowTranslation] = useState(false);
+  const [translating, setTranslating] = useState(false);
+  const [isArabicContent, setIsArabicContent] = useState(true);
+  const [definitions, setDefinitions] = useState([]);
+  const [dictionary, setDictionary] = useState(() => {
+    const saved = localStorage.getItem('readarabic-dictionary');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [inlineTranslations, setInlineTranslations] = useState(() => {
+    // Clear old format and start fresh
+    localStorage.removeItem('readarabic-inline-translations');
+    return {};
+  });
+  const [editingDictIndex, setEditingDictIndex] = useState(null);
+  const [editingDictValue, setEditingDictValue] = useState('');
+  const [editingInlinePosition, setEditingInlinePosition] = useState(null); // pageIndex-wordIndex
+  const [editingInlineKey, setEditingInlineKey] = useState(null); // the actual word
+  const [editingInlineValue, setEditingInlineValue] = useState('');
+  const [showDuplicateOptions, setShowDuplicateOptions] = useState(false); // Show options for existing words
+  const selectionRangeRef = React.useRef(null); // Store the selection range
+
+  useEffect(() => {
+    localStorage.setItem('readarabic-dictionary', JSON.stringify(dictionary));
+  }, [dictionary]);
+
+  useEffect(() => {
+    localStorage.setItem('readarabic-inline-translations', JSON.stringify(inlineTranslations));
+  }, [inlineTranslations]);
+
+  // Fetch book data on mount
+  useEffect(() => {
+    const fetchBook = async () => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        const response = await fetch(`/api/book/${bookId}`);
+        const data = await response.json();
+        
+        if (data.success) {
+          setBookData(data.book);
+        } else {
+          setError('Failed to load book');
+        }
+      } catch (err) {
+        setError('Failed to load book: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBook();
+  }, [bookId]);
+
+
+
+
+
+
 
   const scrollToPage = (pageIndex) => {
     const element = document.getElementById(`page-${pageIndex}`);
@@ -490,9 +598,6 @@ function App() {
     };
   }, []);
 
-  const totalPages = bookData?.pages?.length || 0;
-  const headings = bookData?.indexes?.headings || [];
-
   // Helper to render page text with title spans and word-by-word translation
   const renderPageText = (text, pageIndex) => {
     const elements = [];
@@ -659,6 +764,35 @@ function App() {
     });
   };
 
+  if (loading) {
+    return (
+      <div className="app">
+        <div className="main-content">
+          <div className="empty-state">
+            <div className="spinner"></div>
+            <p className="loading">Loading book...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="app">
+        <div className="main-content">
+          <div className="empty-state">
+            <p className="error-message">{error}</p>
+            <button className="retry-btn" onClick={() => navigate('/')}>Back to Books</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const totalPages = bookData?.pages?.length || 0;
+  const headings = bookData?.indexes?.headings || [];
+
   return (
     <div className="app">
       {/* Translation Popup */}
@@ -763,21 +897,12 @@ function App() {
       <div className={`sidebar ${showSidebar ? 'open' : 'closed'}`}>
         <div className="sidebar-header">
           <h1>ReadArabic</h1>
-          <button 
-            className="toggle-sidebar"
-            onClick={() => setShowSidebar(!showSidebar)}
-          >
-            {showSidebar ? '←' : '→'}
-          </button>
         </div>
         
-        {showSidebar && selectedBook && (
+        {showSidebar && (
           <div className="sidebar-content">
             <div className="toc-header">
-              <button className="back-button" onClick={() => {
-                setSelectedBook(null);
-                setBookData(null);
-              }}>← Back to Books</button>
+              <button className="back-button" onClick={() => navigate('/')}>← Back to Books</button>
               <h3>Table of Contents</h3>
             </div>
             <div className="toc-list">
@@ -804,127 +929,40 @@ function App() {
 
       {/* Main Content */}
       <div className="main-content">
-        {selectedBook && bookData ? (
-          <div className="pdf-viewer">
-            <div className="pdf-controls">
-              <span className="page-info">
-                {bookData?.meta?.name || 'Book'} - {bookData?.pages?.length || 0} Pages
-              </span>
-            </div>
-
-            <div className="pdf-document">
-              {bookData?.pages?.map((page, index) => (
-                <div key={index} id={`page-${index}`} className="book-page">
-                  <div className="page-meta">
-                    <span>Volume: {page.vol}</span>
-                    <span>Page: {page.page}</span>
-                  </div>
-                  <div className="page-text">
-                    {renderPageText(page.text, index)}
-                  </div>
-                </div>
-              ))}
-            </div>
+        <div className="pdf-viewer">
+          <div className="pdf-controls">
+            <span className="page-info">
+              {bookData?.meta?.name || 'Book'} - {bookData?.pages?.length || 0} Pages
+            </span>
           </div>
-        ) : !selectedBook ? (
-          <div className="book-selection-screen">
-                        <div className="welcome-header">
-              <h1>Welcome to ReadArabic</h1>
-              <p>Select a book to start reading</p>
-            </div>
 
-            {/* Categories Filter */}
-            <div className="main-categories-section">
-              <h3>Browse by Category</h3>
-              <div className="main-categories-grid">
-                <button
-                  className={`main-category-card ${!selectedCategory ? 'active' : ''}`}
-                  onClick={() => setSelectedCategory(null)}
-                >
-                  <div className="category-name">All Books</div>
-                  <div className="category-count">{loadingBooks ? '...' : books.length}</div>
-                </button>
-                {categories.map((cat) => (
-                  <button
-                    key={cat.cat_id}
-                    className={`main-category-card ${selectedCategory === cat.cat_id ? 'active' : ''}`}
-                    onClick={() => setSelectedCategory(cat.cat_id)}
-                  >
-                    <div className="category-name">{cat.category_name}</div>
-                    <div className="category-count">{cat.book_count}</div>
-                  </button>
-                ))}
+          <div className="pdf-document">
+            {bookData?.pages?.map((page, index) => (
+              <div key={index} id={`page-${index}`} className="book-page">
+                <div className="page-meta">
+                  <span>Volume: {page.vol}</span>
+                  <span>Page: {page.page}</span>
+                </div>
+                <div className="page-text">
+                  {renderPageText(page.text, index)}
+                </div>
               </div>
-            </div>
-
-            {/* Books Grid */}
-            <div className="main-books-section">
-              <h3>
-                {selectedCategory 
-                  ? categories.find(c => c.cat_id === selectedCategory)?.category_name || 'Category'
-                  : 'All Books'
-                }
-              </h3>
-              
-              {loadingBooks ? (
-                <div className="loading-state">
-                  <div className="spinner"></div>
-                  <p>Loading books...</p>
-                </div>
-              ) : error ? (
-                <div className="error-state">
-                  <p className="error-message">{error}</p>
-                  <button className="retry-btn" onClick={() => setSelectedCategory(null)}>Try Again</button>
-                </div>
-              ) : books.length === 0 ? (
-                <div className="empty-books-state">
-                  <p>No books found</p>
-                  <p className="empty-subtitle">Try a different category or search term</p>
-                </div>
-              ) : (
-                <div className="main-books-grid">
-                  {books.map((book) => {
-                    // Extract author from info field
-                    const authorMatch = book.info?.match(/المؤلف:\s*(.+?)(?:\n|\[|$)/);
-                    const author = authorMatch ? authorMatch[1].trim() : null;
-                    
-                    // Extract page count from info field
-                    const pageMatch = book.info?.match(/عدد الصفحات:\s*(\d+)/);
-                    const pageCount = pageMatch ? pageMatch[1] : null;
-                    
-                    return (
-                      <div
-                        key={book.id}
-                        className="main-book-card"
-                        onClick={() => handleBookSelect(book)}
-                      >
-                        <div className="book-card-body">
-                          <h4 className="book-title">{book.name}</h4>
-                          {book.category_name && (
-                            <div className="book-category-badge">{book.category_name}</div>
-                          )}
-                          {author && (
-                            <p className="book-author">{author}</p>
-                          )}
-                          {pageCount && (
-                            <p className="book-pages">{pageCount} صفحة</p>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+            ))}
           </div>
-        ) : (
-          <div className="empty-state">
-            <div className="spinner"></div>
-            <p className="loading">Loading book...</p>
-          </div>
-        )}
+        </div>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/book/:bookId" element={<BookReader />} />
+      </Routes>
+    </Router>
   );
 }
 
