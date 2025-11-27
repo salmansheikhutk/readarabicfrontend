@@ -1077,15 +1077,6 @@ function BookReader() {
           <div className="sidebar-content">
             <div className="toc-header">
               <button className="back-button" onClick={() => navigate('/')}>← Back to Books</button>
-              {user && (
-                <button 
-                  className="back-button" 
-                  onClick={() => navigate(`/vocabulary/practice/${bookId}`)}
-                  style={{ background: '#667eea', marginTop: '10px' }}
-                >
-                  📚 Practice Vocabulary
-                </button>
-              )}
               <h3>Table of Contents</h3>
             </div>
             <div className="toc-list">
