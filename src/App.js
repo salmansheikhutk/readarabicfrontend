@@ -24,38 +24,106 @@ function Landing() {
       flexDirection: 'column', 
       justifyContent: 'center', 
       alignItems: 'center',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      padding: '20px'
+      background: '#000000',
+      padding: '20px',
+      position: 'relative',
+      overflow: 'hidden'
     }}>
+      {/* Animated Background Elements */}
       <div style={{
-        background: 'white',
-        borderRadius: '16px',
-        padding: '60px 40px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+        position: 'absolute',
+        top: '10%',
+        left: '10%',
+        width: '300px',
+        height: '300px',
+        background: 'rgba(102, 126, 234, 0.15)',
+        borderRadius: '50%',
+        filter: 'blur(60px)',
+        animation: 'float 20s infinite ease-in-out'
+      }} />
+      <div style={{
+        position: 'absolute',
+        bottom: '10%',
+        right: '10%',
+        width: '400px',
+        height: '400px',
+        background: 'rgba(118, 75, 162, 0.12)',
+        borderRadius: '50%',
+        filter: 'blur(80px)',
+        animation: 'float 25s infinite ease-in-out reverse'
+      }} />
+
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) translateX(0px); }
+          50% { transform: translateY(-30px) translateX(30px); }
+        }
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+      `}</style>
+
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.98)',
+        backdropFilter: 'blur(20px)',
+        borderRadius: '24px',
+        padding: '70px 50px',
+        boxShadow: '0 30px 90px rgba(102, 126, 234, 0.4), 0 0 1px rgba(255,255,255,0.1)',
         textAlign: 'center',
-        maxWidth: '500px'
+        maxWidth: '580px',
+        position: 'relative',
+        zIndex: 1,
+        animation: 'fadeInUp 0.8s ease-out'
       }}>
         <h1 style={{
-          fontSize: '3rem',
+          fontSize: '3.5rem',
+          marginBottom: '12px',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif",
+          direction: 'rtl',
+          fontWeight: '700',
+          letterSpacing: '-0.02em',
+          animation: 'fadeIn 1s ease-out 0.4s backwards'
+        }}>اقرأ عربي</h1>
+        
+        <h2 style={{
+          fontSize: '2rem',
           marginBottom: '20px',
           color: '#2c3e50',
-          fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif",
-          direction: 'rtl'
-        }}>اقرأ عربي</h1>
-        <h2 style={{
-          fontSize: '1.8rem',
-          marginBottom: '15px',
-          color: '#2c3e50'
+          fontWeight: '600',
+          letterSpacing: '-0.01em',
+          animation: 'fadeIn 1s ease-out 0.5s backwards'
         }}>Read Arabic</h2>
+        
         <p style={{
-          fontSize: '1.1rem',
+          fontSize: '1.15rem',
           color: '#6b7280',
-          marginBottom: '40px',
-          lineHeight: '1.6'
+          marginBottom: '45px',
+          lineHeight: '1.7',
+          maxWidth: '420px',
+          margin: '0 auto 45px',
+          animation: 'fadeIn 1s ease-out 0.6s backwards'
         }}>
-          Your journey to mastering Arabic through reading starts here
+          Master Arabic through immersive reading with AI-powered vocabulary learning and personalized practice
         </p>
-        <LoginButton />
+
+        <div style={{ animation: 'fadeIn 1s ease-out 0.7s backwards' }}>
+          <LoginButton />
+        </div>
       </div>
     </div>
   );
@@ -1349,8 +1417,40 @@ function LoginButton() {
   return (
     <button 
       onClick={handleLoginClick}
-      className="google-login-btn"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '12px',
+        background: 'white',
+        color: '#2c3e50',
+        border: '2px solid #e5e7eb',
+        padding: '14px 32px',
+        borderRadius: '12px',
+        fontSize: '1.05rem',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+        margin: '0 auto'
+      }}
+      onMouseOver={(e) => {
+        e.target.style.transform = 'translateY(-2px)';
+        e.target.style.boxShadow = '0 8px 20px rgba(0,0,0,0.12)';
+        e.target.style.borderColor = '#667eea';
+      }}
+      onMouseOut={(e) => {
+        e.target.style.transform = 'translateY(0)';
+        e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+        e.target.style.borderColor = '#e5e7eb';
+      }}
     >
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M19.6 10.227c0-.709-.064-1.39-.182-2.045H10v3.868h5.382a4.6 4.6 0 01-1.996 3.018v2.51h3.232c1.891-1.742 2.982-4.305 2.982-7.35z" fill="#4285F4"/>
+        <path d="M10 20c2.7 0 4.964-.895 6.618-2.423l-3.232-2.509c-.895.6-2.04.955-3.386.955-2.605 0-4.81-1.76-5.595-4.123H1.064v2.59A9.996 9.996 0 0010 20z" fill="#34A853"/>
+        <path d="M4.405 11.9c-.2-.6-.314-1.24-.314-1.9 0-.66.114-1.3.314-1.9V5.51H1.064A9.996 9.996 0 000 10c0 1.614.386 3.14 1.064 4.49l3.34-2.59z" fill="#FBBC05"/>
+        <path d="M10 3.977c1.468 0 2.786.505 3.823 1.496l2.868-2.868C14.959.991 12.695 0 10 0 6.09 0 2.71 2.24 1.064 5.51l3.34 2.59C5.19 5.736 7.395 3.977 10 3.977z" fill="#EA4335"/>
+      </svg>
       Sign in with Google
     </button>
   );
