@@ -256,21 +256,10 @@ function BookReader() {
   // Load user vocabulary from database when user logs in and book data is loaded
   useEffect(() => {
     if (user && bookId && bookData && !vocabularyLoaded) {
-      console.log('📚 Loading user vocabulary for book', bookId, 'user ID:', user.id);
-      const url = `/api/vocabulary/${user.id}?book_id=${bookId}`;
-      console.log('Fetching from:', url);
-      
-      fetch(url)
-        .then(res => {
-          console.log('Response status:', res.status);
-          return res.json();
-        })
+      fetch(`/api/vocabulary/${user.id}?book_id=${bookId}`)
+        .then(res => res.json())
         .then(data => {
-          console.log('Raw vocabulary data:', data);
-          
           if (data.success && data.vocabulary.length > 0) {
-            console.log('✅ Loaded', data.vocabulary.length, 'vocabulary items from database');
-            console.log('Vocabulary items:', data.vocabulary);
             
             // Convert database vocabulary to inline translations format
             // Use the exact word_position from database
@@ -594,10 +583,6 @@ function BookReader() {
           
           if (wrapperText === selectedWord) {
             position = wrapper.getAttribute('data-position');
-            console.log('=== SAVING ===');
-            console.log('Selected text:', selectedText);
-            console.log('Cleaned word:', selectedWord);
-            console.log('Position:', position);
             break;
           }
         }
@@ -644,13 +629,6 @@ function BookReader() {
       // Store translation for this specific location
       updated[selectedWord][position] = englishDef;
       
-      console.log('Saved translation:', {
-        word: selectedWord,
-        position: position,
-        translation: englishDef,
-        fullData: updated[selectedWord]
-      });
-      
       return updated;
     });
     
@@ -658,16 +636,6 @@ function BookReader() {
     if (user) {
       const [pageIndex, wordIndex] = position.split('-').map(Number);
       const currentPage = bookData?.pages?.[pageIndex];
-      
-      console.log('=== SAVING TO DATABASE ===');
-      console.log('User ID:', user.id);
-      console.log('Word:', selectedWord);
-      console.log('Translation:', englishDef);
-      console.log('Book ID:', bookId);
-      console.log('Page:', currentPage?.page);
-      console.log('Volume:', currentPage?.vol);
-      console.log('Position:', position);
-      console.log('Word position:', wordIndex);
       
       fetch('/api/vocabulary', {
         method: 'POST',
@@ -683,18 +651,7 @@ function BookReader() {
         })
       })
         .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            console.log('✅ Vocabulary saved to database:', data.vocabulary);
-          } else {
-            console.error('❌ Failed to save vocabulary:', data.error);
-          }
-        })
-        .catch(err => {
-          console.error('❌ Error saving vocabulary:', err);
-        });
-    } else {
-      console.log('⚠️ User not logged in - vocabulary only saved locally');
+        .catch(err => console.error('Error saving vocabulary:', err));
     }
     
     setShowTranslation(false);
@@ -812,12 +769,6 @@ function BookReader() {
       // Check if THIS SPECIFIC LOCATION has a translation
       const hasTranslation = inlineTranslations[cleanWord]?.[currentPosition];
       const isEditing = editingInlinePosition === currentPosition;
-      
-      // Debug - show ALL words with their positions on first page
-      if (pageIndex === 0 && wordIdx < 30) {
-        console.log(`Word #${wordIdx}: "${word}" -> clean: "${cleanWord}" -> position: ${currentPosition}`, 
-          hasTranslation ? `✅ HAS TRANSLATION: "${hasTranslation}"` : '');
-      }
       
       return (
         <span key={`${pageIndex}-${wordIdx}`} className="word-wrapper" data-position={currentPosition}>
