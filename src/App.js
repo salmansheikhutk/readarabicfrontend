@@ -1,6 +1,7 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
+import VocabularyPractice from './VocabularyPractice';
 
 const UserContext = createContext(null);
 
@@ -79,6 +80,21 @@ function Home() {
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'white', border: '1px solid #e1e4e8', padding: '12px 20px', borderRadius: '8px' }}>
               <span style={{ color: '#2c3e50', fontWeight: '500', fontSize: '0.95rem' }}>{user.name}</span>
+              <button 
+                onClick={() => navigate('/vocabulary/practice')} 
+                style={{ 
+                  background: '#667eea', 
+                  color: 'white', 
+                  border: 'none', 
+                  padding: '8px 16px', 
+                  borderRadius: '6px', 
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: '500'
+                }}
+              >
+                Practice
+              </button>
               <button 
                 onClick={() => {
                   setUser(null);
@@ -236,6 +252,7 @@ function BookReader() {
     return saved ? JSON.parse(saved) : [];
   });
   const [inlineTranslations, setInlineTranslations] = useState({});
+  const [vocabularyIds, setVocabularyIds] = useState({}); // Store vocab_id for each position
   const [vocabularyLoaded, setVocabularyLoaded] = useState(false);
   const [editingDictIndex, setEditingDictIndex] = useState(null);
   const [editingDictValue, setEditingDictValue] = useState('');
@@ -264,12 +281,14 @@ function BookReader() {
             // Convert database vocabulary to inline translations format
             // Use the exact word_position from database
             const translations = {};
+            const vocabIds = {};
             
             data.vocabulary.forEach((vocab) => {
               const word = vocab.word;
               const translation = vocab.translation;
               const pageNum = vocab.page_number;
               const wordPosition = vocab.word_position;
+              const vocabId = vocab.id;
               
               // Find the page index for this page number
               const pageIndex = bookData.pages.findIndex(p => p.page === pageNum);
@@ -285,9 +304,16 @@ function BookReader() {
                 translations[cleanWord] = {};
               }
               translations[cleanWord][position] = translation;
+              
+              // Store vocab ID for this position
+              if (!vocabIds[cleanWord]) {
+                vocabIds[cleanWord] = {};
+              }
+              vocabIds[cleanWord][position] = vocabId;
             });
             
             setInlineTranslations(prev => ({ ...prev, ...translations }));
+            setVocabularyIds(prev => ({ ...prev, ...vocabIds }));
           } else {
             console.log('No vocabulary found for this book');
             setVocabularyLoaded(true);
@@ -522,9 +548,10 @@ function BookReader() {
     setEditingInlineValue(currentValue);
   };
 
-  const saveEditInline = () => {
+  const saveEditInline = async () => {
     if (!editingInlineKey || !editingInlinePosition) return;
     
+    // Update local state immediately
     setInlineTranslations(prev => {
       const updated = { ...prev };
       if (!updated[editingInlineKey]) {
@@ -533,6 +560,26 @@ function BookReader() {
       updated[editingInlineKey][editingInlinePosition] = editingInlineValue;
       return updated;
     });
+    
+    // Get vocab_id for this position
+    const vocabId = vocabularyIds[editingInlineKey]?.[editingInlinePosition];
+    
+    // Update database if user is logged in and vocab_id exists
+    if (user && vocabId) {
+      try {
+        const response = await fetch(`/api/vocabulary/${vocabId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ translation: editingInlineValue })
+        });
+        const data = await response.json();
+        if (!data.success) {
+          console.error('Failed to update translation:', data.error);
+        }
+      } catch (err) {
+        console.error('Error updating translation:', err);
+      }
+    }
     
     setEditingInlinePosition(null);
     setEditingInlineKey(null);
@@ -1030,6 +1077,15 @@ function BookReader() {
           <div className="sidebar-content">
             <div className="toc-header">
               <button className="back-button" onClick={() => navigate('/')}>← Back to Books</button>
+              {user && (
+                <button 
+                  className="back-button" 
+                  onClick={() => navigate(`/vocabulary/practice/${bookId}`)}
+                  style={{ background: '#667eea', marginTop: '10px' }}
+                >
+                  📚 Practice Vocabulary
+                </button>
+              )}
               <h3>Table of Contents</h3>
             </div>
             <div className="toc-list">
@@ -1214,6 +1270,8 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/book/:bookId" element={<BookReader />} />
+          <Route path="/vocabulary/practice" element={<VocabularyPractice />} />
+          <Route path="/vocabulary/practice/:bookId" element={<VocabularyPractice />} />
           <Route path="/auth/callback" element={<AuthCallback setUser={setUser} />} />
         </Routes>
       </Router>
@@ -1242,4 +1300,5 @@ function App() {
   return <AppContent />;
 }
 
+export { UserContext };
 export default App;
