@@ -196,7 +196,7 @@ function Home() {
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                <h4 style={{ fontSize: '1.1rem', marginBottom: '8px', color: '#2c3e50', fontFamily: '"Geeza Pro", "Traditional Arabic", "Simplified Arabic", "Arabic Typesetting", "DecoType Naskh", Tahoma, sans-serif', direction: 'rtl', lineHeight: '1.8', fontWeight: '500' }}>{book.name}</h4>
+                <h4 style={{ fontSize: '1.1rem', marginBottom: '8px', color: '#2c3e50', fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif", direction: 'rtl', lineHeight: '1.8', fontWeight: '500' }}>{book.name}</h4>
                 <p style={{ fontSize: '0.85rem', color: '#6b7280' }}>Continue reading →</p>
               </div>
             ))}
@@ -222,7 +222,7 @@ function Home() {
               className={`main-category-card ${selectedCategory === cat.cat_id ? 'active' : ''}`}
               onClick={() => setSelectedCategory(cat.cat_id)}
             >
-              <div className="category-name">{cat.category_name}</div>
+              <div className="category-name" style={{ fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif" }}>{cat.category_name}</div>
               <div className="category-count">{cat.book_count}</div>
             </button>
           ))}
