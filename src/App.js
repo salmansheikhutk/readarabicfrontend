@@ -71,71 +71,78 @@ function Home() {
 
   return (
     <div className="book-selection-screen">
-      <div className="welcome-header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <div>
-            <h1>Welcome to ReadArabic</h1>
-            <p>Select a book to start reading</p>
+      {/* Header with user actions */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '20px 40px', background: 'white', borderBottom: '1px solid #e1e4e8' }}>
+        {user ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ color: '#2c3e50', fontWeight: '500', fontSize: '0.95rem' }}>{user.name}</span>
+            <button 
+              onClick={() => navigate('/vocabulary/practice')} 
+              style={{ 
+                background: '#667eea', 
+                color: 'white', 
+                border: 'none', 
+                padding: '8px 16px', 
+                borderRadius: '6px', 
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                fontWeight: '500',
+                transition: 'opacity 0.2s'
+              }}
+              onMouseOver={(e) => e.target.style.opacity = '0.9'}
+              onMouseOut={(e) => e.target.style.opacity = '1'}
+            >
+              Practice
+            </button>
+            <button 
+              onClick={() => {
+                setUser(null);
+                localStorage.removeItem('user');
+              }} 
+              style={{ 
+                background: '#e74c3c', 
+                color: 'white', 
+                border: 'none', 
+                padding: '8px 16px', 
+                borderRadius: '6px', 
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                fontWeight: '500',
+                transition: 'opacity 0.2s'
+              }}
+              onMouseOver={(e) => e.target.style.opacity = '0.9'}
+              onMouseOut={(e) => e.target.style.opacity = '1'}
+            >
+              Logout
+            </button>
           </div>
-          {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'white', border: '1px solid #e1e4e8', padding: '12px 20px', borderRadius: '8px' }}>
-              <span style={{ color: '#2c3e50', fontWeight: '500', fontSize: '0.95rem' }}>{user.name}</span>
-              <button 
-                onClick={() => navigate('/vocabulary/practice')} 
-                style={{ 
-                  background: '#667eea', 
-                  color: 'white', 
-                  border: 'none', 
-                  padding: '8px 16px', 
-                  borderRadius: '6px', 
-                  cursor: 'pointer',
-                  fontSize: '0.9rem',
-                  fontWeight: '500'
-                }}
-              >
-                Practice
-              </button>
-              <button 
-                onClick={() => {
-                  setUser(null);
-                  localStorage.removeItem('user');
-                }} 
-                style={{ 
-                  background: '#e74c3c', 
-                  color: 'white', 
-                  border: 'none', 
-                  padding: '8px 16px', 
-                  borderRadius: '6px', 
-                  cursor: 'pointer',
-                  fontSize: '0.9rem',
-                  fontWeight: '500'
-                }}
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <LoginButton />
-          )}
-        </div>
+        ) : (
+          <LoginButton />
+        )}
       </div>
 
-      {/* Search Bar */}
-      <div style={{ margin: '20px 0', maxWidth: '600px' }}>
-        <input
-          type="text"
-          placeholder="Search books by title..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            width: '100%',
-            padding: '12px 20px',
-            fontSize: '1rem',
-            border: '2px solid #e1e4e8',
-            borderRadius: '8px',
-            outline: 'none'
-          }}
-        />
+      {/* Centered Search Bar */}
+      <div style={{ textAlign: 'center', padding: '40px 20px 20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '40px' }}>
+          <input
+            type="text"
+            placeholder="Search books by title..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: '100%',
+              maxWidth: '600px',
+              padding: '12px 20px',
+              fontSize: '1rem',
+              border: '2px solid #e1e4e8',
+              borderRadius: '8px',
+              outline: 'none',
+              transition: 'border-color 0.2s'
+            }}
+            onFocus={(e) => e.target.style.borderColor = '#667eea'}
+            onBlur={(e) => e.target.style.borderColor = '#e1e4e8'}
+          />
+        </div>
       </div>
 
       {/* Categories Filter */}
@@ -1055,7 +1062,6 @@ function BookReader() {
           <h1>ReadArabic</h1>
           {user ? (
             <div className="user-info">
-              <img src={user.profile_picture} alt={user.name} className="user-avatar" />
               <span className="user-name">{user.name}</span>
               <button 
                 onClick={() => {
