@@ -96,7 +96,7 @@ function Home() {
   return (
     <div className="book-selection-screen">
       {/* Header with user actions */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '20px 40px', background: 'white', borderBottom: '1px solid #e1e4e8' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '15px 40px', background: 'white', borderBottom: '1px solid #e1e4e8' }}>
         {user ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ color: '#2c3e50', fontWeight: '500', fontSize: '0.95rem' }}>{user.name}</span>
@@ -146,8 +146,8 @@ function Home() {
       </div>
 
       {/* Centered Search Bar */}
-      <div style={{ textAlign: 'center', padding: '40px 20px 20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '40px' }}>
+      <div style={{ textAlign: 'center', padding: '25px 20px 20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '25px' }}>
           <input
             type="text"
             placeholder="Search books by title..."
@@ -171,15 +171,15 @@ function Home() {
 
       {/* Recently Read Books */}
       {user && recentlyReadBooks.length > 0 && (
-        <div style={{ maxWidth: '1200px', margin: '0 auto 40px', padding: '0 20px' }}>
-          <h3 style={{ textAlign: 'center', marginBottom: '20px', fontSize: '1.5rem', color: '#2c3e50' }}>Recently Read</h3>
-          <div style={{ display: 'flex', gap: '20px', overflowX: 'auto', paddingBottom: '10px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto 25px', padding: '0 20px' }}>
+          <h3 style={{ textAlign: 'center', marginBottom: '15px', fontSize: '1.3rem', color: '#2c3e50' }}>Recently Read</h3>
+          <div style={{ display: 'flex', gap: '15px', overflowX: 'auto', paddingBottom: '10px' }}>
             {recentlyReadBooks.map((book) => (
               <div
                 key={book.id}
                 onClick={() => handleBookSelect(book)}
                 style={{
-                  minWidth: '200px',
+                  minWidth: '220px',
                   padding: '15px',
                   background: 'white',
                   border: '1px solid #e1e4e8',
@@ -196,7 +196,7 @@ function Home() {
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                <h4 style={{ fontSize: '1rem', marginBottom: '5px', color: '#2c3e50' }}>{book.name}</h4>
+                <h4 style={{ fontSize: '1.1rem', marginBottom: '8px', color: '#2c3e50', fontFamily: '"Geeza Pro", "Traditional Arabic", "Simplified Arabic", "Arabic Typesetting", "DecoType Naskh", Tahoma, sans-serif', direction: 'rtl', lineHeight: '1.8', fontWeight: '500' }}>{book.name}</h4>
                 <p style={{ fontSize: '0.85rem', color: '#6b7280' }}>Continue reading →</p>
               </div>
             ))}
@@ -206,13 +206,14 @@ function Home() {
 
       {/* Categories Filter */}
       <div className="main-categories-section" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-        <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Browse by Category</h3>
+        <h3 style={{ textAlign: 'center', marginBottom: '15px', fontSize: '1.3rem', color: '#2c3e50' }}>Browse by Category</h3>
         <div className="main-categories-grid">
           <button
             className={`main-category-card ${!selectedCategory ? 'active' : ''}`}
             onClick={() => setSelectedCategory(null)}
+            style={{ textAlign: 'center' }}
           >
-            <div className="category-name">All Books</div>
+            <div className="category-name" style={{ textAlign: 'center' }}>All Books</div>
             <div className="category-count">{loadingBooks ? '...' : books.length}</div>
           </button>
           {categories.map((cat) => (
