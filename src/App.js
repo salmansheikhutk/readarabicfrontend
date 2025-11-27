@@ -5,7 +5,64 @@ import VocabularyPractice from './VocabularyPractice';
 
 const UserContext = createContext(null);
 
-function Home() {
+// Landing page with sign-in button
+function Landing() {
+  const { user } = useContext(UserContext);
+  const navigate = useNavigate();
+
+  // Redirect to browse if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/browse');
+    }
+  }, [user, navigate]);
+
+  return (
+    <div style={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      flexDirection: 'column', 
+      justifyContent: 'center', 
+      alignItems: 'center',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      padding: '20px'
+    }}>
+      <div style={{
+        background: 'white',
+        borderRadius: '16px',
+        padding: '60px 40px',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+        textAlign: 'center',
+        maxWidth: '500px'
+      }}>
+        <h1 style={{
+          fontSize: '3rem',
+          marginBottom: '20px',
+          color: '#2c3e50',
+          fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif",
+          direction: 'rtl'
+        }}>اقرأ عربي</h1>
+        <h2 style={{
+          fontSize: '1.8rem',
+          marginBottom: '15px',
+          color: '#2c3e50'
+        }}>Read Arabic</h2>
+        <p style={{
+          fontSize: '1.1rem',
+          color: '#6b7280',
+          marginBottom: '40px',
+          lineHeight: '1.6'
+        }}>
+          Your journey to mastering Arabic through reading starts here
+        </p>
+        <LoginButton />
+      </div>
+    </div>
+  );
+}
+
+// Browse page with books and categories
+function Browse() {
   const navigate = useNavigate();
   const { user, setUser } = useContext(UserContext);
   const [books, setBooks] = useState([]);
@@ -15,6 +72,13 @@ function Home() {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [recentlyReadBooks, setRecentlyReadBooks] = useState([]);
+
+  // Redirect to landing if not logged in
+  useEffect(() => {
+    if (!user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   // Fetch categories on mount
   useEffect(() => {
@@ -145,9 +209,18 @@ function Home() {
         )}
       </div>
 
-      {/* Centered Search Bar */}
-      <div style={{ textAlign: 'center', padding: '25px 20px 20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '25px' }}>
+      {/* Main Content Container - Well Structured */}
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '15px 20px' }}>
+        
+        {/* Search and Filter Section */}
+        <div style={{ 
+          background: 'white', 
+          padding: '18px', 
+          borderRadius: '12px', 
+          boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+          marginBottom: '15px'
+        }}>
+          {/* Search Bar */}
           <input
             type="text"
             placeholder="Search books by title..."
@@ -155,90 +228,106 @@ function Home() {
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
               width: '100%',
-              maxWidth: '600px',
-              padding: '12px 20px',
+              padding: '10px 16px',
               fontSize: '1rem',
               border: '2px solid #e1e4e8',
               borderRadius: '8px',
               outline: 'none',
-              transition: 'border-color 0.2s'
+              transition: 'border-color 0.2s',
+              marginBottom: '15px'
             }}
             onFocus={(e) => e.target.style.borderColor = '#667eea'}
             onBlur={(e) => e.target.style.borderColor = '#e1e4e8'}
           />
-        </div>
-      </div>
-
-      {/* Recently Read Books */}
-      {user && recentlyReadBooks.length > 0 && (
-        <div style={{ maxWidth: '1200px', margin: '0 auto 25px', padding: '0 20px' }}>
-          <h3 style={{ textAlign: 'center', marginBottom: '15px', fontSize: '1.3rem', color: '#2c3e50' }}>Recently Read</h3>
-          <div style={{ display: 'flex', gap: '15px', overflowX: 'auto', paddingBottom: '10px' }}>
-            {recentlyReadBooks.map((book) => (
-              <div
-                key={book.id}
-                onClick={() => handleBookSelect(book)}
-                style={{
-                  minWidth: '220px',
-                  padding: '15px',
-                  background: 'white',
-                  border: '1px solid #e1e4e8',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s, box-shadow 0.2s'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                <h4 style={{ fontSize: '1.1rem', marginBottom: '8px', color: '#2c3e50', fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif", direction: 'rtl', lineHeight: '1.8', fontWeight: '500' }}>{book.name}</h4>
-                <p style={{ fontSize: '0.85rem', color: '#6b7280' }}>Continue reading →</p>
-              </div>
-            ))}
+          
+          {/* Category Dropdown */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <label style={{ fontSize: '0.95rem', color: '#6b7280', fontWeight: '500', minWidth: 'fit-content' }}>Category:</label>
+            <select
+              value={selectedCategory || ''}
+              onChange={(e) => setSelectedCategory(e.target.value ? parseInt(e.target.value) : null)}
+              style={{
+                flex: 1,
+                padding: '10px 16px',
+                fontSize: '1rem',
+                border: '2px solid #e1e4e8',
+                borderRadius: '8px',
+                background: 'white',
+                cursor: 'pointer',
+                fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif",
+                outline: 'none',
+                transition: 'border-color 0.2s'
+              }}
+              onFocus={(e) => e.target.style.borderColor = '#667eea'}
+              onBlur={(e) => e.target.style.borderColor = '#e1e4e8'}
+            >
+              <option value="" style={{ fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif" }}>All Books ({loadingBooks ? '...' : books.length})</option>
+              {categories.map((cat) => (
+                <option key={cat.cat_id} value={cat.cat_id} style={{ fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif" }}>
+                  {cat.category_name} ({cat.book_count})
+                </option>
+              ))}
+            </select>
           </div>
         </div>
-      )}
 
-      {/* Categories Filter */}
-      <div className="main-categories-section" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-        <h3 style={{ textAlign: 'center', marginBottom: '15px', fontSize: '1.3rem', color: '#2c3e50' }}>Browse by Category</h3>
-        <div className="main-categories-grid">
-          <button
-            className={`main-category-card ${!selectedCategory ? 'active' : ''}`}
-            onClick={() => setSelectedCategory(null)}
-            style={{ textAlign: 'center' }}
-          >
-            <div className="category-name" style={{ textAlign: 'center' }}>All Books</div>
-            <div className="category-count">{loadingBooks ? '...' : books.length}</div>
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.cat_id}
-              className={`main-category-card ${selectedCategory === cat.cat_id ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(cat.cat_id)}
-            >
-              <div className="category-name" style={{ fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif" }}>{cat.category_name}</div>
-              <div className="category-count">{cat.book_count}</div>
-            </button>
-          ))}
-        </div>
+        {/* Recently Read Books */}
+        {user && recentlyReadBooks.length > 0 && (
+          <div style={{ marginBottom: '15px' }}>
+            <h3 style={{ 
+              fontSize: '1.15rem', 
+              color: '#2c3e50', 
+              marginBottom: '10px',
+              fontWeight: '600'
+            }}>Recently Read</h3>
+            <div style={{ 
+              display: 'flex', 
+              gap: '15px', 
+              overflowX: 'auto', 
+              paddingBottom: '10px',
+              scrollbarWidth: 'thin'
+            }}>
+              {recentlyReadBooks.map((book) => (
+                <div
+                  key={book.id}
+                  onClick={() => handleBookSelect(book)}
+                  style={{
+                    minWidth: '220px',
+                    padding: '15px',
+                    background: 'white',
+                    border: '1px solid #e1e4e8',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
+                  }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.06)';
+                  }}
+                >
+                  <h4 style={{ 
+                    fontSize: '1.05rem', 
+                    marginBottom: '8px', 
+                    color: '#2c3e50', 
+                    fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif", 
+                    direction: 'rtl', 
+                    lineHeight: '1.6'
+                  }}>{book.name}</h4>
+                  <p style={{ fontSize: '0.85rem', color: '#6b7280', margin: 0 }}>Continue reading →</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Books Grid */}
       <div className="main-books-section">
-        <h3 style={{ fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif" }}>
-          {searchTerm ? `Search results for "${searchTerm}"` :
-           selectedCategory 
-            ? categories.find(c => c.cat_id === selectedCategory)?.category_name || 'Category'
-            : 'All Books'
-          }
-        </h3>
-        
         {loadingBooks ? (
           <div className="loading-state">
             <div className="spinner"></div>
@@ -1142,7 +1231,7 @@ function BookReader() {
         {showSidebar && (
           <div className="sidebar-content">
             <div className="toc-header">
-              <button className="back-button" onClick={() => navigate('/')}>← Back to Books</button>
+              <button className="back-button" onClick={() => navigate('/browse')}>← Back to Books</button>
               <h3>Table of Contents</h3>
             </div>
             <div className="toc-list">
@@ -1211,6 +1300,8 @@ function LoginButton() {
       if (data.success) {
         setUser(data.user);
         localStorage.setItem('user', JSON.stringify(data.user));
+        // Redirect to browse after successful login
+        window.location.href = '/browse';
       }
     } catch (err) {
       console.error('Login failed:', err);
@@ -1285,8 +1376,8 @@ function AuthCallback({ setUser }) {
             setUser(data.user);
             localStorage.setItem('user', JSON.stringify(data.user));
             
-            // Redirect back to the page they were on, or home if not set
-            const redirectPath = localStorage.getItem('redirectAfterLogin') || '/';
+            // Redirect back to the page they were on, or browse if not set
+            const redirectPath = localStorage.getItem('redirectAfterLogin') || '/browse';
             localStorage.removeItem('redirectAfterLogin');
             navigate(redirectPath);
           } else {
@@ -1325,7 +1416,8 @@ function AppContent() {
     <UserContext.Provider value={{ user, setUser }}>
       <Router>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/browse" element={<Browse />} />
           <Route path="/book/:bookId" element={<BookReader />} />
           <Route path="/vocabulary/practice" element={<VocabularyPractice />} />
           <Route path="/vocabulary/practice/:bookId" element={<VocabularyPractice />} />
