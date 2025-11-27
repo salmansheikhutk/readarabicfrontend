@@ -110,16 +110,36 @@ function Landing() {
         }}>Read Arabic</h2>
         
         <p style={{
-          fontSize: '1.15rem',
-          color: '#6b7280',
-          marginBottom: '45px',
+          fontSize: '1.2rem',
+          color: '#2c3e50',
+          marginBottom: '30px',
           lineHeight: '1.7',
-          maxWidth: '420px',
-          margin: '0 auto 45px',
+          fontWeight: '600',
           animation: 'fadeIn 1s ease-out 0.6s backwards'
         }}>
-          Master Arabic through immersive reading with AI-powered vocabulary learning and personalized practice
+          Take your Arabic reading to the next level
         </p>
+
+        {/* Feature highlights */}
+        <div style={{
+          marginBottom: '40px',
+          animation: 'fadeIn 1s ease-out 0.65s backwards'
+        }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '30px',
+            color: '#6b7280',
+            fontSize: '0.95rem',
+            fontWeight: '500'
+          }}>
+            <span>2000+ Texts</span>
+            <span style={{ color: '#d1d5db' }}>•</span>
+            <span>Smart Dictionary</span>
+            <span style={{ color: '#d1d5db' }}>•</span>
+            <span>Flashcards</span>
+          </div>
+        </div>
 
         <div style={{ animation: 'fadeIn 1s ease-out 0.7s backwards' }}>
           <LoginButton />
