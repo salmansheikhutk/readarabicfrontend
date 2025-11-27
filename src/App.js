@@ -231,7 +231,7 @@ function Home() {
 
       {/* Books Grid */}
       <div className="main-books-section">
-        <h3>
+        <h3 style={{ fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif" }}>
           {searchTerm ? `Search results for "${searchTerm}"` :
            selectedCategory 
             ? categories.find(c => c.cat_id === selectedCategory)?.category_name || 'Category'
