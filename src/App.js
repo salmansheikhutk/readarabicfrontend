@@ -14,6 +14,7 @@ function Home() {
   const [loadingBooks, setLoadingBooks] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [recentlyReadBooks, setRecentlyReadBooks] = useState([]);
 
   // Fetch categories on mount
   useEffect(() => {
@@ -30,6 +31,29 @@ function Home() {
     };
     fetchCategories();
   }, []);
+
+  // Fetch recently read books from user vocabulary
+  useEffect(() => {
+    const fetchRecentlyRead = async () => {
+      if (!user) {
+        setRecentlyReadBooks([]);
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/vocabulary/${user.id}/recent-books`);
+        const data = await response.json();
+        
+        if (data.success && data.books) {
+          setRecentlyReadBooks(data.books);
+        }
+      } catch (err) {
+        console.error('Failed to fetch recently read books:', err);
+      }
+    };
+    
+    fetchRecentlyRead();
+  }, [user]);
 
   // Fetch books on mount and when category changes
   useEffect(() => {
@@ -145,9 +169,44 @@ function Home() {
         </div>
       </div>
 
+      {/* Recently Read Books */}
+      {user && recentlyReadBooks.length > 0 && (
+        <div style={{ maxWidth: '1200px', margin: '0 auto 40px', padding: '0 20px' }}>
+          <h3 style={{ textAlign: 'center', marginBottom: '20px', fontSize: '1.5rem', color: '#2c3e50' }}>Recently Read</h3>
+          <div style={{ display: 'flex', gap: '20px', overflowX: 'auto', paddingBottom: '10px' }}>
+            {recentlyReadBooks.map((book) => (
+              <div
+                key={book.id}
+                onClick={() => handleBookSelect(book)}
+                style={{
+                  minWidth: '200px',
+                  padding: '15px',
+                  background: 'white',
+                  border: '1px solid #e1e4e8',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s, box-shadow 0.2s'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <h4 style={{ fontSize: '1rem', marginBottom: '5px', color: '#2c3e50' }}>{book.name}</h4>
+                <p style={{ fontSize: '0.85rem', color: '#6b7280' }}>Continue reading →</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Categories Filter */}
-      <div className="main-categories-section">
-        <h3>Browse by Category</h3>
+      <div className="main-categories-section" style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+        <h3 style={{ textAlign: 'center', marginBottom: '20px' }}>Browse by Category</h3>
         <div className="main-categories-grid">
           <button
             className={`main-category-card ${!selectedCategory ? 'active' : ''}`}
