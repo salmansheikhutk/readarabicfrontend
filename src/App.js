@@ -2,8 +2,9 @@ import React, { useState, useEffect, createContext, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import './App.css';
 import VocabularyPractice from './VocabularyPractice';
+import Subscribe from './Subscribe';
 
-const UserContext = createContext(null);
+export const UserContext = createContext(null);
 
 // Landing page with sign-in button
 function Landing() {
@@ -941,7 +942,17 @@ function BookReader() {
           word_position: wordIndex
         })
       })
-        .then(res => res.json())
+        .then(async res => {
+          const data = await res.json();
+          if (res.status === 403 && data.error === 'FREE_LIMIT_REACHED') {
+            // Navigate to payment page
+            alert(`Free tier limited to 5 words!\n\nYou currently have ${data.vocab_count} words saved.\n\nUpgrade to premium to save unlimited vocabulary words.`);
+            navigate('/subscribe');
+          } else if (!res.ok) {
+            console.error('Error saving vocabulary:', data);
+          }
+          return data;
+        })
         .catch(err => console.error('Error saving vocabulary:', err));
     }
     
@@ -1538,6 +1549,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/browse" element={<Browse />} />
+          <Route path="/subscribe" element={<Subscribe />} />
           <Route path="/book/:bookId" element={<BookReader />} />
           <Route path="/vocabulary/practice" element={<VocabularyPractice />} />
           <Route path="/vocabulary/practice/:bookId" element={<VocabularyPractice />} />
@@ -1569,5 +1581,4 @@ function App() {
   return <AppContent />;
 }
 
-export { UserContext };
 export default App;
