@@ -259,20 +259,20 @@ function BookReader() {
             console.log('Vocabulary items:', data.vocabulary);
             
             // Convert database vocabulary to inline translations format
-            // Use the exact word_position from database instead of searching
+            // We need to find each word on each page and create the position key
             const translations = {};
+            let foundCount = 0;
             
             data.vocabulary.forEach((vocab, idx) => {
               const word = vocab.word;
               const translation = vocab.translation;
               const pageNum = vocab.page_number;
-              const wordPosition = vocab.word_position;
               
               console.log(`\n[${idx + 1}/${data.vocabulary.length}] Processing:`, {
                 word,
                 translation,
                 pageNum,
-                wordPosition
+                bookPages: bookData.pages.length
               });
               
               // Find the page index for this page number
@@ -282,25 +282,50 @@ function BookReader() {
                 return;
               }
               
-              // Use the exact position from database
-              const position = `${pageIndex}-${wordPosition}`;
+              console.log(`Found page index: ${pageIndex} for page number ${pageNum}`);
+              
+              // Find all occurrences of this word on this page
+              const pageText = bookData.pages[pageIndex].text;
+              const cleanPageText = pageText
+                .replace(/<[^>]+>/g, '') // Remove HTML tags
+                .replace(/[\u064B-\u065F\u0670]/g, '') // Remove diacritics
+                .replace(/[،؛؟.!:()\[\]{}«»""'']/g, ''); // Remove punctuation
+              
+              const words = cleanPageText.split(/\s+/).filter(w => w.trim());
               const cleanWord = word
                 .replace(/[\u064B-\u065F\u0670]/g, '')
                 .replace(/[،؛؟.!:()\[\]{}«»""'']/g, '');
               
-              if (!translations[cleanWord]) {
-                translations[cleanWord] = {};
-              }
-              translations[cleanWord][position] = translation;
+              console.log(`Looking for "${cleanWord}" in ${words.length} words on page ${pageNum}`);
               
-              console.log(`✅ Loaded "${word}" at position ${position}, translation: "${translation}"`);
+              // Find all positions where this word appears
+              let foundOnPage = false;
+              words.forEach((pageWord, wordIndex) => {
+                const cleanPageWord = pageWord.trim();
+                if (cleanPageWord === cleanWord) {
+                  const position = `${pageIndex}-${wordIndex}`;
+                  if (!translations[cleanWord]) {
+                    translations[cleanWord] = {};
+                  }
+                  translations[cleanWord][position] = translation;
+                  console.log(`✅ Found "${word}" at position ${position}, translation: "${translation}"`);
+                  foundOnPage = true;
+                  foundCount++;
+                }
+              });
+              
+              if (!foundOnPage) {
+                console.log(`❌ Word "${cleanWord}" NOT found on page ${pageNum} (index ${pageIndex})`);
+                console.log('First 10 words on page:', words.slice(0, 10));
+              }
             });
             
-            console.log(`\n📊 Loaded ${data.vocabulary.length} vocabulary items from database`);
+            console.log(`\n� Summary: Found ${foundCount} word occurrences out of ${data.vocabulary.length} vocabulary items`);
             console.log('📝 Final translations object:', translations);
             console.log('Setting inline translations...');
             
-            setInlineTranslations(prev => ({ ...prev, ...translations }));
+            setInlineTranslations(translations);
+            setVocabularyLoaded(true);
             
             console.log('✅ Vocabulary loading complete');
           } else {
@@ -670,11 +695,6 @@ function BookReader() {
       console.log('Book ID:', bookId);
       console.log('Page:', currentPage?.page);
       console.log('Volume:', currentPage?.vol);
-      console.log('Position:', position);
-      
-      // Extract word position from position string (format: "pageIndex-wordIndex")
-      const wordPosition = position ? parseInt(position.split('-')[1]) : null;
-      console.log('Word position:', wordPosition);
       
       fetch('/api/vocabulary', {
         method: 'POST',
@@ -685,8 +705,7 @@ function BookReader() {
           translation: englishDef,
           book_id: parseInt(bookId),
           page_number: currentPage?.page || null,
-          volume_number: currentPage?.vol || null,
-          word_position: wordPosition
+          volume_number: currentPage?.vol || null
         })
       })
         .then(res => res.json())
