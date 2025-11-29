@@ -20,114 +20,148 @@ function Subscribe() {
   useEffect(() => {
     if (!user) return;
 
-    // Load PayPal SDK script
-    const script = document.createElement('script');
-    script.src = `https://www.paypal.com/sdk/js?client-id=${paypalClientId}&vault=true&intent=subscription`;
-    script.async = true;
+    // Check if PayPal script already exists
+    let script = document.querySelector(`script[src*="paypal.com/sdk/js"]`);
     
-    script.onload = () => {
-      // Initialize Monthly button
-      if (window.paypal) {
-        window.paypal.Buttons({
-          style: {
-            shape: 'rect',
-            color: 'gold',
-            layout: 'vertical',
-            label: 'subscribe'
-          },
-          createSubscription: function(data, actions) {
-            return actions.subscription.create({
-              plan_id: monthlyPlanId
-            });
-          },
-          onApprove: async function(data, actions) {
-            try {
-              const response = await fetch('http://localhost:5001/api/subscription/create', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  user_id: user.id,
-                  subscription_id: data.subscriptionID,
-                  plan_id: monthlyPlanId,
-                  subscription_type: 'monthly'
-                })
-              });
-
-              const result = await response.json();
-              if (result.success) {
-                alert('Subscription activated! You now have unlimited vocabulary access.');
-                navigate('/browse');
-              } else {
-                alert('Error activating subscription. Please contact support.');
-              }
-            } catch (error) {
-              console.error('Error creating subscription:', error);
-              alert('Error activating subscription. Please contact support.');
-            }
-          },
-          onError: function(err) {
-            console.error('PayPal error:', err);
-            alert('Payment failed. Please try again.');
-          }
-        }).render('#paypal-button-monthly');
-
-        // Initialize Annual button
-        window.paypal.Buttons({
-          style: {
-            shape: 'rect',
-            color: 'gold',
-            layout: 'vertical',
-            label: 'subscribe'
-          },
-          createSubscription: function(data, actions) {
-            return actions.subscription.create({
-              plan_id: annualPlanId
-            });
-          },
-          onApprove: async function(data, actions) {
-            try {
-              const response = await fetch('http://localhost:5001/api/subscription/create', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  user_id: user.id,
-                  subscription_id: data.subscriptionID,
-                  plan_id: annualPlanId,
-                  subscription_type: 'annual'
-                })
-              });
-
-              const result = await response.json();
-              if (result.success) {
-                alert('Subscription activated! You now have unlimited vocabulary access.');
-                navigate('/browse');
-              } else {
-                alert('Error activating subscription. Please contact support.');
-              }
-            } catch (error) {
-              console.error('Error creating subscription:', error);
-              alert('Error activating subscription. Please contact support.');
-            }
-          },
-          onError: function(err) {
-            console.error('PayPal error:', err);
-            alert('Payment failed. Please try again.');
-          }
-        }).render('#paypal-button-annual');
+    const initializeButtons = () => {
+      if (!window.paypal) {
+        console.error('PayPal SDK not loaded');
+        return;
       }
+
+      console.log('Initializing PayPal buttons...');
+      
+      // Clear any existing buttons
+      const monthlyContainer = document.getElementById('paypal-button-monthly');
+      const annualContainer = document.getElementById('paypal-button-annual');
+      
+      if (monthlyContainer) monthlyContainer.innerHTML = '';
+      if (annualContainer) annualContainer.innerHTML = '';
+
+      // Initialize Monthly button
+      window.paypal.Buttons({
+        style: {
+          shape: 'rect',
+          color: 'gold',
+          layout: 'vertical',
+          label: 'subscribe'
+        },
+        createSubscription: function(data, actions) {
+          console.log('Creating monthly subscription...');
+          return actions.subscription.create({
+            plan_id: monthlyPlanId
+          });
+        },
+        onApprove: async function(data, actions) {
+          console.log('Subscription approved:', data);
+          try {
+            const response = await fetch('http://localhost:5000/api/subscription/create', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                user_id: user.id,
+                paypal_subscription_id: data.subscriptionID,
+                paypal_plan_id: monthlyPlanId,
+                subscription_type: 'monthly'
+              })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+              alert('Subscription activated! You now have unlimited vocabulary access.');
+              window.location.href = '/browse';
+            } else {
+              alert('Error activating subscription. Please contact support.');
+            }
+          } catch (error) {
+            console.error('Error creating subscription:', error);
+            alert('Error activating subscription. Please contact support.');
+          }
+        },
+        onError: function(err) {
+          console.error('PayPal error:', err);
+          alert('Payment failed. Please try again.');
+        }
+      }).render('#paypal-button-monthly').catch(err => {
+        console.error('Error rendering monthly button:', err);
+      });
+
+      // Initialize Annual button
+      window.paypal.Buttons({
+        style: {
+          shape: 'rect',
+          color: 'gold',
+          layout: 'vertical',
+          label: 'subscribe'
+        },
+        createSubscription: function(data, actions) {
+          console.log('Creating annual subscription...');
+          return actions.subscription.create({
+            plan_id: annualPlanId
+          });
+        },
+        onApprove: async function(data, actions) {
+          console.log('Subscription approved:', data);
+          try {
+            const response = await fetch('http://localhost:5000/api/subscription/create', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                user_id: user.id,
+                paypal_subscription_id: data.subscriptionID,
+                paypal_plan_id: annualPlanId,
+                subscription_type: 'annual'
+              })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+              alert('Subscription activated! You now have unlimited vocabulary access.');
+              window.location.href = '/browse';
+            } else {
+              alert('Error activating subscription. Please contact support.');
+            }
+          } catch (error) {
+            console.error('Error creating subscription:', error);
+            alert('Error activating subscription. Please contact support.');
+          }
+        },
+        onError: function(err) {
+          console.error('PayPal error:', err);
+          alert('Payment failed. Please try again.');
+        }
+      }).render('#paypal-button-annual').catch(err => {
+        console.error('Error rendering annual button:', err);
+      });
     };
 
-    document.head.appendChild(script);
+    if (!script) {
+      // Load PayPal SDK script
+      script = document.createElement('script');
+      script.src = `https://www.paypal.com/sdk/js?client-id=${paypalClientId}&vault=true&intent=subscription`;
+      script.async = true;
+      
+      script.onload = () => {
+        console.log('PayPal SDK loaded');
+        initializeButtons();
+      };
+
+      script.onerror = () => {
+        console.error('Failed to load PayPal SDK');
+      };
+
+      document.head.appendChild(script);
+    } else if (window.paypal) {
+      // Script already loaded, just initialize buttons
+      initializeButtons();
+    }
 
     return () => {
-      const existingScript = document.querySelector(`script[src*="paypal.com/sdk/js"]`);
-      if (existingScript) {
-        existingScript.remove();
-      }
+      // Don't remove the script on unmount to avoid reload issues
     };
   }, [user, monthlyPlanId, annualPlanId, paypalClientId, navigate]);
 
@@ -159,107 +193,6 @@ function Subscribe() {
           </p>
         </div>
 
-        {/* Free vs Premium Comparison */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '30px',
-          marginBottom: '50px'
-        }}>
-          {/* Free Tier */}
-          <div style={{
-            background: 'white',
-            borderRadius: '16px',
-            padding: '30px',
-            border: '2px solid #e5e7eb'
-          }}>
-            <h3 style={{
-              fontSize: '1.5rem',
-              color: '#2c3e50',
-              marginBottom: '10px'
-            }}>Free</h3>
-            <div style={{
-              fontSize: '2rem',
-              fontWeight: '700',
-              color: '#2c3e50',
-              marginBottom: '20px'
-            }}>$0</div>
-            <ul style={{
-              listStyle: 'none',
-              padding: 0,
-              margin: 0
-            }}>
-              <li style={{ padding: '10px 0', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>
-                ✓ Access to 2000+ texts
-              </li>
-              <li style={{ padding: '10px 0', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>
-                ✓ Smart dictionary
-              </li>
-              <li style={{ padding: '10px 0', borderBottom: '1px solid #f3f4f6', color: '#6b7280' }}>
-                ✓ 5 vocabulary words
-              </li>
-              <li style={{ padding: '10px 0', color: '#d1d5db' }}>
-                ✗ Unlimited vocabulary
-              </li>
-              <li style={{ padding: '10px 0', color: '#d1d5db' }}>
-                ✗ Spaced repetition flashcards
-              </li>
-            </ul>
-          </div>
-
-          {/* Premium Tier */}
-          <div style={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            borderRadius: '16px',
-            padding: '30px',
-            color: 'white',
-            position: 'relative',
-            boxShadow: '0 20px 40px rgba(102, 126, 234, 0.3)'
-          }}>
-            <div style={{
-              position: 'absolute',
-              top: '-12px',
-              right: '20px',
-              background: '#f59e0b',
-              color: 'white',
-              padding: '6px 16px',
-              borderRadius: '20px',
-              fontSize: '0.85rem',
-              fontWeight: '600'
-            }}>RECOMMENDED</div>
-            <h3 style={{
-              fontSize: '1.5rem',
-              marginBottom: '10px'
-            }}>Premium</h3>
-            <div style={{
-              fontSize: '2rem',
-              fontWeight: '700',
-              marginBottom: '20px'
-            }}>$4.99<span style={{ fontSize: '1rem', fontWeight: '400' }}>/month</span></div>
-            <ul style={{
-              listStyle: 'none',
-              padding: 0,
-              margin: 0
-            }}>
-              <li style={{ padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
-                ✓ Everything in Free
-              </li>
-              <li style={{ padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
-                ✓ Unlimited vocabulary words
-              </li>
-              <li style={{ padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
-                ✓ Spaced repetition flashcards
-              </li>
-              <li style={{ padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.2)' }}>
-                ✓ Progress tracking
-              </li>
-              <li style={{ padding: '10px 0' }}>
-                ✓ Priority support
-              </li>
-            </ul>
-          </div>
-        </div>
-
         {/* Payment Options */}
         <div style={{
           background: 'white',
@@ -280,26 +213,6 @@ function Subscribe() {
             gap: '20px',
             flexWrap: 'wrap'
           }}>
-            {/* Monthly Plan */}
-            <div style={{
-              border: '2px solid #e5e7eb',
-              borderRadius: '12px',
-              padding: '30px',
-              minWidth: '280px',
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: '1.25rem', fontWeight: '600', color: '#2c3e50', marginBottom: '10px' }}>
-                Monthly
-              </div>
-              <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#667eea', marginBottom: '5px' }}>
-                $4.99
-              </div>
-              <div style={{ fontSize: '0.9rem', color: '#6b7280', marginBottom: '25px' }}>
-                per month
-              </div>
-              <div id="paypal-button-monthly"></div>
-            </div>
-
             {/* Annual Plan */}
             <div style={{
               border: '2px solid #667eea',
@@ -323,16 +236,27 @@ function Subscribe() {
               <div style={{ fontSize: '1.25rem', fontWeight: '600', color: '#2c3e50', marginBottom: '10px' }}>
                 Annual
               </div>
-              <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#667eea', marginBottom: '5px' }}>
+              <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#667eea', marginBottom: '20px' }}>
                 $49.99
               </div>
-              <div style={{ fontSize: '0.9rem', color: '#6b7280', marginBottom: '5px' }}>
-                per year
-              </div>
-              <div style={{ fontSize: '0.85rem', color: '#10b981', marginBottom: '20px', fontWeight: '600' }}>
-                ($4.16/month)
-              </div>
               <div id="paypal-button-annual"></div>
+            </div>
+
+            {/* Monthly Plan */}
+            <div style={{
+              border: '2px solid #e5e7eb',
+              borderRadius: '12px',
+              padding: '30px',
+              minWidth: '280px',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '1.25rem', fontWeight: '600', color: '#2c3e50', marginBottom: '10px' }}>
+                Monthly
+              </div>
+              <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#667eea', marginBottom: '20px' }}>
+                $4.99
+              </div>
+              <div id="paypal-button-monthly"></div>
             </div>
           </div>
 

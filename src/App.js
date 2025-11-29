@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from '
 import './App.css';
 import VocabularyPractice from './VocabularyPractice';
 import Subscribe from './Subscribe';
+import Account from './Account';
 
 export const UserContext = createContext(null);
 
@@ -161,6 +162,8 @@ function Browse() {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [recentlyReadBooks, setRecentlyReadBooks] = useState([]);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   // Redirect to landing if not logged in
   useEffect(() => {
@@ -168,6 +171,29 @@ function Browse() {
       navigate('/');
     }
   }, [user, navigate]);
+
+  // Check subscription status
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!user) return;
+      
+      try {
+        const response = await fetch(`http://localhost:5000/api/subscription/status/${user.id}`);
+        const data = await response.json();
+        
+        if (data.success && data.is_premium) {
+          setHasActiveSubscription(true);
+        } else {
+          setHasActiveSubscription(false);
+        }
+      } catch (err) {
+        console.error('Failed to check subscription:', err);
+        setHasActiveSubscription(false);
+      }
+    };
+    
+    checkSubscription();
+  }, [user]);
 
   // Fetch categories on mount
   useEffect(() => {
@@ -249,10 +275,37 @@ function Browse() {
   return (
     <div className="book-selection-screen">
       {/* Header with user actions */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', padding: '15px 40px', background: 'white', borderBottom: '1px solid #e1e4e8' }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '15px 40px', background: 'white', borderBottom: '1px solid #e1e4e8', position: 'relative' }}>
         {user ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative' }}>
             <span style={{ color: '#2c3e50', fontWeight: '500', fontSize: '0.95rem' }}>{user.name}</span>
+            {!hasActiveSubscription && (
+              <button 
+                onClick={() => navigate('/subscribe')} 
+                style={{ 
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+                  color: 'white', 
+                  border: 'none', 
+                  padding: '8px 16px', 
+                  borderRadius: '6px', 
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: '600',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  boxShadow: '0 2px 8px rgba(102, 126, 234, 0.3)'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.transform = 'translateY(-1px)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.3)';
+                }}
+              >
+                Upgrade to Premium
+              </button>
+            )}
             <button 
               onClick={() => navigate('/vocabulary/practice')} 
               style={{ 
@@ -272,25 +325,27 @@ function Browse() {
               Practice
             </button>
             <button 
-              onClick={() => {
-                setUser(null);
-                localStorage.removeItem('user');
-              }} 
+              onClick={() => navigate('/account')}
               style={{ 
-                background: '#e74c3c', 
-                color: 'white', 
-                border: 'none', 
-                padding: '8px 16px', 
-                borderRadius: '6px', 
+                background: 'transparent',
+                border: 'none',
                 cursor: 'pointer',
-                fontSize: '0.9rem',
-                fontWeight: '500',
-                transition: 'opacity 0.2s'
+                padding: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: '50%',
+                transition: 'background 0.2s',
+                width: '36px',
+                height: '36px'
               }}
-              onMouseOver={(e) => e.target.style.opacity = '0.9'}
-              onMouseOut={(e) => e.target.style.opacity = '1'}
+              onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
+              onMouseOut={(e) => e.target.style.background = 'transparent'}
             >
-              Logout
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M12 1v6m0 6v6m8.66-9l-5.2 3M8.54 14l-5.2 3m13.32 0l-5.2-3M8.54 10l-5.2-3"/>
+              </svg>
             </button>
           </div>
         ) : (
@@ -1550,6 +1605,7 @@ function AppContent() {
           <Route path="/" element={<Landing />} />
           <Route path="/browse" element={<Browse />} />
           <Route path="/subscribe" element={<Subscribe />} />
+          <Route path="/account" element={<Account />} />
           <Route path="/book/:bookId" element={<BookReader />} />
           <Route path="/vocabulary/practice" element={<VocabularyPractice />} />
           <Route path="/vocabulary/practice/:bookId" element={<VocabularyPractice />} />
