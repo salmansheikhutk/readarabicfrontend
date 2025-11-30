@@ -365,7 +365,7 @@ function Browse() {
       if (!user) return;
       
       try {
-        const response = await fetch(`http://localhost:5000/api/subscription/status/${user.id}`);
+        const response = await fetch(`${API_URL}/api/subscription/status/${user.id}`);
         const data = await response.json();
         
         if (data.success && data.is_premium) {
