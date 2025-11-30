@@ -1,0 +1,1410 @@
+.app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Arabic text styling */
+.book-page {
+  font-family: 'Amiri', 'Scheherazade New', serif;
+  font-size: 1.3rem;
+  line-height: 2.2;
+  font-weight: 500;
+}
+
+.page-text {
+  font-family: 'Amiri', 'Scheherazade New', serif;
+  font-size: 1.3rem;
+  line-height: 2.2;
+  font-weight: 500;
+}
+
+/* Sidebar */
+.sidebar {
+  background: #2c3e50;
+  color: white;
+  transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.sidebar.open {
+  width: 300px;
+}
+
+.sidebar.closed {
+  width: 60px;
+}
+
+.sidebar-header {
+  padding: 20px;
+  background: #1a252f;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.sidebar-header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.toggle-sidebar {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.toggle-sidebar:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+/* Dictionary Section */
+.dictionary-section {
+  padding: 10px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.dictionary-section h3 {
+  color: white;
+  font-size: 0.95rem;
+  margin: 0 0 10px 0;
+  text-align: left;
+}
+
+.empty-dict {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.85rem;
+  font-style: italic;
+  text-align: center;
+  padding: 10px;
+}
+
+.dictionary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.dict-item {
+  padding: 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.dict-arabic {
+  font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #3498db;
+  direction: rtl;
+  text-align: right;
+  margin-bottom: 3px;
+}
+
+.dict-english {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.8);
+  text-align: left;
+  flex: 1;
+}
+
+.dict-actions {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.dict-btn {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.dict-btn:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.dict-btn-edit {
+  background: rgba(52, 152, 219, 0.3);
+}
+
+.dict-btn-edit:hover {
+  background: rgba(52, 152, 219, 0.5);
+}
+
+.dict-btn-delete {
+  background: rgba(231, 76, 60, 0.3);
+}
+
+.dict-btn-delete:hover {
+  background: rgba(231, 76, 60, 0.5);
+}
+
+.dict-btn-save {
+  background: rgba(46, 204, 113, 0.3);
+}
+
+.dict-btn-save:hover {
+  background: rgba(46, 204, 113, 0.5);
+}
+
+.dict-btn-cancel {
+  background: rgba(149, 165, 166, 0.3);
+}
+
+.dict-btn-cancel:hover {
+  background: rgba(149, 165, 166, 0.5);
+}
+
+.dict-edit-controls {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.dict-edit-input {
+  flex: 1;
+  padding: 6px 8px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 3px;
+  color: white;
+  font-size: 0.85rem;
+}
+
+.dict-edit-input:focus {
+  outline: none;
+  border-color: #3498db;
+  background: rgba(255,255,255,0.2);
+}
+
+.dict-more {
+  text-align: center;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.8rem;
+  font-style: italic;
+  padding: 5px;
+}
+
+.divider {
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+  margin: 15px 0;
+}
+
+.book-id-input-section {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.book-id-input-section h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: white;
+}
+
+.book-id-input-section form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.book-id-input {
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  font-size: 1rem;
+}
+
+.book-id-input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.book-id-input:focus {
+  outline: none;
+  border-color: #3498db;
+  background: rgba(255,255,255,0.15);
+}
+
+.book-id-submit {
+  padding: 10px 20px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.book-id-submit:hover:not(:disabled) {
+  background: #2980b9;
+}
+
+.book-id-submit:disabled {
+  background: #7f8c8d;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 0.9rem;
+  margin: 0;
+  padding: 8px;
+  background: rgba(231, 76, 60, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.pdf-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pdf-item {
+  padding: 15px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+
+.pdf-item:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateX(5px);
+}
+
+.pdf-item.active {
+  background: rgba(52, 152, 219, 0.3);
+  border-color: #3498db;
+}
+
+.pdf-name {
+  font-weight: 500;
+  margin-bottom: 5px;
+  word-break: break-word;
+  font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif;
+  font-size: 1.1rem;
+  direction: rtl;
+  text-align: right;
+}
+
+.pdf-info {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.6);
+  font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif;
+  direction: rtl;
+  text-align: right;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: #f6f8fa;
+  height: 100vh;
+}
+
+.empty-state {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #7f8c8d;
+}
+
+.empty-state h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #2c3e50;
+}
+
+.empty-state p {
+  font-size: 1.1rem;
+}
+
+/* PDF Viewer */
+.pdf-viewer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pdf-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  padding: 15px 20px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.nav-button {
+  padding: 10px 20px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.nav-button:hover:not(:disabled) {
+  background: #2980b9;
+}
+
+.nav-button:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #2c3e50;
+  min-width: 150px;
+  text-align: center;
+}
+
+.pdf-document {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background: #ecf0f1;
+}
+
+.book-page {
+  background: white;
+  padding: 40px;
+  max-width: 900px;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  line-height: 2.2;
+  direction: rtl;
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.page-meta {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #ecf0f1;
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  direction: ltr;
+  text-align: left;
+}
+
+.page-text {
+  font-size: 1.4rem;
+  color: #1a1a1a;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', 'Traditional Arabic', 'Times New Roman', serif;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  max-width: 100%;
+}
+
+/* Style for chapter/section titles in the page text */
+.page-text span[data-type="title"],
+.page-title-inline {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 40px 0 25px 0;
+  padding-bottom: 15px;
+  border-bottom: 3px double #8b7355;
+  text-align: center;
+  line-height: 1.8;
+  font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif;
+}
+
+.word-wrapper {
+  display: inline;
+}
+
+.word-with-translation {
+  position: relative;
+  display: inline-block;
+  background-color: rgba(52, 152, 219, 0.1);
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.inline-translation-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  margin-bottom: 3px;
+}
+
+.inline-translation {
+  display: block;
+  font-size: 0.7rem;
+  color: #2980b9;
+  font-weight: 600;
+  direction: ltr;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.inline-translation:hover {
+  background: rgba(41, 128, 185, 0.1);
+  color: #1a5490;
+}
+
+.inline-delete-btn {
+  font-size: 0.6rem;
+  padding: 1px 3px;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  background: rgba(231, 76, 60, 0.7);
+  color: white;
+  opacity: 0;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.inline-translation-wrapper:hover .inline-delete-btn {
+  opacity: 1;
+}
+
+.inline-delete-btn:hover {
+  background: #e74c3c;
+  transform: scale(1.1);
+}
+
+.inline-translation-edit {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 3px;
+  align-items: center;
+  justify-content: center;
+}
+
+.inline-edit-input {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border: 1px solid #3498db;
+  border-radius: 3px;
+  background: white;
+  color: #2c3e50;
+  font-family: Arial, sans-serif;
+  width: 100px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.inline-edit-input:focus {
+  outline: none;
+  border-color: #2980b9;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+}
+
+.inline-save-btn,
+.inline-cancel-btn {
+  font-size: 0.65rem;
+  padding: 2px 5px;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.inline-save-btn {
+  background: #27ae60;
+  color: white;
+}
+
+.inline-save-btn:hover {
+  background: #229954;
+}
+
+.inline-cancel-btn {
+  background: #95a5a6;
+  color: white;
+}
+
+.inline-cancel-btn:hover {
+  background: #7f8c8d;
+}
+
+/* Loading and Error States */
+.loading {
+  padding: 20px;
+  text-align: center;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+.error {
+  padding: 20px;
+  text-align: center;
+  color: #e74c3c;
+  background: #fadbd8;
+  border-radius: 6px;
+  margin: 10px;
+}
+
+/* Scrollbar Styling */
+.sidebar-content::-webkit-scrollbar,
+.pdf-document::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.1);
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 4px;
+}
+
+.pdf-document::-webkit-scrollbar-track {
+  background: #d5d8dc;
+}
+
+.pdf-document::-webkit-scrollbar-thumb {
+  background: #95a5a6;
+  border-radius: 4px;
+}
+
+/* Responsive Design */
+
+/* Translation Popup */
+.translation-popup {
+  position: absolute;
+  transform: translateX(-50%);
+  background: white;
+  color: #2c3e50;
+  border: 2px solid #3498db;
+  padding: 12px 16px;
+  border-radius: 8px;
+  max-width: 400px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  z-index: 1000;
+  margin-top: 8px;
+  width: fit-content;
+}
+
+/* Duplicate Options */
+.duplicate-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 280px;
+}
+
+.duplicate-header {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.duplicate-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.duplicate-option-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.duplicate-option-btn.use-existing {
+  border-color: #27ae60;
+}
+
+.duplicate-option-btn.use-existing:hover {
+  background: rgba(39, 174, 96, 0.1);
+}
+
+.duplicate-option-btn.lookup-other {
+  border-color: #3498db;
+}
+
+.duplicate-option-btn.lookup-other:hover {
+  background: rgba(52, 152, 219, 0.1);
+}
+
+.option-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.option-content {
+  flex: 1;
+}
+
+.option-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #2c3e50;
+  margin-bottom: 3px;
+}
+
+.option-subtitle {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  font-style: italic;
+}
+
+.translation-loading {
+  font-size: 0.95rem;
+  color: #7f8c8d;
+  font-style: italic;
+  text-align: center;
+}
+
+.translation-text {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #2c3e50;
+  white-space: pre-line;
+  font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.translation-text .voc-form {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Definition Rows */
+.definitions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.definition-row {
+  padding: 8px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  direction: rtl;
+  text-align: right;
+}
+
+.definition-row:hover {
+  background-color: #27ae60;
+  color: white;
+}
+
+.def-number {
+  font-weight: 500;
+  min-width: 20px;
+}
+
+.definition-row .voc-form {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif;
+}
+
+.def-separator {
+  opacity: 0.6;
+}
+
+.def-gloss {
+  font-size: 0.95rem;
+}
+
+.def-root {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Table of Contents */
+.toc-header {
+  padding: 15px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.back-button {
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+  width: 100%;
+  transition: background 0.2s;
+}
+
+.back-button:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+.toc-header h3 {
+  color: white;
+  font-size: 1rem;
+  margin: 0;
+  font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif;
+  direction: rtl;
+  text-align: right;
+}
+
+.toc-list {
+  padding: 10px;
+}
+
+.toc-item {
+  padding: 10px 15px;
+  margin: 5px 0;
+  background: rgba(255,255,255,0.05);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  direction: rtl;
+}
+
+.toc-item:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateX(-5px);
+}
+
+.toc-item.level-1 {
+  margin-left: 0;
+}
+
+.toc-item.level-2 {
+  margin-left: 20px;
+  font-size: 0.9rem;
+}
+
+.toc-title {
+  color: white;
+  font-family: 'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif;
+  flex: 1;
+  text-align: right;
+}
+
+.toc-page {
+  color: rgba(255,255,255,0.6);
+  font-size: 0.85rem;
+  margin-left: 10px;
+  direction: ltr;
+}
+
+/* Book Selection Screen - Main Content */
+.book-selection-screen {
+  padding: 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  overflow-y: auto;
+}
+
+.welcome-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.welcome-header h1 {
+  font-size: 2.8rem;
+  color: #1a1a1a;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+}
+
+.welcome-header p {
+  font-size: 1.3rem;
+  color: #666;
+  margin: 0;
+  font-weight: 400;
+}
+
+.main-search-bar {
+  margin-bottom: 40px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.main-search-input {
+  width: 100%;
+  padding: 16px 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  transition: all 0.3s;
+  box-sizing: border-box;
+}
+
+.main-search-input:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.main-categories-section {
+  margin-bottom: 40px;
+}
+
+.main-categories-section h3 {
+  font-size: 1.7rem;
+  color: #2c3e50;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.main-authors-section {
+  margin-bottom: 40px;
+}
+
+.main-authors-section h3 {
+  font-size: 1.7rem;
+  color: #2c3e50;
+  margin: 0 0 20px 0;
+  font-weight: 600;
+}
+
+.main-authors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.main-categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.main-category-card {
+  background: #f8f9fa;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 60px;
+}
+
+.main-category-card:hover {
+  background: #fff;
+  border-color: #0366d6;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.main-category-card.active {
+  background: #0366d6;
+  border-color: #0366d6;
+  color: white;
+  box-shadow: 0 2px 8px rgba(3,102,214,0.3);
+}
+
+.category-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-family: 'Amiri', 'Scheherazade New', 'Traditional Arabic', 'Noto Naskh Arabic', serif;
+  direction: rtl;
+  text-align: center;
+}
+
+.category-count {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(0,0,0,0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.main-category-card.active .category-count {
+  background: rgba(255,255,255,0.25);
+}
+
+.main-books-section {
+  margin-top: 0;
+}
+
+.main-books-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding-bottom: 40px;
+}
+
+.main-book-card {
+  background: #fff;
+  border: 1px solid #e1e4e8;
+  border-radius: 6px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.main-book-card:hover {
+  border-color: #0366d6;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+}
+
+.book-category-badge {
+  background: #f1f8ff;
+  color: #0366d6;
+  padding: 5px 14px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 8px;
+  font-family: 'Amiri', 'Scheherazade New', 'Traditional Arabic', 'Noto Naskh Arabic', serif;
+}
+
+.book-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.book-title {
+  font-size: 1.3rem;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+  font-weight: 700;
+  line-height: 1.6;
+  font-family: 'Amiri', 'Scheherazade New', 'Traditional Arabic', 'Noto Naskh Arabic', serif;
+  direction: rtl;
+  text-align: right;
+}
+
+.book-author {
+  font-size: 1.05rem;
+  color: #586069;
+  line-height: 1.5;
+  margin: 0 0 6px 0;
+  font-family: 'Amiri', 'Scheherazade New', 'Traditional Arabic', 'Noto Naskh Arabic', serif;
+  direction: rtl;
+  text-align: right;
+}
+
+.book-pages {
+  font-size: 0.95rem;
+  color: #959da5;
+  margin: 0;
+  font-family: 'Amiri', 'Scheherazade New', 'Traditional Arabic', 'Noto Naskh Arabic', serif;
+  direction: rtl;
+  text-align: right;
+  font-weight: 500;
+}
+
+.book-description {
+  font-size: 0.9rem;
+  color: #586069;
+  line-height: 1.7;
+  margin: 0;
+  font-family: 'Amiri', 'Scheherazade New', 'Traditional Arabic', 'Noto Naskh Arabic', serif;
+  direction: rtl;
+  text-align: right;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.retry-btn {
+  margin-top: 20px;
+  padding: 10px 24px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.retry-btn:hover {
+  background: #2980b9;
+}
+
+.empty-books-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #7f8c8d;
+}
+
+.empty-subtitle {
+  font-size: 0.9rem;
+  margin-top: 10px;
+  opacity: 0.7;
+}
+
+/* Browse Books Styles */
+.browse-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 10px;
+}
+
+.browse-section h3 {
+  margin: 0 0 10px 0;
+  color: white;
+  font-size: 1.2rem;
+}
+
+.browse-section h4 {
+  margin: 0 0 10px 0;
+  color: rgba(255,255,255,0.9);
+  font-size: 0.95rem;
+}
+
+.search-bar {
+  margin-bottom: 10px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+
+.search-input::placeholder {
+  color: rgba(255,255,255,0.5);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3498db;
+  background: rgba(255,255,255,0.15);
+}
+
+.categories-section {
+  background: rgba(255,255,255,0.05);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.categories-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.category-btn {
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.08);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.category-btn:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.2);
+}
+
+.category-btn.active {
+  background: #3498db;
+  border-color: #3498db;
+  font-weight: 600;
+}
+
+.books-section {
+  margin-top: 10px;
+}
+
+.no-results {
+  color: rgba(255,255,255,0.6);
+  text-align: center;
+  padding: 20px;
+  font-style: italic;
+}
+
+.pdf-category {
+  color: #3498db;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.browse-btn {
+  width: 100%;
+  padding: 12px 20px;
+  background: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.browse-btn:hover:not(:disabled) {
+  background: #229954;
+}
+
+.browse-btn:disabled {
+  background: #7f8c8d;
+  cursor: not-allowed;
+}
+
+.divider-text {
+  text-align: center;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.9rem;
+  margin: 10px 0;
+  position: relative;
+}
+
+.divider-text::before,
+.divider-text::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background: rgba(255,255,255,0.2);
+}
+
+.divider-text::before {
+  left: 0;
+}
+
+.divider-text::after {
+  right: 0;
+}
+
+.input-option {
+  margin-bottom: 15px;
+}
+
+.input-option h4 {
+  margin: 0 0 10px 0;
+  color: white;
+  font-size: 1rem;
+}
+
+/* Login Prompt */
+.login-prompt {
+  text-align: center;
+  padding: 10px;
+}
+
+.login-prompt p {
+  margin: 0 0 12px 0;
+  font-size: 0.95rem;
+  color: #2c3e50;
+}
+
+.google-login-btn {
+  background: #4285f4;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.google-login-btn:hover {
+  background: #357ae8;
+}
+
+/* User Info */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  width: 100%;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.user-name {
+  flex: 1;
+  font-size: 0.9rem;
+  color: white;
+  font-weight: 500;
+}
+
+.user-info span {
+  font-size: 0.9rem;
+  color: white;
+}
+
+.logout-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+@media (max-width: 768px) {
+  .sidebar.open {
+    width: 250px;
+  }
+  
+  .pdf-controls {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .nav-button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+}
