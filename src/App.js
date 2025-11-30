@@ -581,6 +581,7 @@ function BookReader() {
   const selectionRangeRef = React.useRef(null); // Store the selection range
   const tocRef = React.useRef(null); // Reference to TOC container
   const isNavigatingRef = React.useRef(false); // Flag to prevent observer interference during navigation
+  const [saveErrorMessage, setSaveErrorMessage] = useState(''); // Show styled error message
 
   useEffect(() => {
     localStorage.setItem('readarabic-dictionary', JSON.stringify(dictionary));
@@ -1037,6 +1038,10 @@ function BookReader() {
     
     if (!position) {
       console.error('Could not determine word position');
+      // Close the translation popup and show error message
+      setShowTranslation(false);
+      setShowDuplicateOptions(false);
+      setSaveErrorMessage('Could not save, we are working on this.');
       return;
     }
     
@@ -1518,6 +1523,54 @@ function BookReader() {
           ) : (
             <div className="translation-text">No definition found</div>
           )}
+        </div>
+      )}
+
+      {/* Save Error Message */}
+      {saveErrorMessage && (
+        <div
+          className="save-error-popup"
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'white',
+            border: '1px solid #d1d5db',
+            borderRadius: '8px',
+            padding: '20px',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            zIndex: 1000,
+            maxWidth: '350px',
+            textAlign: 'center'
+          }}
+          onClick={() => setSaveErrorMessage('')}
+        >
+          <div style={{
+            color: '#374151',
+            fontSize: '1rem',
+            lineHeight: '1.5',
+            marginBottom: '16px'
+          }}>
+            {saveErrorMessage}
+          </div>
+          <button
+            style={{
+              background: '#f3f4f6',
+              color: '#374151',
+              border: '1px solid #d1d5db',
+              padding: '6px 12px',
+              borderRadius: '4px',
+              fontSize: '0.85rem',
+              fontWeight: '500',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => e.target.style.background = '#e5e7eb'}
+            onMouseOut={(e) => e.target.style.background = '#f3f4f6'}
+          >
+            OK
+          </button>
         </div>
       )}
 
