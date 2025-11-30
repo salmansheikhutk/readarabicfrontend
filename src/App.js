@@ -706,9 +706,6 @@ function BookReader() {
   }, [currentPageIndex, bookData]);
 
   const scrollToPage = (pageIndex) => {
-    const pageObject = bookData?.pages?.[pageIndex];
-    console.log(`scrollToPage: index=${pageIndex}, actual page number at this index=${pageObject?.page}`);
-    
     // Disable observer updates during navigation
     isNavigatingRef.current = true;
     
@@ -1561,7 +1558,6 @@ function BookReader() {
                       // Disable observer immediately
                       isNavigatingRef.current = true;
                       
-                      console.log(`TOC Click: "${heading.title}" -> Page ${actualPageNumber} -> Index ${targetPageIndex}`);
                       
                       // Always update currentPageIndex first to ensure page is loaded
                       setCurrentPageIndex(targetPageIndex);
