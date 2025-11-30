@@ -1549,17 +1549,22 @@ function BookReader() {
           </div>
 
           <div className="pdf-document">
-            {bookData?.pages?.map((page, index) => (
-              <div key={index} id={`page-${index}`} className="book-page">
-                <div className="page-meta">
-                  <span>Volume: {page.vol}</span>
-                  <span>Page: {page.page}</span>
+            {bookData?.pages?.map((page, index) => {
+              // Only render pages within a range of the current page for performance
+              const isNearCurrentPage = Math.abs(index - currentPageIndex) <= 2;
+              
+              return (
+                <div key={index} id={`page-${index}`} className="book-page">
+                  <div className="page-meta">
+                    <span>Volume: {page.vol}</span>
+                    <span>Page: {page.page}</span>
+                  </div>
+                  <div className="page-text">
+                    {isNearCurrentPage ? renderPageText(page.text, index) : <div style={{ minHeight: '500px' }}>Loading...</div>}
+                  </div>
                 </div>
-                <div className="page-text">
-                  {renderPageText(page.text, index)}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
