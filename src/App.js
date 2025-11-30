@@ -5,6 +5,9 @@ import VocabularyPractice from './VocabularyPractice';
 import Subscribe from './Subscribe';
 import Account from './Account';
 
+// API URL - use environment variable or default to current domain in production
+const API_URL = process.env.REACT_APP_API_URL || '';
+
 export const UserContext = createContext(null);
 
 // Landing page with sign-in button
@@ -199,7 +202,7 @@ function Browse() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('/api/categories');
+        const response = await fetch(`${API_URL}/api/categories`);
         const data = await response.json();
         if (data.success) {
           setCategories(data.categories);
