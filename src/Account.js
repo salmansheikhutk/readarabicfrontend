@@ -341,6 +341,36 @@ function Account() {
             Logout
           </button>
         </div>
+
+        {/* Contact Us */}
+        <div style={{
+          textAlign: 'center',
+          marginTop: '40px',
+          padding: '20px',
+          borderTop: '1px solid #e5e7eb'
+        }}>
+          <h3 style={{
+            fontSize: '1rem',
+            color: '#6b7280',
+            marginBottom: '10px',
+            fontWeight: '600'
+          }}>
+            Contact Us
+          </h3>
+          <a 
+            href="mailto:readarabic@protonmail.com"
+            style={{
+              color: '#667eea',
+              fontSize: '1rem',
+              textDecoration: 'none',
+              fontWeight: '500'
+            }}
+            onMouseOver={(e) => e.target.style.textDecoration = 'underline'}
+            onMouseOut={(e) => e.target.style.textDecoration = 'none'}
+          >
+            readarabic@protonmail.com
+          </a>
+        </div>
       </div>
     </div>
   );
