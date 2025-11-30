@@ -247,7 +247,7 @@ function Browse() {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [recentlyReadBooks, setRecentlyReadBooks] = useState([]);
-  const [hasActiveSubscription, setHasActiveSubscription] = useState(false);
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   // Redirect to landing if not logged in
@@ -364,7 +364,7 @@ function Browse() {
         {user ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative' }}>
             <span style={{ color: '#2c3e50', fontWeight: '500', fontSize: '0.95rem' }}>{user.name}</span>
-            {!hasActiveSubscription && (
+            {hasActiveSubscription === false && (
               <button 
                 onClick={() => navigate('/subscribe')} 
                 style={{ 
