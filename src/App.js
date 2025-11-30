@@ -1558,22 +1558,27 @@ function BookReader() {
                     data-page-index={targetPageIndex}
                     className={`toc-item level-${heading.level} ${isActive ? 'active' : ''}`}
                     onClick={() => {
-                      // Use the targetPageIndex directly - don't search for it!
-                      // heading.page already tells us which array index to use
+                      // Disable observer immediately
+                      isNavigatingRef.current = true;
                       
                       console.log(`TOC Click: "${heading.title}" -> Page ${actualPageNumber} -> Index ${targetPageIndex}`);
                       
-                      // Ensure the page is loaded
-                      if (Math.abs(targetPageIndex - currentPageIndex) > 2) {
-                        setCurrentPageIndex(targetPageIndex);
-                        setTimeout(() => {
-                          scrollToPage(targetPageIndex);
-                        }, 300);
-                      } else {
-                        scrollToPage(targetPageIndex);
-                      }
-                      
+                      // Always update currentPageIndex first to ensure page is loaded
+                      setCurrentPageIndex(targetPageIndex);
                       setShowToc(false);
+                      
+                      // Wait for page to render, then scroll
+                      setTimeout(() => {
+                        const element = document.getElementById(`page-${targetPageIndex}`);
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                        
+                        // Re-enable observer after scroll completes
+                        setTimeout(() => {
+                          isNavigatingRef.current = false;
+                        }, 1000);
+                      }, 150);
                     }}
                     style={isActive ? {
                       background: 'rgba(16, 185, 129, 0.15)',
