@@ -1,6 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from './App';
+
+// API URL - use environment variable or default to current domain in production
+const API_URL = process.env.REACT_APP_API_URL || '';
 
 function Account() {
   const { user, setUser } = useContext(UserContext);
@@ -17,7 +20,7 @@ function Account() {
     // Fetch subscription details
     const fetchSubscription = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/subscription/status/${user.id}`);
+        const response = await fetch(`${API_URL}/api/subscription/status/${user.id}`);
         const data = await response.json();
         
         if (data.success && data.subscription) {
@@ -48,7 +51,7 @@ function Account() {
     
     if (confirmed) {
       try {
-        const response = await fetch(`http://localhost:5000/api/subscription/cancel/${user.id}`, {
+        const response = await fetch(`${API_URL}/api/subscription/cancel/${user.id}`, {
           method: 'POST'
         });
         
@@ -56,7 +59,7 @@ function Account() {
         if (data.success) {
           alert('Subscription cancelled. You will retain access until the end of your billing period.');
           // Refresh subscription data
-          const refreshResponse = await fetch(`http://localhost:5000/api/subscription/status/${user.id}`);
+          const refreshResponse = await fetch(`${API_URL}/api/subscription/status/${user.id}`);
           const refreshData = await refreshResponse.json();
           if (refreshData.success && refreshData.subscription) {
             setSubscription(refreshData.subscription);

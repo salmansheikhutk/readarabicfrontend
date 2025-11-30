@@ -3,6 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { UserContext } from './App';
 import './VocabularyPractice.css';
 
+// API URL - use environment variable or default to current domain in production
+const API_URL = process.env.REACT_APP_API_URL || '';
+
 const VocabularyPractice = () => {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
@@ -68,7 +71,7 @@ const VocabularyPractice = () => {
     
     // Update vocabulary review on backend
     try {
-      await fetch(`/api/vocabulary/${currentWord.id}/review`, {
+      await fetch(`${API_URL}/api/vocabulary/${currentWord.id}/review`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ correct })

@@ -223,7 +223,7 @@ function Browse() {
       }
       
       try {
-        const response = await fetch(`/api/vocabulary/${user.id}/recent-books`);
+        const response = await fetch(`${API_URL}/api/vocabulary/${user.id}/recent-books`);
         const data = await response.json();
         
         if (data.success && data.books) {
@@ -579,7 +579,7 @@ function BookReader() {
   // Load user vocabulary from database when user logs in and book data is loaded
   useEffect(() => {
     if (user && bookId && bookData && !vocabularyLoaded) {
-      fetch(`/api/vocabulary/${user.id}?book_id=${bookId}`)
+      fetch(`${API_URL}/api/vocabulary/${user.id}?book_id=${bookId}`)
         .then(res => res.json())
         .then(data => {
           if (data.success && data.vocabulary.length > 0) {
@@ -640,7 +640,7 @@ function BookReader() {
       setVocabularyLoaded(false); // Reset vocabulary loaded flag
       
       try {
-        const response = await fetch(`/api/book/${bookId}`);
+        const response = await fetch(`${API_URL}/api/book/${bookId}`);
         const data = await response.json();
         
         if (data.success) {
@@ -783,7 +783,7 @@ function BookReader() {
         const words = text.split(/\s+/).filter(w => w.length > 0);
         if (words.length === 1) {
           console.log('Single word detected, calling AraTools:', text);
-          const response = await fetch(`/api/define/${encodeURIComponent(text)}`);
+          const response = await fetch(`${API_URL}/api/define/${encodeURIComponent(text)}`);
           const data = await response.json();
           
           console.log('AraTools response:', data);
@@ -946,7 +946,7 @@ function BookReader() {
     // Update database if user is logged in and vocab_id exists
     if (user && vocabId) {
       try {
-        const response = await fetch(`/api/vocabulary/${vocabId}`, {
+        const response = await fetch(`${API_URL}/api/vocabulary/${vocabId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ translation: newValue })
@@ -1070,7 +1070,7 @@ function BookReader() {
       const [pageIndex, wordIndex] = position.split('-').map(Number);
       const currentPage = bookData?.pages?.[pageIndex];
       
-      fetch('/api/vocabulary', {
+      fetch(`${API_URL}/api/vocabulary`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1634,7 +1634,7 @@ function LoginButton() {
   const handleGoogleLogin = async (credentialResponse) => {
     try {
       // Send the credential to your backend to verify and create/get user
-      const response = await fetch('/api/auth/google', {
+      const response = await fetch(`${API_URL}/api/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ credential: credentialResponse.credential })

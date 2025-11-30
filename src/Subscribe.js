@@ -2,6 +2,9 @@ import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from './App';
 
+// API URL - use environment variable or default to current domain in production
+const API_URL = process.env.REACT_APP_API_URL || '';
+
 function Subscribe() {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
@@ -55,7 +58,7 @@ function Subscribe() {
         onApprove: async function(data, actions) {
           console.log('Subscription approved:', data);
           try {
-            const response = await fetch('http://localhost:5000/api/subscription/create', {
+            const response = await fetch(`${API_URL}/api/subscription/create', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -105,7 +108,7 @@ function Subscribe() {
         onApprove: async function(data, actions) {
           console.log('Subscription approved:', data);
           try {
-            const response = await fetch('http://localhost:5000/api/subscription/create', {
+            const response = await fetch(`${API_URL}/api/subscription/create', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
