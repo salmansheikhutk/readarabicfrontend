@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from './App';
 
@@ -8,6 +8,22 @@ const API_URL = process.env.REACT_APP_API_URL || '';
 function Subscribe() {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
+  const [subscriptionSuccess, setSubscriptionSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [showSuccessBanner, setShowSuccessBanner] = useState(false);
+
+  // Handle success banner display and auto-hide
+  useEffect(() => {
+    if (subscriptionSuccess) {
+      setShowSuccessBanner(true);
+      // Hide banner and redirect after 2 seconds
+      const timer = setTimeout(() => {
+        setShowSuccessBanner(false);
+        window.location.href = '/browse';
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [subscriptionSuccess]);
 
   useEffect(() => {
     if (!user) {
@@ -32,114 +48,74 @@ function Subscribe() {
         return;
       }
 
-      console.log('Initializing PayPal buttons...');
-      
-      // Clear any existing buttons
-      const monthlyContainer = document.getElementById('paypal-button-monthly');
-      const annualContainer = document.getElementById('paypal-button-annual');
-      
-      if (monthlyContainer) monthlyContainer.innerHTML = '';
-      if (annualContainer) annualContainer.innerHTML = '';
+      // Wait for DOM elements to be ready
+      const checkElementsReady = () => {
+        const monthlyContainer = document.getElementById('paypal-button-monthly');
+        
+        if (!monthlyContainer) {
+          console.log('PayPal containers not ready, waiting...');
+          setTimeout(checkElementsReady, 100);
+          return;
+        }
 
-      // Initialize Monthly button
-      window.paypal.Buttons({
-        style: {
-          shape: 'rect',
-          color: 'gold',
-          layout: 'vertical',
-          label: 'subscribe'
-        },
-        createSubscription: function(data, actions) {
-          console.log('Creating monthly subscription...');
-          return actions.subscription.create({
-            plan_id: monthlyPlanId
-          });
-        },
-        onApprove: async function(data, actions) {
-          console.log('Subscription approved:', data);
-          try {
-            const response = await fetch(`${API_URL}/api/subscription/create`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                user_id: user.id,
-                paypal_subscription_id: data.subscriptionID,
-                paypal_plan_id: monthlyPlanId,
-                subscription_type: 'monthly'
-              })
+        console.log('Initializing PayPal buttons...');
+        
+        // Clear any existing buttons
+        monthlyContainer.innerHTML = '';
+
+        // Initialize Monthly button
+        window.paypal.Buttons({
+          style: {
+            shape: 'rect',
+            color: 'gold',
+            layout: 'vertical',
+            label: 'subscribe'
+          },
+          createSubscription: function(data, actions) {
+            console.log('Creating monthly subscription...');
+            return actions.subscription.create({
+              plan_id: monthlyPlanId
             });
+          },
+          onApprove: async function(data, actions) {
+            console.log('Subscription approved:', data);
+            try {
+              const response = await fetch(`${API_URL}/api/subscription/create`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  user_id: user.id,
+                  paypal_subscription_id: data.subscriptionID,
+                  paypal_plan_id: monthlyPlanId,
+                  subscription_type: 'monthly'
+                })
+              });
 
-            const result = await response.json();
-            if (result.success) {
-              alert('Subscription activated! You now have unlimited vocabulary access.');
-              window.location.href = '/browse';
-            } else {
+              const result = await response.json();
+              if (result.success) {
+                setSuccessMessage('🎉 Subscription activated! You now have unlimited vocabulary access.');
+                setSubscriptionSuccess(true);
+              } else {
+                alert('Error activating subscription. Please contact support.');
+              }
+            } catch (error) {
+              console.error('Error creating subscription:', error);
               alert('Error activating subscription. Please contact support.');
             }
-          } catch (error) {
-            console.error('Error creating subscription:', error);
-            alert('Error activating subscription. Please contact support.');
+          },
+          onError: function(err) {
+            console.error('PayPal error:', err);
+            alert('Payment failed. Please try again.');
           }
-        },
-        onError: function(err) {
-          console.error('PayPal error:', err);
-          alert('Payment failed. Please try again.');
-        }
-      }).render('#paypal-button-monthly').catch(err => {
-        console.error('Error rendering monthly button:', err);
-      });
+        }).render('#paypal-button-monthly').catch(err => {
+          console.error('Error rendering monthly button:', err);
+        });
+      };
 
-      // Initialize Annual button
-      window.paypal.Buttons({
-        style: {
-          shape: 'rect',
-          color: 'gold',
-          layout: 'vertical',
-          label: 'subscribe'
-        },
-        createSubscription: function(data, actions) {
-          console.log('Creating annual subscription...');
-          return actions.subscription.create({
-            plan_id: annualPlanId
-          });
-        },
-        onApprove: async function(data, actions) {
-          console.log('Subscription approved:', data);
-          try {
-            const response = await fetch(`${API_URL}/api/subscription/create`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                user_id: user.id,
-                paypal_subscription_id: data.subscriptionID,
-                paypal_plan_id: annualPlanId,
-                subscription_type: 'annual'
-              })
-            });
-
-            const result = await response.json();
-            if (result.success) {
-              alert('Subscription activated! You now have unlimited vocabulary access.');
-              window.location.href = '/browse';
-            } else {
-              alert('Error activating subscription. Please contact support.');
-            }
-          } catch (error) {
-            console.error('Error creating subscription:', error);
-            alert('Error activating subscription. Please contact support.');
-          }
-        },
-        onError: function(err) {
-          console.error('PayPal error:', err);
-          alert('Payment failed. Please try again.');
-        }
-      }).render('#paypal-button-annual').catch(err => {
-        console.error('Error rendering annual button:', err);
-      });
+      // Start checking for elements
+      checkElementsReady();
     };
 
     if (!script) {
@@ -174,6 +150,22 @@ function Subscribe() {
       background: '#f9fafb',
       padding: '40px 20px'
     }}>
+      <style>{`
+        @keyframes bannerSlideDown {
+          from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-100%);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+          }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 0.8; }
+          50% { opacity: 1; }
+        }
+      `}</style>
       <div style={{
         maxWidth: '1000px',
         margin: '0 auto'
@@ -196,7 +188,34 @@ function Subscribe() {
           </p>
         </div>
 
+        <>
+        {/* Success Banner */}
+        {showSuccessBanner && (
+          <div style={{
+            position: 'fixed',
+            top: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            color: 'white',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+            zIndex: 1000,
+            animation: 'bannerSlideDown 0.3s ease-out',
+            fontSize: '0.95rem',
+            fontWeight: '500',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <span>✅</span>
+            <span>{successMessage}</span>
+          </div>
+        )}
+
         {/* Payment Options */}
+        {!subscriptionSuccess && (
         <div style={{
           background: 'white',
           borderRadius: '16px',
@@ -269,8 +288,10 @@ function Subscribe() {
             </p>
           </div>
         </div>
+        )}
 
         {/* Back Button */}
+        {!subscriptionSuccess && (
         <div style={{ textAlign: 'center', marginTop: '30px' }}>
           <button
             onClick={() => navigate('/browse')}
@@ -286,6 +307,8 @@ function Subscribe() {
             ← Back to Books
           </button>
         </div>
+        )}
+        </>
       </div>
     </div>
   );
