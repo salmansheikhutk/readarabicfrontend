@@ -245,7 +245,7 @@ function Browse() {
         setLoadingBooks(true);
         setError(null);
         
-        let url = '/api/books';
+        let url = `${API_URL}/api/books`;
         const params = [];
         if (selectedCategory) {
           params.push(`category=${selectedCategory}`);
