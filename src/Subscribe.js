@@ -58,7 +58,7 @@ function Subscribe() {
         onApprove: async function(data, actions) {
           console.log('Subscription approved:', data);
           try {
-            const response = await fetch(`${API_URL}/api/subscription/create', {
+            const response = await fetch(`${API_URL}/api/subscription/create`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ function Subscribe() {
         onApprove: async function(data, actions) {
           console.log('Subscription approved:', data);
           try {
-            const response = await fetch(`${API_URL}/api/subscription/create', {
+            const response = await fetch(`${API_URL}/api/subscription/create`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
