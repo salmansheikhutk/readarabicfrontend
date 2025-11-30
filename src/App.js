@@ -963,6 +963,11 @@ function BookReader() {
   const addToDictionary = (def, useExisting = false) => {
     const arabicWord = def.voc_form || def.form;
     const englishDef = def.nice_gloss;
+    
+    // Keep the original word WITH diacritics for database storage
+    const originalWordWithDiacritics = selectedText.trim()
+      .replace(/[،؛؟.!:()\[\]{}«»""'']/g, ''); // Only remove punctuation, keep diacritics
+    
     // Remove diacritics and punctuation from selected word for consistent matching
     const selectedWord = selectedText.trim()
       .replace(/[\u064B-\u065F\u0670]/g, '') // Remove diacritics
@@ -1043,7 +1048,7 @@ function BookReader() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: user.id,
-          word: selectedWord,
+          word: originalWordWithDiacritics,  // Save WITH diacritics
           translation: englishDef,
           book_id: parseInt(bookId),
           page_number: currentPage?.page || null,
