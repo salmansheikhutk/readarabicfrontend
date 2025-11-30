@@ -1741,7 +1741,7 @@ function AuthCallback({ setUser }) {
 
     if (code) {
       // Exchange code for user info via backend
-      fetch('/api/auth/google/callback', {
+      fetch(`${API_URL}/api/auth/google/callback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code, redirect_uri: window.location.origin + '/auth/callback' })
