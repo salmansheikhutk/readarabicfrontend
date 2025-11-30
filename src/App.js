@@ -560,7 +560,9 @@ function BookReader() {
   const [editingInlineKey, setEditingInlineKey] = useState(null); // the actual word
   const [editingInlineValue, setEditingInlineValue] = useState('');
   const [showDuplicateOptions, setShowDuplicateOptions] = useState(false); // Show options for existing words
+  const [currentPageIndex, setCurrentPageIndex] = useState(0); // Track current visible page
   const selectionRangeRef = React.useRef(null); // Store the selection range
+  const tocRef = React.useRef(null); // Reference to TOC container
 
   useEffect(() => {
     localStorage.setItem('readarabic-dictionary', JSON.stringify(dictionary));
@@ -652,11 +654,55 @@ function BookReader() {
     fetchBook();
   }, [bookId]);
 
+  // Track current visible page with Intersection Observer
+  useEffect(() => {
+    if (!bookData?.pages) return;
 
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // Find the entry with the highest intersection ratio
+        let maxRatio = 0;
+        let visiblePageIndex = currentPageIndex;
+        
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
+            maxRatio = entry.intersectionRatio;
+            const pageId = entry.target.id;
+            const pageIndex = parseInt(pageId.replace('page-', ''));
+            visiblePageIndex = pageIndex;
+          }
+        });
+        
+        if (maxRatio > 0) {
+          setCurrentPageIndex(visiblePageIndex);
+        }
+      },
+      {
+        threshold: [0, 0.25, 0.5, 0.75, 1],
+        rootMargin: '-20% 0px -20% 0px'
+      }
+    );
 
+    // Observe all page elements
+    const pageElements = document.querySelectorAll('[id^="page-"]');
+    pageElements.forEach((el) => observer.observe(el));
 
+    return () => observer.disconnect();
+  }, [bookData]);
 
-
+  // Auto-scroll TOC to show current page
+  useEffect(() => {
+    if (!tocRef.current || !bookData?.pages) return;
+    
+    const currentPage = bookData.pages[currentPageIndex];
+    if (!currentPage) return;
+    
+    // Find the TOC item that corresponds to this page
+    const tocItem = tocRef.current.querySelector(`[data-page-index="${currentPageIndex}"]`);
+    if (tocItem) {
+      tocItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [currentPageIndex, bookData]);
 
   const scrollToPage = (pageIndex) => {
     const element = document.getElementById(`page-${pageIndex}`);
@@ -1459,17 +1505,24 @@ function BookReader() {
               <button className="back-button" onClick={() => navigate('/browse')}>← Back to Books</button>
               <h3>Table of Contents</h3>
             </div>
-            <div className="toc-list">
+            <div className="toc-list" ref={tocRef}>
               {headings.map((heading, index) => {
                 // heading.page is the array index (0-based or 1-based)
                 // We need to get the actual page number from the pages array
                 const pageIndex = heading.page - 1; // Convert to 0-based index
                 const actualPageNumber = bookData?.pages?.[pageIndex]?.page || heading.page;
+                const isActive = currentPageIndex === pageIndex;
                 return (
                   <div
                     key={index}
-                    className={`toc-item level-${heading.level}`}
+                    data-page-index={pageIndex}
+                    className={`toc-item level-${heading.level} ${isActive ? 'active' : ''}`}
                     onClick={() => scrollToPage(pageIndex)}
+                    style={isActive ? {
+                      background: 'rgba(16, 185, 129, 0.15)',
+                      borderLeft: '3px solid #10b981',
+                      color: '#10b981'
+                    } : {}}
                   >
                     <span className="toc-title">{heading.title}</span>
                     <span className="toc-page">p. {actualPageNumber}</span>
