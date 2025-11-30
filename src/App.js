@@ -150,6 +150,20 @@ function Landing() {
           <LoginButton />
         </div>
       </div>
+
+      {/* Footer */}
+      <div style={{
+        position: 'absolute',
+        bottom: '20px',
+        width: '100%',
+        textAlign: 'center',
+        color: 'rgba(255, 255, 255, 0.6)',
+        fontSize: '0.9rem',
+        zIndex: 1,
+        direction: 'ltr'
+      }}>
+        © 2025 Read Arabic. All rights reserved.
+      </div>
     </div>
   );
 }
