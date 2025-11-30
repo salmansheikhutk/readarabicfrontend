@@ -706,7 +706,8 @@ function BookReader() {
       // Call backend API for word definition using AraTools
       try {
         // For single words, use AraTools via backend
-        const words = text.split(/\s+/);
+        // Split by actual whitespace and filter out empty strings
+        const words = text.split(/\s+/).filter(w => w.length > 0);
         if (words.length === 1) {
           console.log('Single word detected, calling AraTools:', text);
           const response = await fetch(`/api/define/${encodeURIComponent(text)}`);
@@ -722,6 +723,7 @@ function BookReader() {
             } else {
               console.log('No words in AraTools response');
               setDefinitions([]);
+              // If no definitions found, don't fall back to AI for single words
             }
             setTranslation(''); // Clear text translation
           } else {
@@ -730,7 +732,8 @@ function BookReader() {
             await translateWithAI(text);
           }
         } else {
-          // For phrases, use AI
+          // For phrases (multiple words), use AI
+          console.log('Multiple words detected:', words.length, 'words');
           await translateWithAI(text);
         }
       } catch (error) {
@@ -1314,6 +1317,59 @@ function BookReader() {
                 const root = (def.root && typeof def.root === 'string') 
                   ? def.root.split('').join('-') 
                   : '';
+                
+                // AI Translation - completely separate rendering
+                if (def.isAI) {
+                  return (
+                    <div 
+                      key={idx}
+                      className="ai-translation-container"
+                      onMouseDown={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        console.log('AI translation clicked!');
+                        addToDictionary(def);
+                      }}
+                      style={{
+                        position: 'relative',
+                        padding: '16px',
+                        paddingTop: '32px',
+                        cursor: 'pointer',
+                        direction: 'ltr',
+                        textAlign: 'left'
+                      }}
+                    >
+                      <div style={{
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        background: 'rgba(147, 51, 234, 0.15)',
+                        color: '#9333ea',
+                        padding: '3px 10px',
+                        borderRadius: '4px',
+                        fontSize: '0.65rem',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        AI Translation
+                      </div>
+                      <div style={{
+                        fontSize: '0.95rem',
+                        lineHeight: '1.5',
+                        color: 'inherit'
+                      }}>
+                        {gloss}
+                      </div>
+                    </div>
+                  );
+                }
+                
+                // Single word definition - original code unchanged
                 return (
                   <div 
                     key={idx}
@@ -1329,7 +1385,7 @@ function BookReader() {
                       addToDictionary(def);
                     }}
                   >
-                    {!def.isAI && <span className="def-number">{idx + 1}.</span>}
+                    <span className="def-number">{idx + 1}.</span>
                     <span className="voc-form">{form}</span>
                     <span className="def-separator">-</span>
                     <span className="def-gloss">{gloss}</span>
