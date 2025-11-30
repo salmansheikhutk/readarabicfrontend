@@ -204,11 +204,31 @@ function Subscribe() {
           boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
           textAlign: 'center'
         }}>
-          <h2 style={{
-            fontSize: '1.8rem',
-            color: '#2c3e50',
-            marginBottom: '30px'
-          }}>Choose Your Plan</h2>
+          {/* Features List */}
+          <div style={{
+            maxWidth: '450px',
+            margin: '0 auto 40px',
+            padding: '30px',
+            background: '#f9fafb',
+            borderRadius: '12px'
+          }}>
+            <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: '#10b981', marginRight: '12px', fontSize: '1.3rem', fontWeight: 'bold' }}>✓</span>
+              <span style={{ color: '#1f2937', fontSize: '1.05rem', lineHeight: '1.5' }}>Full access to 2000+ Classical Islamic Texts</span>
+            </div>
+            <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: '#10b981', marginRight: '12px', fontSize: '1.3rem', fontWeight: 'bold' }}>✓</span>
+              <span style={{ color: '#1f2937', fontSize: '1.05rem', lineHeight: '1.5' }}>Intelligent Dictionary</span>
+            </div>
+            <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: '#10b981', marginRight: '12px', fontSize: '1.3rem', fontWeight: 'bold' }}>✓</span>
+              <span style={{ color: '#1f2937', fontSize: '1.05rem', lineHeight: '1.5' }}>Intelligent Sentence Translation</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: '#10b981', marginRight: '12px', fontSize: '1.3rem', fontWeight: 'bold' }}>✓</span>
+              <span style={{ color: '#1f2937', fontSize: '1.05rem', lineHeight: '1.5' }}>Flashcards with Spaced Repetition</span>
+            </div>
+          </div>
 
           <div style={{
             display: 'flex',
@@ -216,48 +236,23 @@ function Subscribe() {
             gap: '20px',
             flexWrap: 'wrap'
           }}>
-            {/* Annual Plan */}
+            {/* Monthly Plan */}
             <div style={{
               border: '2px solid #667eea',
               borderRadius: '12px',
               padding: '30px',
-              minWidth: '280px',
-              textAlign: 'center',
-              position: 'relative'
-            }}>
-              <div style={{
-                position: 'absolute',
-                top: '-12px',
-                right: '20px',
-                background: '#10b981',
-                color: 'white',
-                padding: '4px 12px',
-                borderRadius: '12px',
-                fontSize: '0.75rem',
-                fontWeight: '600'
-              }}>SAVE 17%</div>
-              <div style={{ fontSize: '1.25rem', fontWeight: '600', color: '#2c3e50', marginBottom: '10px' }}>
-                Annual
-              </div>
-              <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#667eea', marginBottom: '20px' }}>
-                $49.99
-              </div>
-              <div id="paypal-button-annual"></div>
-            </div>
-
-            {/* Monthly Plan */}
-            <div style={{
-              border: '2px solid #e5e7eb',
-              borderRadius: '12px',
-              padding: '30px',
-              minWidth: '280px',
+              minWidth: '320px',
+              maxWidth: '400px',
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '1.25rem', fontWeight: '600', color: '#2c3e50', marginBottom: '10px' }}>
-                Monthly
+                Monthly Subscription
               </div>
-              <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#667eea', marginBottom: '20px' }}>
+              <div style={{ fontSize: '2.5rem', fontWeight: '700', color: '#667eea', marginBottom: '5px' }}>
                 $4.99
+              </div>
+              <div style={{ fontSize: '0.9rem', color: '#6b7280', marginBottom: '20px' }}>
+                per month • cancel anytime
               </div>
               <div id="paypal-button-monthly"></div>
             </div>
