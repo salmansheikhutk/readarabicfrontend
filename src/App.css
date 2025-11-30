@@ -4,6 +4,21 @@
   overflow: hidden;
 }
 
+/* Arabic text styling */
+.book-page {
+  font-family: 'Amiri', 'Scheherazade New', serif;
+  font-size: 1.3rem;
+  line-height: 2.2;
+  font-weight: 500;
+}
+
+.page-text {
+  font-family: 'Amiri', 'Scheherazade New', serif;
+  font-size: 1.3rem;
+  line-height: 2.2;
+  font-weight: 500;
+}
+
 /* Sidebar */
 .sidebar {
   background: #2c3e50;
