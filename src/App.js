@@ -816,19 +816,18 @@ function BookReader() {
           } else {
             // If AraTools fails, fall back to AI
             console.log('AraTools failed, falling back to AI');
-            await translateWithAI(text);
+            await translateWithAI(text, true); // true = single word fallback
           }
         } else {
           // For phrases (multiple words), use AI
           console.log('Multiple words detected:', words.length, 'words');
-          await translateWithAI(text);
+          await translateWithAI(text, false); // false = multi-word phrase
         }
       } catch (error) {
         console.error('Definition/Translation error:', error);
         // If there's an error, try AI as fallback
         try {
-          await translateWithAI(text);
-          await translateWithAI(text);
+          await translateWithAI(text, true);
         } catch (aiError) {
           console.error('AI fallback also failed:', aiError);
           setTranslation(`Error: ${aiError.message}`);
@@ -842,7 +841,7 @@ function BookReader() {
     }
   };
 
-  const translateWithAI = async (text) => {
+  const translateWithAI = async (text, isSingleWord = false) => {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -879,7 +878,7 @@ function BookReader() {
         voc_form: text,
         nice_gloss: translationText,
         root: null,
-        isAI: true
+        isAI: !isSingleWord  // Only mark as AI for multi-word phrases
       }]);
     } else {
       throw new Error('Translation failed - unexpected response');
