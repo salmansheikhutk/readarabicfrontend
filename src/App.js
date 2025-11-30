@@ -288,6 +288,39 @@ function Landing() {
         </div>
       </div>
 
+      {/* Developer Credit */}
+      <div style={{
+        textAlign: 'center',
+        marginBottom: '20px',
+        zIndex: 1,
+        position: 'relative',
+        animation: 'fadeInUp 0.8s ease-out 0.7s backwards'
+      }}
+      className="section-margin">
+        <p style={{
+          fontSize: '0.95rem',
+          color: '#64748b',
+          margin: 0,
+          fontWeight: '500'
+        }}>
+          From the developers of <a 
+            href="https://www.laneslexicon.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{
+              color: '#667eea',
+              textDecoration: 'none',
+              fontWeight: '600',
+              transition: 'color 0.2s'
+            }}
+            onMouseOver={(e) => e.target.style.color = '#4f46e5'}
+            onMouseOut={(e) => e.target.style.color = '#667eea'}
+          >
+            www.laneslexicon.com
+          </a>
+        </p>
+      </div>
+
       {/* Footer */}
       <div style={{
         position: 'absolute',
