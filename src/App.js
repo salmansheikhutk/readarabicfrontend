@@ -27,41 +27,31 @@ function Landing() {
       minHeight: '100vh', 
       display: 'flex', 
       flexDirection: 'column',
-      background: '#000000',
+      background: '#ffffff',
       padding: '20px',
       position: 'relative',
       overflow: 'hidden'
     }}
     className="landing-padding">
-      {/* Animated Background Elements */}
+      {/* Just Launched Badge */}
       <div style={{
         position: 'absolute',
-        top: '10%',
-        left: '10%',
-        width: '300px',
-        height: '300px',
-        background: 'rgba(102, 126, 234, 0.15)',
-        borderRadius: '50%',
-        filter: 'blur(60px)',
-        animation: 'float 20s infinite ease-in-out'
-      }} />
-      <div style={{
-        position: 'absolute',
-        bottom: '10%',
-        right: '10%',
-        width: '400px',
-        height: '400px',
-        background: 'rgba(118, 75, 162, 0.12)',
-        borderRadius: '50%',
-        filter: 'blur(80px)',
-        animation: 'float 25s infinite ease-in-out reverse'
-      }} />
+        top: '20px',
+        right: '20px',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        padding: '8px 16px',
+        borderRadius: '20px',
+        fontSize: '0.85rem',
+        fontWeight: '600',
+        boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+        zIndex: 10,
+        animation: 'pulse 2s infinite'
+      }}>
+        🚀 Just Launched
+      </div>
 
       <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) translateX(0px); }
-          50% { transform: translateY(-30px) translateX(30px); }
-        }
         @keyframes fadeInUp {
           from {
             opacity: 0;
@@ -75,6 +65,16 @@ function Landing() {
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
+        }
+        @keyframes pulse {
+          0%, 100% { 
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% { 
+            opacity: 0.9;
+            transform: scale(1.05);
+          }
         }
 
         /* Mobile responsiveness */
@@ -131,7 +131,7 @@ function Landing() {
         <h1 style={{
           fontSize: '3.5rem',
           marginBottom: '12px',
-          color: '#ffffff',
+          color: '#1a202c',
           fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif",
           direction: 'rtl',
           fontWeight: '700',
@@ -143,7 +143,7 @@ function Landing() {
         <h2 style={{
           fontSize: '2rem',
           marginBottom: '20px',
-          color: '#ffffff',
+          color: '#4a5568',
           fontWeight: '600',
           letterSpacing: '-0.01em',
           animation: 'fadeIn 1s ease-out 0.3s backwards'
@@ -205,17 +205,86 @@ function Landing() {
         <div style={{
           display: 'flex',
           justifyContent: 'center',
-          gap: '30px',
-          color: '#ffffff',
-          fontSize: '1.1rem',
-          fontWeight: '500'
+          gap: '40px',
+          flexWrap: 'wrap',
+          maxWidth: '800px',
+          margin: '0 auto'
         }}
         className="features-section">
-          <span>2000+ Texts</span>
-          <span style={{ color: '#d1d5db' }}>•</span>
-          <span>Smart Dictionary</span>
-          <span style={{ color: '#d1d5db' }}>•</span>
-          <span>Flashcards</span>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '20px',
+            background: '#f8fafc',
+            borderRadius: '16px',
+            border: '1px solid #e2e8f0',
+            minWidth: '180px',
+            transition: 'transform 0.2s, box-shadow 0.2s'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.transform = 'translateY(-4px)';
+            e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}>
+            <div style={{ fontSize: '2rem', marginBottom: '8px' }}>📚</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1a202c' }}>2000+ Texts</div>
+            <div style={{ fontSize: '0.9rem', color: '#64748b', textAlign: 'center' }}>Classical Islamic Literature</div>
+          </div>
+          
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '20px',
+            background: '#f8fafc',
+            borderRadius: '16px',
+            border: '1px solid #e2e8f0',
+            minWidth: '180px',
+            transition: 'transform 0.2s, box-shadow 0.2s'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.transform = 'translateY(-4px)';
+            e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}>
+            <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🔍</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1a202c' }}>Smart Dictionary</div>
+            <div style={{ fontSize: '0.9rem', color: '#64748b', textAlign: 'center' }}>Instant word definitions</div>
+          </div>
+          
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '20px',
+            background: '#f8fafc',
+            borderRadius: '16px',
+            border: '1px solid #e2e8f0',
+            minWidth: '180px',
+            transition: 'transform 0.2s, box-shadow 0.2s'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.transform = 'translateY(-4px)';
+            e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}>
+            <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🧠</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1a202c' }}>Spaced Repetition</div>
+            <div style={{ fontSize: '0.9rem', color: '#64748b', textAlign: 'center' }}>Flashcards that adapt to you</div>
+          </div>
         </div>
       </div>
 
@@ -225,7 +294,7 @@ function Landing() {
         bottom: '20px',
         width: '100%',
         textAlign: 'center',
-        color: 'rgba(255, 255, 255, 0.6)',
+        color: 'rgba(74, 85, 104, 0.8)',
         fontSize: '0.9rem',
         zIndex: 1,
         direction: 'ltr'
