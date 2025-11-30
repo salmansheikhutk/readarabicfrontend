@@ -8,6 +8,14 @@ import Account from './Account';
 // API URL - use environment variable or default to current domain in production
 const API_URL = process.env.REACT_APP_API_URL || '';
 
+// Warn if API_URL is not configured in production builds
+if (typeof window !== 'undefined' && !process.env.REACT_APP_API_URL) {
+  // This helps catch cases where the app was built without REACT_APP_API_URL
+  // and will attempt to call relative /api endpoints which the static host cannot serve.
+  // Only log in development or for debugging in production.
+  console.warn('REACT_APP_API_URL is not set. API calls will use relative /api paths which may 404 if not proxied to backend. Please set REACT_APP_API_URL on the production frontend (Heroku) to your backend URL.');
+}
+
 export const UserContext = createContext(null);
 
 // Landing page with sign-in button
