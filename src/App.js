@@ -563,6 +563,7 @@ function BookReader() {
   const [currentPageIndex, setCurrentPageIndex] = useState(0); // Track current visible page
   const selectionRangeRef = React.useRef(null); // Store the selection range
   const tocRef = React.useRef(null); // Reference to TOC container
+  const isNavigatingRef = React.useRef(false); // Flag to prevent observer interference during navigation
 
   useEffect(() => {
     localStorage.setItem('readarabic-dictionary', JSON.stringify(dictionary));
@@ -673,7 +674,7 @@ function BookReader() {
           }
         });
         
-        if (maxRatio > 0) {
+        if (maxRatio > 0 && !isNavigatingRef.current) {
           setCurrentPageIndex(visiblePageIndex);
         }
       },
@@ -705,10 +706,36 @@ function BookReader() {
   }, [currentPageIndex, bookData]);
 
   const scrollToPage = (pageIndex) => {
+    const pageObject = bookData?.pages?.[pageIndex];
+    console.log(`scrollToPage: index=${pageIndex}, actual page number at this index=${pageObject?.page}`);
+    
+    // Disable observer updates during navigation
+    isNavigatingRef.current = true;
+    
     const element = document.getElementById(`page-${pageIndex}`);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setShowToc(false);
+      // Re-enable observer after scroll completes
+      setTimeout(() => {
+        setCurrentPageIndex(pageIndex);
+        isNavigatingRef.current = false;
+      }, 1000);
+    } else {
+      console.warn(`Page ${pageIndex} not rendered yet - updating currentPageIndex`);
+      setCurrentPageIndex(pageIndex);
+      setShowToc(false);
+      setTimeout(() => {
+        const el = document.getElementById(`page-${pageIndex}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        // Re-enable observer
+        setTimeout(() => {
+          setCurrentPageIndex(pageIndex);
+          isNavigatingRef.current = false;
+        }, 1000);
+      }, 100);
     }
   };
 
@@ -1512,17 +1539,42 @@ function BookReader() {
             </div>
             <div className="toc-list" ref={tocRef}>
               {headings.map((heading, index) => {
-                // heading.page is the array index (0-based or 1-based)
-                // We need to get the actual page number from the pages array
-                const pageIndex = heading.page - 1; // Convert to 0-based index
-                const actualPageNumber = bookData?.pages?.[pageIndex]?.page || heading.page;
-                const isActive = currentPageIndex === pageIndex;
+                // heading.page is a 1-based index into pages array - USE THIS DIRECTLY
+                const targetPageIndex = heading.page - 1;
+                
+                // Get the actual page number from the pages array at this index
+                const actualPageNumber = bookData?.pages?.[targetPageIndex]?.page;
+                
+                // Validate the index is within bounds
+                if (targetPageIndex < 0 || targetPageIndex >= bookData?.pages?.length || !actualPageNumber) {
+                  return null;
+                }
+                
+                const isActive = currentPageIndex === targetPageIndex;
+                
                 return (
                   <div
                     key={index}
-                    data-page-index={pageIndex}
+                    data-page-index={targetPageIndex}
                     className={`toc-item level-${heading.level} ${isActive ? 'active' : ''}`}
-                    onClick={() => scrollToPage(pageIndex)}
+                    onClick={() => {
+                      // Use the targetPageIndex directly - don't search for it!
+                      // heading.page already tells us which array index to use
+                      
+                      console.log(`TOC Click: "${heading.title}" -> Page ${actualPageNumber} -> Index ${targetPageIndex}`);
+                      
+                      // Ensure the page is loaded
+                      if (Math.abs(targetPageIndex - currentPageIndex) > 2) {
+                        setCurrentPageIndex(targetPageIndex);
+                        setTimeout(() => {
+                          scrollToPage(targetPageIndex);
+                        }, 300);
+                      } else {
+                        scrollToPage(targetPageIndex);
+                      }
+                      
+                      setShowToc(false);
+                    }}
                     style={isActive ? {
                       background: 'rgba(16, 185, 129, 0.15)',
                       borderLeft: '3px solid #10b981',
