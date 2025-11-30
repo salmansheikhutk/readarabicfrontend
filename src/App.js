@@ -26,14 +26,13 @@ function Landing() {
     <div style={{ 
       minHeight: '100vh', 
       display: 'flex', 
-      flexDirection: 'column', 
-      justifyContent: 'center', 
-      alignItems: 'center',
+      flexDirection: 'column',
       background: '#000000',
       padding: '20px',
       position: 'relative',
       overflow: 'hidden'
-    }}>
+    }}
+    className="landing-padding">
       {/* Animated Background Elements */}
       <div style={{
         position: 'absolute',
@@ -77,77 +76,146 @@ function Landing() {
           from { opacity: 0; }
           to { opacity: 1; }
         }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+          .landing-title {
+            font-size: 2.5rem !important;
+          }
+          .landing-subtitle {
+            font-size: 1.5rem !important;
+          }
+          .features-section {
+            gap: 20px !important;
+            font-size: 1rem !important;
+          }
+          .landing-padding {
+            padding: 15px !important;
+          }
+          .section-margin {
+            margin-bottom: 30px !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .landing-title {
+            font-size: 2rem !important;
+          }
+          .landing-subtitle {
+            font-size: 1.2rem !important;
+          }
+          .features-section {
+            gap: 15px !important;
+            font-size: 0.95rem !important;
+            flex-direction: column !important;
+            align-items: center !important;
+          }
+          .landing-padding {
+            padding: 10px !important;
+          }
+          .section-margin {
+            margin-bottom: 20px !important;
+          }
+        }
       `}</style>
 
+      {/* Title Above Video */}
       <div style={{
-        background: 'rgba(255, 255, 255, 0.98)',
-        backdropFilter: 'blur(20px)',
-        borderRadius: '24px',
-        padding: '70px 50px',
-        boxShadow: '0 30px 90px rgba(102, 126, 234, 0.4), 0 0 1px rgba(255,255,255,0.1)',
         textAlign: 'center',
-        maxWidth: '580px',
-        position: 'relative',
+        marginBottom: '40px',
         zIndex: 1,
+        position: 'relative',
         animation: 'fadeInUp 0.8s ease-out'
-      }}>
+      }}
+      className="section-margin">
         <h1 style={{
           fontSize: '3.5rem',
           marginBottom: '12px',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
+          color: '#ffffff',
           fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif",
           direction: 'rtl',
           fontWeight: '700',
           letterSpacing: '-0.02em',
-          animation: 'fadeIn 1s ease-out 0.4s backwards'
-        }}>اقرأ عربي</h1>
+          animation: 'fadeIn 1s ease-out 0.2s backwards'
+        }}
+        className="landing-title">اقرأ عربي</h1>
         
         <h2 style={{
           fontSize: '2rem',
           marginBottom: '20px',
-          color: '#2c3e50',
+          color: '#ffffff',
           fontWeight: '600',
           letterSpacing: '-0.01em',
-          animation: 'fadeIn 1s ease-out 0.5s backwards'
-        }}>Read Arabic</h2>
-        
-        <p style={{
-          fontSize: '1.2rem',
-          color: '#2c3e50',
-          marginBottom: '30px',
-          lineHeight: '1.7',
-          fontWeight: '600',
-          animation: 'fadeIn 1s ease-out 0.6s backwards'
-        }}>
-          Take your Arabic reading to the next level
-        </p>
+          animation: 'fadeIn 1s ease-out 0.3s backwards'
+        }}
+        className="landing-subtitle">Read Arabic</h2>
+      </div>
 
-        {/* Feature highlights */}
+      {/* Sign In Button Above Video */}
+      <div style={{
+        textAlign: 'center',
+        marginBottom: '40px',
+        zIndex: 1,
+        position: 'relative',
+        animation: 'fadeInUp 0.8s ease-out 0.4s backwards'
+      }}
+      className="section-margin">
+        <LoginButton />
+      </div>
+
+      {/* Video Section */}
+      <div style={{
+        maxWidth: '900px',
+        margin: '0 auto 40px auto',
+        borderRadius: '16px',
+        overflow: 'hidden',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+        animation: 'fadeInUp 0.8s ease-out 0.5s backwards',
+        zIndex: 1,
+        position: 'relative'
+      }}
+      className="section-margin">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            width: '100%',
+            height: 'auto',
+            display: 'block',
+            borderRadius: '16px'
+          }}
+          poster="/readarabic-poster.jpg"
+        >
+          <source src="/readarabic.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      {/* Features Under Video */}
+      <div style={{
+        textAlign: 'center',
+        marginBottom: '40px',
+        zIndex: 1,
+        position: 'relative',
+        animation: 'fadeInUp 0.8s ease-out 0.6s backwards'
+      }}
+      className="section-margin">
         <div style={{
-          marginBottom: '40px',
-          animation: 'fadeIn 1s ease-out 0.65s backwards'
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '30px',
-            color: '#6b7280',
-            fontSize: '0.95rem',
-            fontWeight: '500'
-          }}>
-            <span>2000+ Texts</span>
-            <span style={{ color: '#d1d5db' }}>•</span>
-            <span>Smart Dictionary</span>
-            <span style={{ color: '#d1d5db' }}>•</span>
-            <span>Flashcards</span>
-          </div>
-        </div>
-
-        <div style={{ animation: 'fadeIn 1s ease-out 0.7s backwards' }}>
-          <LoginButton />
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '30px',
+          color: '#ffffff',
+          fontSize: '1.1rem',
+          fontWeight: '500'
+        }}
+        className="features-section">
+          <span>2000+ Texts</span>
+          <span style={{ color: '#d1d5db' }}>•</span>
+          <span>Smart Dictionary</span>
+          <span style={{ color: '#d1d5db' }}>•</span>
+          <span>Flashcards</span>
         </div>
       </div>
 
