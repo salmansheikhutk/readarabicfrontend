@@ -851,8 +851,11 @@ function BookReader() {
     setEditingInlineValue(currentValue);
   };
 
-  const saveEditInline = async () => {
+  const saveEditInline = async (value) => {
     if (!editingInlineKey || !editingInlinePosition) return;
+    
+    // Get value from parameter or from input element
+    const newValue = value !== undefined ? value : document.querySelector('.inline-edit-input')?.value || editingInlineValue;
     
     // Update local state immediately
     setInlineTranslations(prev => {
@@ -860,7 +863,7 @@ function BookReader() {
       if (!updated[editingInlineKey]) {
         updated[editingInlineKey] = {};
       }
-      updated[editingInlineKey][editingInlinePosition] = editingInlineValue;
+      updated[editingInlineKey][editingInlinePosition] = newValue;
       return updated;
     });
     
@@ -873,7 +876,7 @@ function BookReader() {
         const response = await fetch(`/api/vocabulary/${vocabId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ translation: editingInlineValue })
+          body: JSON.stringify({ translation: newValue })
         });
         const data = await response.json();
         if (!data.success) {
@@ -882,6 +885,8 @@ function BookReader() {
       } catch (err) {
         console.error('Error updating translation:', err);
       }
+    } else {
+      console.log('No vocab_id found for', editingInlineKey, 'at position', editingInlinePosition);
     }
     
     setEditingInlinePosition(null);
@@ -1008,6 +1013,16 @@ function BookReader() {
             navigate('/subscribe');
           } else if (!res.ok) {
             console.error('Error saving vocabulary:', data);
+          } else if (data.success && data.vocabulary?.id) {
+            // Store the vocab_id so immediate edits work
+            setVocabularyIds(prev => {
+              const updated = { ...prev };
+              if (!updated[selectedWord]) {
+                updated[selectedWord] = {};
+              }
+              updated[selectedWord][position] = data.vocabulary.id;
+              return updated;
+            });
           }
           return data;
         })
@@ -1144,13 +1159,13 @@ function BookReader() {
                   <input
                     type="text"
                     className="inline-edit-input"
-                    value={editingInlineValue}
-                    onChange={(e) => setEditingInlineValue(e.target.value)}
+                    defaultValue={editingInlineValue}
                     onKeyDown={(e) => {
                       e.stopPropagation();
                       if (e.key === 'Enter') {
                         e.preventDefault();
-                        saveEditInline();
+                        setEditingInlineValue(e.target.value);
+                        saveEditInline(e.target.value);
                       }
                       if (e.key === 'Escape') {
                         e.preventDefault();
