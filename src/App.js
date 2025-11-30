@@ -5,9 +5,8 @@ import VocabularyPractice from './VocabularyPractice';
 import Subscribe from './Subscribe';
 import Account from './Account';
 
-// API URL - use environment variable or default to current domain in production  
+// API URL - use environment variable or default to current domain in production
 const API_URL = process.env.REACT_APP_API_URL || '';
-console.log('API_URL configured:', API_URL);
 
 export const UserContext = createContext(null);
 
