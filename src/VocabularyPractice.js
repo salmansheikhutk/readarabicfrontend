@@ -77,13 +77,18 @@ const VocabularyPractice = () => {
       console.error('Failed to update review:', err);
     }
     
-    // Move to next word or end session
-    if (currentIndex < vocabulary.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-      setIsFlipped(false);
-    } else {
-      setSessionComplete(true);
-    }
+    // First flip the card back
+    setIsFlipped(false);
+    
+    // Wait for flip animation to complete before changing content
+    setTimeout(() => {
+      // Move to next word or end session
+      if (currentIndex < vocabulary.length - 1) {
+        setCurrentIndex(currentIndex + 1);
+      } else {
+        setSessionComplete(true);
+      }
+    }, 300); // Match the CSS transition duration
   };
 
   const handleKeyPress = (e) => {
