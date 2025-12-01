@@ -201,6 +201,153 @@ function Landing() {
         </video>
       </div>
 
+      {/* Instructions Under Video */}
+      <div style={{
+        textAlign: 'center',
+        marginBottom: '40px',
+        zIndex: 1,
+        position: 'relative',
+        animation: 'fadeInUp 0.8s ease-out 0.55s backwards'
+      }}
+      className="section-margin">
+        <div style={{
+          maxWidth: '700px',
+          margin: '0 auto',
+          background: 'white',
+          padding: '30px',
+          borderRadius: '16px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+          border: '1px solid #e2e8f0'
+        }}>
+          <h3 style={{
+            fontSize: '1.5rem',
+            color: '#1a202c',
+            marginBottom: '20px',
+            fontWeight: '700',
+            fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif",
+            direction: 'ltr',
+            textAlign: 'left'
+          }}>
+            How to Use ReadArabic
+          </h3>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            textAlign: 'left',
+            direction: 'ltr'
+          }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px',
+              padding: '12px',
+              background: '#f8fafc',
+              borderRadius: '8px',
+              border: '1px solid #e2e8f0',
+              direction: 'ltr'
+            }}>
+              <span style={{
+                fontSize: '1.2rem',
+                fontWeight: '600',
+                color: '#667eea',
+                minWidth: '24px',
+                direction: 'ltr'
+              }}>1.</span>
+              <span style={{
+                fontSize: '1rem',
+                color: '#374151',
+                lineHeight: '1.5',
+                direction: 'ltr'
+              }}>
+                Select any text from our collection of 2000+ texts.
+              </span>
+            </div>
+            
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px',
+              padding: '12px',
+              background: '#f8fafc',
+              borderRadius: '8px',
+              border: '1px solid #e2e8f0',
+              direction: 'ltr'
+            }}>
+              <span style={{
+                fontSize: '1.2rem',
+                fontWeight: '600',
+                color: '#667eea',
+                minWidth: '24px',
+                direction: 'ltr'
+              }}>2.</span>
+              <span style={{
+                fontSize: '1rem',
+                color: '#374151',
+                lineHeight: '1.5',
+                direction: 'ltr'
+              }}>
+                Read naturally, looking up individual words from the integrated dictionary.
+              </span>
+            </div>
+            
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px',
+              padding: '12px',
+              background: '#f8fafc',
+              borderRadius: '8px',
+              border: '1px solid #e2e8f0',
+              direction: 'ltr'
+            }}>
+              <span style={{
+                fontSize: '1.2rem',
+                fontWeight: '600',
+                color: '#667eea',
+                minWidth: '24px',
+                direction: 'ltr'
+              }}>3.</span>
+              <span style={{
+                fontSize: '1rem',
+                color: '#374151',
+                lineHeight: '1.5',
+                direction: 'ltr'
+              }}>
+                Highlight the entire sentence at any time for a translation.
+              </span>
+            </div>
+            
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px',
+              padding: '12px',
+              background: '#f8fafc',
+              borderRadius: '8px',
+              border: '1px solid #e2e8f0',
+              direction: 'ltr'
+            }}>
+              <span style={{
+                fontSize: '1.2rem',
+                fontWeight: '600',
+                color: '#667eea',
+                minWidth: '24px',
+                direction: 'ltr'
+              }}>4.</span>
+              <span style={{
+                fontSize: '1rem',
+                color: '#374151',
+                lineHeight: '1.5',
+                direction: 'ltr'
+              }}>
+                Practice your vocabulary words using smart repetition.
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Features Under Video */}
       <div style={{
         textAlign: 'center',
@@ -359,6 +506,7 @@ function Browse() {
   const [recentlyReadBooks, setRecentlyReadBooks] = useState([]);
   const [hasActiveSubscription, setHasActiveSubscription] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showInstructionsModal, setShowInstructionsModal] = useState(false);
 
   // Redirect to landing if not logged in
   useEffect(() => {
@@ -470,7 +618,30 @@ function Browse() {
   return (
     <div className="book-selection-screen">
       {/* Header with user actions */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '15px 40px', background: 'white', borderBottom: '1px solid #e1e4e8', position: 'relative' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 40px', background: 'white', borderBottom: '1px solid #e1e4e8', position: 'relative' }}>
+        {/* Instructions button in center */}
+        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+          <button 
+            onClick={() => setShowInstructionsModal(true)}
+            style={{ 
+              background: '#667eea', 
+              color: 'white', 
+              border: 'none', 
+              padding: '8px 16px', 
+              borderRadius: '6px', 
+              cursor: 'pointer',
+              fontSize: '0.9rem',
+              fontWeight: '500',
+              transition: 'opacity 0.2s'
+            }}
+            onMouseOver={(e) => e.target.style.opacity = '0.9'}
+            onMouseOut={(e) => e.target.style.opacity = '1'}
+          >
+            Instructions
+          </button>
+        </div>
+        
+        {/* User actions on the right */}
         {user ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative' }}>
             <span style={{ color: '#2c3e50', fontWeight: '500', fontSize: '0.95rem' }}>{user.name}</span>
@@ -502,24 +673,6 @@ function Browse() {
               </button>
             )}
             <button 
-              onClick={() => navigate('/vocabulary/practice')} 
-              style={{ 
-                background: '#667eea', 
-                color: 'white', 
-                border: 'none', 
-                padding: '8px 16px', 
-                borderRadius: '6px', 
-                cursor: 'pointer',
-                fontSize: '0.9rem',
-                fontWeight: '500',
-                transition: 'opacity 0.2s'
-              }}
-              onMouseOver={(e) => e.target.style.opacity = '0.9'}
-              onMouseOut={(e) => e.target.style.opacity = '1'}
-            >
-              Practice
-            </button>
-            <button 
               onClick={() => navigate('/account')}
               style={{ 
                 background: 'transparent',
@@ -542,11 +695,225 @@ function Browse() {
                 <circle cx="12" cy="7" r="4"/>
               </svg>
             </button>
+            <button 
+              onClick={() => navigate('/vocabulary/practice')} 
+              style={{ 
+                background: '#667eea', 
+                color: 'white', 
+                border: 'none', 
+                padding: '8px 16px', 
+                borderRadius: '6px', 
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                fontWeight: '500',
+                transition: 'opacity 0.2s'
+              }}
+              onMouseOver={(e) => e.target.style.opacity = '0.9'}
+              onMouseOut={(e) => e.target.style.opacity = '1'}
+            >
+              Practice
+            </button>
           </div>
         ) : (
           <LoginButton />
         )}
       </div>
+
+      {/* Instructions Modal */}
+      {showInstructionsModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
+          }}
+          onClick={() => setShowInstructionsModal(false)}
+        >
+          <div
+            style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '40px',
+              maxWidth: '800px',
+              maxHeight: '80vh',
+              overflow: 'auto',
+              position: 'relative',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setShowInstructionsModal(false)}
+              style={{
+                position: 'absolute',
+                top: '20px',
+                right: '20px',
+                background: 'transparent',
+                border: 'none',
+                fontSize: '24px',
+                cursor: 'pointer',
+                color: '#6b7280',
+                padding: '4px',
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
+              onMouseOut={(e) => e.target.style.background = 'transparent'}
+            >
+              ×
+            </button>
+
+            {/* Instructions Content */}
+            <div style={{
+              maxWidth: '700px',
+              margin: '0 auto',
+              background: 'white',
+              borderRadius: '16px',
+              direction: 'ltr'
+            }}>
+              <h3 style={{
+                fontSize: '1.5rem',
+                color: '#1a202c',
+                marginBottom: '20px',
+                fontWeight: '700',
+                fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif",
+                direction: 'ltr',
+                textAlign: 'left'
+              }}>
+                How to Use ReadArabic
+              </h3>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                textAlign: 'left',
+                direction: 'ltr'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  padding: '12px',
+                  background: '#f8fafc',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0',
+                  direction: 'ltr'
+                }}>
+                  <span style={{
+                    fontSize: '1.2rem',
+                    fontWeight: '600',
+                    color: '#667eea',
+                    minWidth: '24px',
+                    direction: 'ltr'
+                  }}>1.</span>
+                  <span style={{
+                    fontSize: '1rem',
+                    color: '#374151',
+                    lineHeight: '1.5',
+                    direction: 'ltr'
+                  }}>
+                    Select any text from our collection of 2000+ texts.
+                  </span>
+                </div>
+                
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  padding: '12px',
+                  background: '#f8fafc',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0',
+                  direction: 'ltr'
+                }}>
+                  <span style={{
+                    fontSize: '1.2rem',
+                    fontWeight: '600',
+                    color: '#667eea',
+                    minWidth: '24px',
+                    direction: 'ltr'
+                  }}>2.</span>
+                  <span style={{
+                    fontSize: '1rem',
+                    color: '#374151',
+                    lineHeight: '1.5',
+                    direction: 'ltr'
+                  }}>
+                    Read naturally, looking up individual words from the integrated dictionary.
+                  </span>
+                </div>
+                
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  padding: '12px',
+                  background: '#f8fafc',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0',
+                  direction: 'ltr'
+                }}>
+                  <span style={{
+                    fontSize: '1.2rem',
+                    fontWeight: '600',
+                    color: '#667eea',
+                    minWidth: '24px',
+                    direction: 'ltr'
+                  }}>3.</span>
+                  <span style={{
+                    fontSize: '1rem',
+                    color: '#374151',
+                    lineHeight: '1.5',
+                    direction: 'ltr'
+                  }}>
+                    Highlight the entire sentence at any time for a translation.
+                  </span>
+                </div>
+                
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  padding: '12px',
+                  background: '#f8fafc',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0',
+                  direction: 'ltr'
+                }}>
+                  <span style={{
+                    fontSize: '1.2rem',
+                    fontWeight: '600',
+                    color: '#667eea',
+                    minWidth: '24px',
+                    direction: 'ltr'
+                  }}>4.</span>
+                  <span style={{
+                    fontSize: '1rem',
+                    color: '#374151',
+                    lineHeight: '1.5',
+                    direction: 'ltr'
+                  }}>
+                    Practice your vocabulary words using smart repetition.
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Container - Well Structured */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '15px 20px' }}>
