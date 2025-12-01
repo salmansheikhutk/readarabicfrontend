@@ -35,19 +35,25 @@ const VocabularyPractice = () => {
   const fetchDueVocabulary = async () => {
     try {
       setLoading(true);
-      let url = `/api/vocabulary/due/${user.id}`;
+      let url = `${API_URL}/api/vocabulary/due/${user.id}`;
       if (bookId) {
         url += `?book_id=${bookId}`;
       }
       
+      console.log('Fetching vocabulary from:', url);
       const response = await fetch(url);
       const data = await response.json();
       
+      console.log('Vocabulary API response:', data);
+      
       if (data.success) {
+        console.log('Received vocabulary:', data.vocabulary.length, 'words');
         // Shuffle vocabulary for variety
         const shuffled = data.vocabulary.sort(() => Math.random() - 0.5);
         setVocabulary(shuffled);
         setSessionStats(prev => ({ ...prev, total: shuffled.length }));
+      } else {
+        console.error('API returned success=false:', data);
       }
     } catch (err) {
       console.error('Failed to fetch vocabulary:', err);
