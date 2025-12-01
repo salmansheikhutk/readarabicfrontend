@@ -760,6 +760,7 @@ function BookReader() {
   const tocRef = React.useRef(null); // Reference to TOC container
   const isNavigatingRef = React.useRef(false); // Flag to prevent observer interference during navigation
   const [saveErrorMessage, setSaveErrorMessage] = useState(''); // Show styled error message
+  const [hasActiveSubscription, setHasActiveSubscription] = useState(null);
 
   useEffect(() => {
     localStorage.setItem('readarabic-dictionary', JSON.stringify(dictionary));
@@ -769,7 +770,28 @@ function BookReader() {
     localStorage.setItem('readarabic-inline-translations', JSON.stringify(inlineTranslations));
   }, [inlineTranslations]);
 
-  // Load user vocabulary from database when user logs in and book data is loaded
+  // Check subscription status
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!user) return;
+      
+      try {
+        const response = await fetch(`${API_URL}/api/subscription/status/${user.id}`);
+        const data = await response.json();
+        
+        if (data.success && data.is_premium) {
+          setHasActiveSubscription(true);
+        } else {
+          setHasActiveSubscription(false);
+        }
+      } catch (err) {
+        console.error('Failed to check subscription:', err);
+        setHasActiveSubscription(false);
+      }
+    };
+    
+    checkSubscription();
+  }, [user]);
   useEffect(() => {
     if (user && bookId && bookData && !vocabularyLoaded) {
       fetch(`${API_URL}/api/vocabulary/${user.id}?book_id=${bookId}`)
@@ -1282,9 +1304,16 @@ function BookReader() {
         .then(async res => {
           const data = await res.json();
           if (res.status === 403 && data.error === 'FREE_LIMIT_REACHED') {
-            // Navigate to payment page
-            alert(`Free tier limited to 5 words!\n\nYou currently have ${data.vocab_count} words saved.\n\nUpgrade to premium to save unlimited vocabulary words.`);
-            navigate('/subscribe');
+            // Check if user has active subscription before showing limit error
+            if (hasActiveSubscription) {
+              // User has active subscription but still hit limit - this shouldn't happen
+              console.error('Active subscriber hit free limit - backend issue');
+              alert('There was an error saving your vocabulary. Please contact support.');
+            } else {
+              // Free user hit limit - show upgrade prompt
+              alert(`Free tier limited to 5 words!\n\nYou currently have ${data.vocab_count} words saved.\n\nUpgrade to premium to save unlimited vocabulary words.`);
+              navigate('/subscribe');
+            }
           } else if (!res.ok) {
             console.error('Error saving vocabulary:', data);
           } else if (data.success && data.vocabulary?.id) {
