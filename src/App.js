@@ -43,9 +43,9 @@ function Landing() {
     }}
     className="landing-padding">
       <Helmet>
-        <title>ReadArabic - Learn Arabic with Interactive Reading | Arabic Vocabulary Builder</title>
-        <meta name="description" content="Master Arabic vocabulary through interactive reading. Read 2000+ authentic Arabic texts with built-in dictionary, spaced repetition, and smart learning tools. Perfect for Arabic language learners." />
-        <meta name="keywords" content="Arabic learning, Arabic vocabulary, learn Arabic, Arabic reading, Arabic dictionary, Arabic language, Arabic texts, Arabic books, Arabic education, Arabic study, Arabic practice, Arabic spaced repetition" />
+        <title>Learn Arabic Online - Read 2000+ Texts | ReadArabic</title>
+        <meta name="description" content="Learn Arabic by reading authentic texts. Interactive reader with instant word translations, sentence meanings, and vocabulary practice. Start reading Arabic today - no textbooks needed." />
+        <meta name="keywords" content="learn Arabic, learn Arabic online, Arabic learning app, read Arabic online, Arabic text reader, Arabic vocabulary, Arabic reading practice, Arabic language learning, study Arabic, Arabic texts, Arabic books online" />
         <link rel="canonical" href="https://www.readarabic.io/" />
       </Helmet>
       {/* Just Launched Badge */}
