@@ -157,13 +157,24 @@ function Landing() {
         
         <h2 style={{
           fontSize: '2rem',
-          marginBottom: '20px',
+          marginBottom: '8px',
           color: '#4a5568',
           fontWeight: '600',
           letterSpacing: '-0.01em',
           animation: 'fadeIn 1s ease-out 0.3s backwards'
         }}
         className="landing-subtitle">Read Arabic</h2>
+        
+        <p style={{
+          fontSize: '1.15rem',
+          marginBottom: '20px',
+          color: '#1a202c',
+          fontWeight: '500',
+          letterSpacing: '0.02em',
+          animation: 'fadeIn 1s ease-out 0.35s backwards'
+        }}>
+          The Classical Arabic Reading Platform
+        </p>
       </div>
 
       {/* Sign In Button Above Video */}
@@ -355,98 +366,58 @@ function Landing() {
         </div>
       </div>
 
-      {/* Features Under Video */}
+      {/* About Us Section */}
       <div style={{
         textAlign: 'center',
         marginBottom: '40px',
+        marginTop: '60px',
         zIndex: 1,
         position: 'relative',
         animation: 'fadeInUp 0.8s ease-out 0.6s backwards'
       }}
       className="section-margin">
         <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '40px',
-          flexWrap: 'wrap',
           maxWidth: '800px',
-          margin: '0 auto'
-        }}
-        className="features-section">
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '20px',
-            background: '#f8fafc',
-            borderRadius: '16px',
-            border: '1px solid #e2e8f0',
-            minWidth: '180px',
-            transition: 'transform 0.2s, box-shadow 0.2s'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-4px)';
-            e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'none';
+          margin: '0 auto',
+          background: 'white',
+          padding: '40px',
+          borderRadius: '16px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+          border: '1px solid #e2e8f0'
+        }}>
+          <h3 style={{
+            fontSize: '1.8rem',
+            color: '#1a202c',
+            marginBottom: '12px',
+            fontWeight: '700',
+            textAlign: 'center'
           }}>
-            <div style={{ fontSize: '2rem', marginBottom: '8px' }}>📚</div>
-            <div style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1a202c' }}>2000+ Texts</div>
-            <div style={{ fontSize: '0.9rem', color: '#64748b', textAlign: 'center' }}>Classical Islamic Literature</div>
-          </div>
-          
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '20px',
-            background: '#f8fafc',
-            borderRadius: '16px',
-            border: '1px solid #e2e8f0',
-            minWidth: '180px',
-            transition: 'transform 0.2s, box-shadow 0.2s'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-4px)';
-            e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'none';
+            About Us
+          </h3>
+          <h4 style={{
+            fontSize: '1.15rem',
+            color: '#667eea',
+            marginBottom: '24px',
+            fontWeight: '500',
+            textAlign: 'center',
+            fontStyle: 'italic'
           }}>
-            <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🔍</div>
-            <div style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1a202c' }}>Smart Dictionary</div>
-            <div style={{ fontSize: '0.9rem', color: '#64748b', textAlign: 'center' }}>Instant word definitions</div>
-          </div>
-          
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '20px',
-            background: '#f8fafc',
-            borderRadius: '16px',
-            border: '1px solid #e2e8f0',
-            minWidth: '180px',
-            transition: 'transform 0.2s, box-shadow 0.2s'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-4px)';
-            e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = 'none';
+            Developed by students, for students
+          </h4>
+          <p style={{
+            fontSize: '1.05rem',
+            color: '#4a5568',
+            lineHeight: '1.9',
+            textAlign: 'left',
+            marginBottom: '0',
+            direction: 'ltr'
           }}>
-            <div style={{ fontSize: '2rem', marginBottom: '8px' }}>🧠</div>
-            <div style={{ fontSize: '1.1rem', fontWeight: '600', color: '#1a202c' }}>Spaced Repetition</div>
-            <div style={{ fontSize: '0.9rem', color: '#64748b', textAlign: 'center' }}>Flashcards that adapt to you</div>
-          </div>
+            While mastering Arabic grammar (<span style={{ fontStyle: 'italic' }}>nahw</span>) and 
+            morphology (<span style={{ fontStyle: 'italic' }}>sarf</span>) is essential for reading classical texts, vocabulary 
+            remains the most important contributor to comprehension. This platform seamlessly integrates classical Arabic texts 
+            with a highly intelligent dictionary to support your learning journey. We've designed the experience to be as 
+            natural as possible—this is a tool to aid learning, not circumvent it.
+          </p>
         </div>
       </div>
 
