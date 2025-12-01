@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from './App';
+import { Helmet } from 'react-helmet-async';
 
 // API URL - use environment variable or default to current domain in production
 const API_URL = process.env.REACT_APP_API_URL || '';
@@ -92,6 +93,13 @@ function Account() {
       alignItems: 'center',
       justifyContent: 'center'
     }}>
+      <Helmet>
+        <title>Account Settings - Manage Subscription | ReadArabic</title>
+        <meta name="description" content="Manage your ReadArabic account, view subscription details, and upgrade to premium for unlimited vocabulary access." />
+        <meta name="keywords" content="Arabic account, subscription management, Arabic premium account, Arabic learning subscription" />
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://www.readarabic.io/account" />
+      </Helmet>
       <div style={{
         maxWidth: '500px',
         width: '100%'

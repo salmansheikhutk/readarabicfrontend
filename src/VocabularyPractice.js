@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { UserContext } from './App';
+import { Helmet } from 'react-helmet-async';
 import './VocabularyPractice.css';
 
 // API URL - use environment variable or default to current domain in production
@@ -117,6 +118,13 @@ const VocabularyPractice = () => {
   if (loading) {
     return (
       <div className="practice-container">
+        <Helmet>
+          <title>Loading Arabic Vocabulary Practice | ReadArabic</title>
+          <meta name="description" content="Loading your Arabic vocabulary practice session with spaced repetition flashcards." />
+          <meta name="keywords" content="Arabic vocabulary practice, loading, spaced repetition, Arabic flashcards" />
+          <meta name="robots" content="noindex, nofollow" />
+          <link rel="canonical" href="https://www.readarabic.io/vocabulary/practice" />
+        </Helmet>
         <div className="loading-state">
           <div className="spinner"></div>
           <p>Loading vocabulary...</p>
@@ -128,6 +136,13 @@ const VocabularyPractice = () => {
   if (vocabulary.length === 0) {
     return (
       <div className="practice-container">
+        <Helmet>
+          <title>No Vocabulary Due - Arabic Practice | ReadArabic</title>
+          <meta name="description" content="No Arabic vocabulary words are due for review. Continue reading to add more words to your practice sessions." />
+          <meta name="keywords" content="Arabic vocabulary practice, no words due, Arabic learning, spaced repetition" />
+          <meta name="robots" content="noindex, nofollow" />
+          <link rel="canonical" href="https://www.readarabic.io/vocabulary/practice" />
+        </Helmet>
         <div className="empty-state">
           <h2>No vocabulary due for review</h2>
           <p>Great job! Check back later or add more vocabulary while reading.</p>
@@ -146,6 +161,13 @@ const VocabularyPractice = () => {
     
     return (
       <div className="practice-container">
+        <Helmet>
+          <title>Arabic Vocabulary Practice Complete - Session Stats | ReadArabic</title>
+          <meta name="description" content="Vocabulary practice session completed. Review your performance and continue learning Arabic with spaced repetition." />
+          <meta name="keywords" content="Arabic vocabulary practice complete, spaced repetition stats, Arabic learning progress" />
+          <meta name="robots" content="noindex, nofollow" />
+          <link rel="canonical" href="https://www.readarabic.io/vocabulary/practice" />
+        </Helmet>
         <div className="session-complete">
           <h2>🎉 Session Complete!</h2>
           <div className="stats-summary">
@@ -184,6 +206,13 @@ const VocabularyPractice = () => {
 
   return (
     <div className="practice-container">
+      <Helmet>
+        <title>Arabic Vocabulary Practice - Spaced Repetition Flashcards | ReadArabic</title>
+        <meta name="description" content="Practice Arabic vocabulary with intelligent spaced repetition flashcards. Review words from your reading and improve retention with adaptive learning." />
+        <meta name="keywords" content="Arabic vocabulary practice, spaced repetition, Arabic flashcards, Arabic learning, Arabic words practice" />
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://www.readarabic.io/vocabulary/practice" />
+      </Helmet>
       <div className="practice-header">
         <button onClick={() => navigate(-1)} className="back-button">← Back</button>
         <div className="progress-info">

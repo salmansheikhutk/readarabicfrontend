@@ -1,0 +1,73 @@
+User-agent: *
+Allow: /
+
+# Disallow authenticated pages (require login)
+Disallow: /browse
+Disallow: /account
+Disallow: /vocabulary/
+Disallow: /book/
+Disallow: /subscribe
+
+# Major search engines
+User-agent: Googlebot
+Allow: /
+Disallow: /browse
+Disallow: /account
+Disallow: /vocabulary/
+Disallow: /book/
+Disallow: /subscribe
+
+User-agent: Bingbot
+Allow: /
+Disallow: /browse
+Disallow: /account
+Disallow: /vocabulary/
+Disallow: /book/
+Disallow: /subscribe
+
+User-agent: Slurp
+Allow: /
+Disallow: /browse
+Disallow: /account
+Disallow: /vocabulary/
+Disallow: /book/
+Disallow: /subscribe
+
+User-agent: DuckDuckBot
+Allow: /
+Disallow: /browse
+Disallow: /account
+Disallow: /vocabulary/
+Disallow: /book/
+Disallow: /subscribe
+
+User-agent: Baiduspider
+Allow: /
+Disallow: /browse
+Disallow: /account
+Disallow: /vocabulary/
+Disallow: /book/
+Disallow: /subscribe
+
+User-agent: YandexBot
+Allow: /
+Disallow: /browse
+Disallow: /account
+Disallow: /vocabulary/
+Disallow: /book/
+Disallow: /subscribe
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+# Sitemap
+Sitemap: https://www.readarabic.io/sitemap.xml

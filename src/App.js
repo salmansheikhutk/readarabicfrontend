@@ -1,5 +1,6 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from 'react-router-dom';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
 import './App.css';
 import VocabularyPractice from './VocabularyPractice';
 import Subscribe from './Subscribe';
@@ -41,6 +42,12 @@ function Landing() {
       overflow: 'hidden'
     }}
     className="landing-padding">
+      <Helmet>
+        <title>ReadArabic - Learn Arabic with Interactive Reading | Arabic Vocabulary Builder</title>
+        <meta name="description" content="Master Arabic vocabulary through interactive reading. Read 2000+ authentic Arabic texts with built-in dictionary, spaced repetition, and smart learning tools. Perfect for Arabic language learners." />
+        <meta name="keywords" content="Arabic learning, Arabic vocabulary, learn Arabic, Arabic reading, Arabic dictionary, Arabic language, Arabic texts, Arabic books, Arabic education, Arabic study, Arabic practice, Arabic spaced repetition" />
+        <link rel="canonical" href="https://www.readarabic.io/" />
+      </Helmet>
       {/* Just Launched Badge */}
       <div style={{
         position: 'absolute',
@@ -617,6 +624,13 @@ function Browse() {
 
   return (
     <div className="book-selection-screen">
+      <Helmet>
+        <title>Browse Arabic Books - ReadArabic Library | 2000+ Texts Available</title>
+        <meta name="description" content="Browse our extensive collection of 2000+ Arabic texts. Choose from classical Islamic literature, modern Arabic books, and more. Start your Arabic reading journey today." />
+        <meta name="keywords" content="Arabic books, Arabic texts, Arabic library, Arabic reading, Arabic literature, Islamic texts, Arabic learning materials" />
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://www.readarabic.io/browse" />
+      </Helmet>
       {/* Header with user actions */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 40px', background: 'white', borderBottom: '1px solid #e1e4e8', position: 'relative' }}>
         {/* Instructions button in center */}
@@ -1921,6 +1935,13 @@ function BookReader() {
   if (loading) {
     return (
       <div className="app">
+        <Helmet>
+          <title>Loading Arabic Text - ReadArabic</title>
+          <meta name="description" content="Loading Arabic text with interactive reading tools and dictionary." />
+          <meta name="keywords" content="Arabic reading, Arabic texts, loading" />
+          <meta name="robots" content="noindex, nofollow" />
+          <link rel="canonical" href={`https://www.readarabic.io/book/${bookId}`} />
+        </Helmet>
         <div className="main-content">
           <div className="empty-state">
             <div className="spinner"></div>
@@ -1934,6 +1955,13 @@ function BookReader() {
   if (error) {
     return (
       <div className="app">
+        <Helmet>
+          <title>Book Not Found - ReadArabic</title>
+          <meta name="description" content="The requested Arabic text could not be found. Browse our collection of 2000+ Arabic texts." />
+          <meta name="keywords" content="Arabic reading, book not found, Arabic texts" />
+          <meta name="robots" content="noindex, nofollow" />
+          <link rel="canonical" href={`https://www.readarabic.io/book/${bookId}`} />
+        </Helmet>
         <div className="main-content">
           <div className="empty-state">
             <p className="error-message">{error}</p>
@@ -1949,6 +1977,13 @@ function BookReader() {
 
   return (
     <div className="app">
+      <Helmet>
+        <title>{bookData?.meta?.name ? `${bookData.meta.name} - Read Arabic Text` : 'Reading Arabic Text - ReadArabic'}</title>
+        <meta name="description" content={bookData?.meta?.name ? `Read ${bookData.meta.name} with interactive Arabic dictionary, translations, and vocabulary building tools.` : 'Read Arabic texts with built-in dictionary, sentence translations, and spaced repetition vocabulary practice.'} />
+        <meta name="keywords" content="Arabic reading, Arabic texts, Arabic books, Arabic dictionary, Arabic learning, Arabic vocabulary" />
+        <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href={`https://www.readarabic.io/book/${bookId}`} />
+      </Helmet>
       {/* Translation Popup */}
       {showTranslation && (
         <div
@@ -2464,7 +2499,11 @@ function App() {
     };
   }, []);
 
-  return <AppContent />;
+  return (
+    <HelmetProvider>
+      <AppContent />
+    </HelmetProvider>
+  );
 }
 
 export default App;
