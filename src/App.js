@@ -1904,17 +1904,63 @@ function BookReader() {
                     onClick={(e) => {
                       e.stopPropagation();
                       e.preventDefault();
-                      setInlineTranslations(prev => {
-                        const updated = { ...prev };
-                        if (updated[cleanWord]) {
-                          delete updated[cleanWord][currentPosition];
-                          // If no more locations for this word, remove the word entry
-                          if (Object.keys(updated[cleanWord]).length === 0) {
-                            delete updated[cleanWord];
+                      
+                      // Get vocab_id for this position
+                      const vocabId = vocabularyIds[cleanWord]?.[currentPosition];
+                      
+                      if (vocabId && user) {
+                        // Delete from database first
+                        fetch(`${API_URL}/api/vocabulary/${vocabId}`, {
+                          method: 'DELETE'
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                          if (data.success) {
+                            // Only update local state if database delete succeeded
+                            setInlineTranslations(prev => {
+                              const updated = { ...prev };
+                              if (updated[cleanWord]) {
+                                delete updated[cleanWord][currentPosition];
+                                // If no more locations for this word, remove the word entry
+                                if (Object.keys(updated[cleanWord]).length === 0) {
+                                  delete updated[cleanWord];
+                                }
+                              }
+                              return updated;
+                            });
+                            
+                            // Also remove from vocabularyIds
+                            setVocabularyIds(prev => {
+                              const updated = { ...prev };
+                              if (updated[cleanWord]) {
+                                delete updated[cleanWord][currentPosition];
+                                if (Object.keys(updated[cleanWord]).length === 0) {
+                                  delete updated[cleanWord];
+                                }
+                              }
+                              return updated;
+                            });
+                          } else {
+                            console.error('Failed to delete vocabulary from database:', data.error);
                           }
-                        }
-                        return updated;
-                      });
+                        })
+                        .catch(err => {
+                          console.error('Error deleting vocabulary:', err);
+                        });
+                      } else {
+                        // No vocab_id or not logged in - just remove from local state
+                        setInlineTranslations(prev => {
+                          const updated = { ...prev };
+                          if (updated[cleanWord]) {
+                            delete updated[cleanWord][currentPosition];
+                            // If no more locations for this word, remove the word entry
+                            if (Object.keys(updated[cleanWord]).length === 0) {
+                              delete updated[cleanWord];
+                            }
+                          }
+                          return updated;
+                        });
+                      }
                     }}
                     onMouseDown={(e) => e.stopPropagation()}
                     title="Delete translation"
