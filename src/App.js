@@ -485,6 +485,7 @@ function Browse() {
   const [hasActiveSubscription, setHasActiveSubscription] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showInstructionsModal, setShowInstructionsModal] = useState(false);
+  const initialLoadDone = React.useRef(false);
 
   // Redirect to landing if not logged in
   useEffect(() => {
@@ -493,66 +494,48 @@ function Browse() {
     }
   }, [user, navigate]);
 
-  // Check subscription status
+  // Single useEffect to fetch ALL initial data when user is available (runs only once)
   useEffect(() => {
-    const checkSubscription = async () => {
-      if (!user) return;
-      
+    if (!user || initialLoadDone.current) return;
+    
+    initialLoadDone.current = true;
+    
+    const fetchInitialData = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/subscription/status/${user.id}`);
-        const data = await response.json();
-        
-        if (data.success && data.is_premium) {
+        // Fetch subscription, categories, and recent books in parallel
+        const [subscriptionRes, categoriesRes, recentBooksRes] = await Promise.all([
+          fetch(`${API_URL}/api/subscription/status/${user.id}`),
+          fetch(`${API_URL}/api/categories`),
+          fetch(`${API_URL}/api/vocabulary/${user.id}/recent-books`)
+        ]);
+
+        const [subscriptionData, categoriesData, recentBooksData] = await Promise.all([
+          subscriptionRes.json(),
+          categoriesRes.json(),
+          recentBooksRes.json()
+        ]);
+
+        // Set all state at once
+        if (subscriptionData.success && subscriptionData.is_premium) {
           setHasActiveSubscription(true);
         } else {
           setHasActiveSubscription(false);
         }
+
+        if (categoriesData.success) {
+          setCategories(categoriesData.categories);
+        }
+
+        if (recentBooksData.success && recentBooksData.books) {
+          setRecentlyReadBooks(recentBooksData.books);
+        }
       } catch (err) {
-        console.error('Failed to check subscription:', err);
+        console.error('Failed to fetch initial data:', err);
         setHasActiveSubscription(false);
       }
     };
-    
-    checkSubscription();
-  }, [user]);
 
-  // Fetch categories on mount
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/categories`);
-        const data = await response.json();
-        if (data.success) {
-          setCategories(data.categories);
-        }
-      } catch (err) {
-        console.error('Failed to fetch categories:', err);
-      }
-    };
-    fetchCategories();
-  }, []);
-
-  // Fetch recently read books from user vocabulary
-  useEffect(() => {
-    const fetchRecentlyRead = async () => {
-      if (!user) {
-        setRecentlyReadBooks([]);
-        return;
-      }
-      
-      try {
-        const response = await fetch(`${API_URL}/api/vocabulary/${user.id}/recent-books`);
-        const data = await response.json();
-        
-        if (data.success && data.books) {
-          setRecentlyReadBooks(data.books);
-        }
-      } catch (err) {
-        console.error('Failed to fetch recently read books:', err);
-      }
-    };
-    
-    fetchRecentlyRead();
+    fetchInitialData();
   }, [user]);
 
   // Fetch books on mount and when category changes
@@ -562,6 +545,8 @@ function Browse() {
         setLoadingBooks(true);
         setError(null);
         
+        // Don't send limit parameter - let backend fetch all books
+        // Materialized view makes this fast (~0.5s for 2000+ books)
         let url = `${API_URL}/api/books`;
         const params = [];
         if (selectedCategory) {
@@ -634,7 +619,7 @@ function Browse() {
               <button 
                 onClick={() => navigate('/subscribe')} 
                 style={{ 
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+                  background: '#10b981', 
                   color: 'white', 
                   border: 'none', 
                   padding: '8px 16px', 
@@ -643,18 +628,18 @@ function Browse() {
                   fontSize: '0.9rem',
                   fontWeight: '600',
                   transition: 'transform 0.2s, box-shadow 0.2s',
-                  boxShadow: '0 2px 8px rgba(102, 126, 234, 0.3)'
+                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
                 }}
                 onMouseOver={(e) => {
                   e.target.style.transform = 'translateY(-1px)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
                 }}
                 onMouseOut={(e) => {
                   e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.3)';
+                  e.target.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
                 }}
               >
-                Upgrade to Premium
+                Upgrade
               </button>
             )}
             <button 

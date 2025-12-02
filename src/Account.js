@@ -295,31 +295,31 @@ function Account() {
               <p style={{ color: '#9ca3af', marginBottom: '25px', fontSize: '0.95rem' }}>
                 Free plan • 5 words max
               </p>
-              <button
+                            <button
                 onClick={() => navigate('/subscribe')}
                 style={{
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  background: '#10b981',
                   color: 'white',
                   border: 'none',
-                  padding: '12px 32px',
+                  padding: '12px',
                   borderRadius: '8px',
                   cursor: 'pointer',
                   fontSize: '0.9rem',
                   fontWeight: '500',
                   transition: 'transform 0.2s, box-shadow 0.2s',
-                  boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                  boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
                   width: '100%'
                 }}
                 onMouseOver={(e) => {
                   e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = '0 6px 20px rgba(102, 126, 234, 0.4)';
+                  e.target.style.boxShadow = '0 6px 20px rgba(16, 185, 129, 0.4)';
                 }}
                 onMouseOut={(e) => {
                   e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.3)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
                 }}
               >
-                Upgrade to Premium
+                Upgrade
               </button>
             </div>
           )}
