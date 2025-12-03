@@ -212,7 +212,6 @@ function Landing() {
             display: 'block',
             borderRadius: '16px'
           }}
-          poster="/readarabic-poster.jpg"
         >
           <source src="/readarabic.mp4" type="video/mp4" />
           Your browser does not support the video tag.
@@ -540,6 +539,9 @@ function Browse() {
 
   // Fetch books on mount and when category changes
   useEffect(() => {
+    // Only fetch books if we have a user (page is accessible)
+    if (!user) return;
+    
     const fetchBooks = async () => {
       try {
         setLoadingBooks(true);
@@ -572,7 +574,7 @@ function Browse() {
     };
 
     fetchBooks();
-  }, [selectedCategory]);
+  }, [user, selectedCategory]);
 
   const handleBookSelect = (book) => {
     navigate(`/book/${book.id}`);
