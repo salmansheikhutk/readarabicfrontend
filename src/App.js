@@ -474,7 +474,9 @@ function Landing() {
 function Browse() {
   const navigate = useNavigate();
   const { user, setUser } = useContext(UserContext);
-  const [books, setBooks] = useState([]);
+  const [books, setBooks] = useState([]); // All books from backend
+  const [displayedBooks, setDisplayedBooks] = useState([]); // Books currently shown
+  const [displayCount, setDisplayCount] = useState(25); // How many books to show
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [loadingBooks, setLoadingBooks] = useState(false);
@@ -536,7 +538,23 @@ function Browse() {
     };
 
     fetchInitialData();
-  }, [user]);
+  }, [user]); // Only depend on user
+
+  // Refetch recent books when returning to Browse page (not on initial mount)
+  useEffect(() => {
+    if (user && initialLoadDone.current) {
+      // Only fetch if we've already done initial load
+      // This runs when navigating back to Browse
+      fetch(`${API_URL}/api/vocabulary/${user.id}/recent-books`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.books) {
+            setRecentlyReadBooks(data.books);
+          }
+        })
+        .catch(err => console.error('Failed to refresh recent books:', err));
+    }
+  }, []); // Empty array - runs once per Browse component mount
 
   // Fetch books on mount and when category changes
   useEffect(() => {
@@ -568,7 +586,9 @@ function Browse() {
         const data = await response.json();
         
         if (data.success) {
-          setBooks(data.books);
+          setBooks(data.books); // Store all books
+          setDisplayedBooks(data.books.slice(0, 25)); // Show first 25
+          setDisplayCount(25); // Reset display count
         } else {
           setError(data.error || 'Failed to fetch books');
         }
@@ -581,6 +601,25 @@ function Browse() {
 
     fetchBooks();
   }, [selectedCategory]);
+
+  // Filter and display books based on search term
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      // No search - show first displayCount books
+      setDisplayedBooks(books.slice(0, displayCount));
+    } else {
+      // Search active - filter all books and show matches
+      const filtered = books.filter(book => 
+        book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        book.author_name?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setDisplayedBooks(filtered.slice(0, displayCount));
+    }
+  }, [searchTerm, books, displayCount]);
+
+  const handleLoadMore = () => {
+    setDisplayCount(prev => prev + 25);
+  };
 
   const handleBookSelect = (book) => {
     navigate(`/book/${book.id}`);
@@ -1178,8 +1217,9 @@ function BookReader() {
               vocabIds[cleanWord][position] = vocabId;
             });
             
-            setInlineTranslations(prev => ({ ...prev, ...translations }));
-            setVocabularyIds(prev => ({ ...prev, ...vocabIds }));
+            setInlineTranslations(translations); // Replace entirely, not merge
+            setVocabularyIds(vocabIds); // Replace entirely, not merge
+            setVocabularyLoaded(true);
           } else {
             console.log('No vocabulary found for this book');
             setVocabularyLoaded(true);
@@ -1198,6 +1238,8 @@ function BookReader() {
       setLoading(true);
       setError(null);
       setVocabularyLoaded(false); // Reset vocabulary loaded flag
+      setInlineTranslations({}); // Clear old translations
+      setVocabularyIds({}); // Clear old vocab IDs
       
       try {
         const response = await fetch(`${API_URL}/api/book/${bookId}`);
