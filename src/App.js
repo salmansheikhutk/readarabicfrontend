@@ -610,7 +610,7 @@ function Browse() {
     } else {
       // Search active - filter all books and show matches
       const filtered = books.filter(book => 
-        book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        book.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         book.author_name?.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setDisplayedBooks(filtered.slice(0, displayCount));
@@ -1068,12 +1068,7 @@ function Browse() {
           </div>
         ) : (
           <div className="main-books-grid">
-            {books
-              .filter(book => 
-                searchTerm === '' || 
-                book.name.toLowerCase().includes(searchTerm.toLowerCase())
-              )
-              .map((book) => {
+            {displayedBooks.map((book) => {
               // Extract author from info field
               const authorMatch = book.info?.match(/المؤلف:\s*(.+?)(?:\n|\[|$)/);
               const author = authorMatch ? authorMatch[1].trim() : null;
