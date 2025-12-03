@@ -212,7 +212,6 @@ function Landing() {
             display: 'block',
             borderRadius: '16px'
           }}
-          poster="/readarabic-poster.jpg"
         >
           <source src="/readarabic.mp4" type="video/mp4" />
           Your browser does not support the video tag.
@@ -486,6 +485,7 @@ function Browse() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showInstructionsModal, setShowInstructionsModal] = useState(false);
   const initialLoadDone = React.useRef(false);
+  const booksLoadDone = React.useRef(false);
 
   // Redirect to landing if not logged in
   useEffect(() => {
@@ -540,6 +540,14 @@ function Browse() {
 
   // Fetch books on mount and when category changes
   useEffect(() => {
+    // Only fetch books if we have a user (page is accessible)
+    if (!user) return;
+    
+    // Skip initial load if books already loaded (prevents double-fetch on mount)
+    if (!booksLoadDone.current && !selectedCategory) {
+      booksLoadDone.current = true;
+    }
+    
     const fetchBooks = async () => {
       try {
         setLoadingBooks(true);
@@ -1380,47 +1388,34 @@ function BookReader() {
   };
 
   const translateWithAI = async (text, isSingleWord = false) => {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    // Call backend API endpoint (secure - API key is on backend)
+    const response = await fetch(`${API_URL}/api/translate`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a translator. Translate the given Arabic text to English. Only provide the translation, no explanations.'
-          },
-          {
-            role: 'user',
-            content: `Translate this Arabic text to English: ${text}`
-          }
-        ],
-        max_tokens: 200,
-        temperature: 0.3
+        text: text,
+        is_single_word: isSingleWord
       })
     });
     
     const data = await response.json();
     
-    if (data.error) {
-      throw new Error(data.error.message || 'API Error');
-    } else if (data.choices && data.choices[0]) {
-      const translationText = data.choices[0].message.content;
-      setTranslation(translationText);
-      // Create a fake definition object for AI translations so they can be hoverable
-      setDefinitions([{
-        form: text,
-        voc_form: text,
-        nice_gloss: translationText,
-        root: null,
-        isAI: !isSingleWord  // Only mark as AI for multi-word phrases
-      }]);
-    } else {
-      throw new Error('Translation failed - unexpected response');
+    if (!data.success || data.error) {
+      throw new Error(data.error || 'Translation failed');
     }
+    
+    const translationText = data.translation;
+    setTranslation(translationText);
+    // Create a fake definition object for AI translations so they can be hoverable
+    setDefinitions([{
+      form: text,
+      voc_form: text,
+      nice_gloss: translationText,
+      root: null,
+      isAI: !isSingleWord  // Only mark as AI for multi-word phrases
+    }]);
   };
 
   const handleTranslate = () => {
