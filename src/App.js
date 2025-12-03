@@ -485,6 +485,7 @@ function Browse() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showInstructionsModal, setShowInstructionsModal] = useState(false);
   const initialLoadDone = React.useRef(false);
+  const booksLoadDone = React.useRef(false);
 
   // Redirect to landing if not logged in
   useEffect(() => {
@@ -542,6 +543,11 @@ function Browse() {
     // Only fetch books if we have a user (page is accessible)
     if (!user) return;
     
+    // Skip initial load if books already loaded (prevents double-fetch on mount)
+    if (!booksLoadDone.current && !selectedCategory) {
+      booksLoadDone.current = true;
+    }
+    
     const fetchBooks = async () => {
       try {
         setLoadingBooks(true);
@@ -574,7 +580,7 @@ function Browse() {
     };
 
     fetchBooks();
-  }, [user, selectedCategory]);
+  }, [selectedCategory]);
 
   const handleBookSelect = (book) => {
     navigate(`/book/${book.id}`);
