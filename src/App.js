@@ -48,23 +48,6 @@ function Landing() {
         <meta name="keywords" content="learn Arabic, learn Arabic online, Arabic learning app, read Arabic online, Arabic text reader, Arabic vocabulary, Arabic reading practice, Arabic language learning, study Arabic, Arabic texts, Arabic books online" />
         <link rel="canonical" href="https://www.readarabic.io/" />
       </Helmet>
-      {/* Just Launched Badge */}
-      <div style={{
-        position: 'absolute',
-        top: '20px',
-        right: '20px',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        padding: '8px 16px',
-        borderRadius: '20px',
-        fontSize: '0.85rem',
-        fontWeight: '600',
-        boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-        zIndex: 10,
-        animation: 'pulse 2s infinite'
-      }}>
-        🚀 Just Launched
-      </div>
 
       <style>{`
         @keyframes fadeInUp {
@@ -216,61 +199,6 @@ function Landing() {
           <source src="/readarabic.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-      </div>
-
-      {/* About Us Section */}
-      <div style={{
-        textAlign: 'center',
-        marginBottom: '40px',
-        marginTop: '60px',
-        zIndex: 1,
-        position: 'relative',
-        animation: 'fadeInUp 0.8s ease-out 0.6s backwards'
-      }}
-      className="section-margin">
-        <div style={{
-          maxWidth: '800px',
-          margin: '0 auto',
-          background: 'white',
-          padding: '40px',
-          borderRadius: '16px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-          border: '1px solid #e2e8f0'
-        }}>
-          <h3 style={{
-            fontSize: '1.8rem',
-            color: '#1a202c',
-            marginBottom: '12px',
-            fontWeight: '700',
-            textAlign: 'center'
-          }}>
-            About Us
-          </h3>
-          <h4 style={{
-            fontSize: '1.15rem',
-            color: '#667eea',
-            marginBottom: '24px',
-            fontWeight: '500',
-            textAlign: 'center',
-            fontStyle: 'italic'
-          }}>
-            Developed by students, for students
-          </h4>
-          <p style={{
-            fontSize: '1.05rem',
-            color: '#4a5568',
-            lineHeight: '1.9',
-            textAlign: 'left',
-            marginBottom: '0',
-            direction: 'ltr'
-          }}>
-            While mastering Arabic grammar (<span style={{ fontStyle: 'italic' }}>nahw</span>) and 
-            morphology (<span style={{ fontStyle: 'italic' }}>sarf</span>) is essential for reading classical texts, vocabulary 
-            remains the most important contributor to comprehension. This platform seamlessly integrates classical Arabic texts 
-            with a highly intelligent dictionary to support your learning journey. We've designed the experience to be as 
-            natural as possible—this is a tool to aid learning, not circumvent it.
-          </p>
-        </div>
       </div>
 
       {/* Developer Credit */}
