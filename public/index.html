@@ -43,9 +43,7 @@
     <meta property="twitter:url" content="https://www.readarabic.io/" />
     <meta property="twitter:title" content="Learn Arabic Online - Read 2000+ Texts" />
     <meta property="twitter:description" content="Learn Arabic by reading authentic texts. Interactive reader with instant translations and vocabulary practice. Start reading Arabic today." />
-    <meta property="twitter:image" content="%PUBLIC_URL%/logo512.png" />
-    <meta property="twitter:description" content="Learn Arabic by reading authentic texts. Free interactive reader with instant translations and vocabulary practice. Start reading Arabic today." />
-    <meta property="twitter:image" content="https://www.readarabic.io/og-image.jpg" />
+    <meta property="twitter:image" content="https://www.readarabic.io/logo512.png" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,38 +52,89 @@
 
     <!-- Structured Data - WebApplication Schema -->
     <script type="application/ld+json">
+    <!-- Structured Data - Organization Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "ReadArabic",
+      "url": "https://www.readarabic.io",
+      "logo": "https://www.readarabic.io/logo512.png",
+      "description": "Learn Arabic online by reading 2000+ authentic Arabic texts.",
+      "sameAs": [
+        "https://www.laneslexicon.com"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Support",
+        "url": "https://www.readarabic.io"
+      }
+    }
+    </script>
+
+    <!-- Structured Data - WebApplication Schema -->
+    <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "ReadArabic",
+      "alternateName": "اقرأ عربي",
       "url": "https://www.readarabic.io",
       "description": "Learn Arabic online by reading 2000+ authentic Arabic texts. Interactive reader with instant word translations, sentence meanings, and smart vocabulary practice.",
       "applicationCategory": "EducationalApplication",
       "operatingSystem": "Web Browser",
-      "offers": {
-        "@type": "Offer",
-        "price": "4.99",
-        "priceCurrency": "USD"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "150",
-        "bestRating": "5",
-        "worstRating": "1"
-      },
+      "browserRequirements": "Requires JavaScript. Requires HTML5.",
+      "offers": [
+        {
+          "@type": "Offer",
+          "name": "Free Trial",
+          "price": "0",
+          "priceCurrency": "USD",
+          "description": "Try ReadArabic free with limited vocabulary storage (5 words)"
+        },
+        {
+          "@type": "Offer",
+          "name": "Monthly Subscription",
+          "price": "4.99",
+          "priceCurrency": "USD",
+          "description": "Full access with unlimited vocabulary storage"
+        }
+      ],
       "featureList": [
         "Read 2000+ authentic Arabic texts",
         "Instant word translation and definitions",
         "Full sentence translations",
         "Smart vocabulary practice with spaced repetition",
         "Track reading progress",
-        "Unlimited vocabulary storage"
-      ]
+        "Unlimited vocabulary storage (premium)"
+      ],
+      "inLanguage": ["ar", "en"],
+      "availableLanguage": ["Arabic", "English"]
     }
     </script>
 
-    <!-- Structured Data - FAQ Schema -->
+    <!-- Structured Data - Course Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      "name": "Learn Arabic by Reading",
+      "description": "Learn classical Arabic through reading 2000+ authentic texts with interactive translations and vocabulary building.",
+      "provider": {
+        "@type": "Organization",
+        "name": "ReadArabic",
+        "url": "https://www.readarabic.io"
+      },
+      "hasCourseInstance": {
+        "@type": "CourseInstance",
+        "courseMode": "online",
+        "courseWorkload": "PT0H"
+      },
+      "inLanguage": "ar",
+      "educationalLevel": "Beginner to Advanced",
+      "teaches": "Arabic language reading comprehension, vocabulary, and classical Arabic texts"
+    }
+    </script>ctured Data - FAQ Schema -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
