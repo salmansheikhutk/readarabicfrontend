@@ -268,24 +268,14 @@ function Landing() {
   );
 }
 
-// Browse page with books and categories
+// Browse page with pre-selected beginner book
 function Browse() {
   const navigate = useNavigate();
   const { user, setUser } = useContext(UserContext);
-  const [books, setBooks] = useState([]); // All books from backend
-  const [displayedBooks, setDisplayedBooks] = useState([]); // Books currently shown
-  const [displayCount, setDisplayCount] = useState(25); // How many books to show
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [loadingBooks, setLoadingBooks] = useState(false);
+  const [beginnerBook, setBeginnerBook] = useState(null);
+  const [loadingBook, setLoadingBook] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [recentlyReadBooks, setRecentlyReadBooks] = useState([]);
-  const [hasActiveSubscription, setHasActiveSubscription] = useState(null);
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const [showInstructionsModal, setShowInstructionsModal] = useState(false);
-  const initialLoadDone = React.useRef(false);
-  const booksLoadDone = React.useRef(false);
 
   // Redirect to landing if not logged in
   useEffect(() => {
@@ -294,223 +284,92 @@ function Browse() {
     }
   }, [user, navigate]);
 
-  // Single useEffect to fetch ALL initial data when user is available (runs only once)
+  // Fetch the beginner book (ID: 158)
   useEffect(() => {
-    if (!user || initialLoadDone.current) return;
-    
-    initialLoadDone.current = true;
-    
-    const fetchInitialData = async () => {
-      try {
-        // Fetch subscription, categories, and recent books in parallel
-        const [subscriptionRes, categoriesRes, recentBooksRes] = await Promise.all([
-          fetch(`${API_URL}/api/subscription/status/${user.id}`),
-          fetch(`${API_URL}/api/categories`),
-          fetch(`${API_URL}/api/vocabulary/${user.id}/recent-books`)
-        ]);
-
-        const [subscriptionData, categoriesData, recentBooksData] = await Promise.all([
-          subscriptionRes.json(),
-          categoriesRes.json(),
-          recentBooksRes.json()
-        ]);
-
-        // Set all state at once
-        if (subscriptionData.success && subscriptionData.is_premium) {
-          setHasActiveSubscription(true);
-        } else {
-          setHasActiveSubscription(false);
-        }
-
-        if (categoriesData.success) {
-          setCategories(categoriesData.categories);
-        }
-
-        if (recentBooksData.success && recentBooksData.books) {
-          setRecentlyReadBooks(recentBooksData.books);
-        }
-      } catch (err) {
-        console.error('Failed to fetch initial data:', err);
-        setHasActiveSubscription(false);
-      }
-    };
-
-    fetchInitialData();
-  }, [user]); // Only depend on user
-
-  // Refetch recent books when returning to Browse page (not on initial mount)
-  useEffect(() => {
-    if (user && initialLoadDone.current) {
-      // Only fetch if we've already done initial load
-      // This runs when navigating back to Browse
-      fetch(`${API_URL}/api/vocabulary/${user.id}/recent-books`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success && data.books) {
-            setRecentlyReadBooks(data.books);
-          }
-        })
-        .catch(err => console.error('Failed to refresh recent books:', err));
-    }
-  }, []); // Empty array - runs once per Browse component mount
-
-  // Fetch books on mount and when category changes
-  useEffect(() => {
-    // Only fetch books if we have a user (page is accessible)
     if (!user) return;
     
-    // Skip initial load if books already loaded (prevents double-fetch on mount)
-    if (!booksLoadDone.current && !selectedCategory) {
-      booksLoadDone.current = true;
-    }
-    
-    const fetchBooks = async () => {
+    const fetchBeginnerBook = async () => {
       try {
-        setLoadingBooks(true);
+        setLoadingBook(true);
         setError(null);
         
-        // Don't send limit parameter - let backend fetch all books
-        // Materialized view makes this fast (~0.5s for 2000+ books)
-        let url = `${API_URL}/api/books`;
-        const params = [];
-        if (selectedCategory) {
-          params.push(`category=${selectedCategory}`);
-        }
-        if (params.length > 0) {
-          url += '?' + params.join('&');
-        }
-        
-        const response = await fetch(url);
+        const response = await fetch(`${API_URL}/api/book/158`);
         const data = await response.json();
         
-        if (data.success) {
-          setBooks(data.books); // Store all books
-          setDisplayedBooks(data.books.slice(0, 25)); // Show first 25
-          setDisplayCount(25); // Reset display count
+        if (data.success && data.book) {
+          // Store book with ID
+          setBeginnerBook({ ...data.book, id: 158 });
         } else {
-          setError(data.error || 'Failed to fetch books');
+          setError('Failed to load beginner book');
         }
       } catch (err) {
-        setError('Failed to fetch books: ' + err.message);
+        setError('Failed to load book: ' + err.message);
       } finally {
-        setLoadingBooks(false);
+        setLoadingBook(false);
       }
     };
 
-    fetchBooks();
-  }, [selectedCategory]);
+    fetchBeginnerBook();
+  }, [user]);
 
-  // Filter and display books based on search term
-  useEffect(() => {
-    if (!searchTerm.trim()) {
-      // No search - show first displayCount books
-      setDisplayedBooks(books.slice(0, displayCount));
-    } else {
-      // Search active - filter all books and show matches
-      const filtered = books.filter(book => 
-        book.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        book.author_name?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setDisplayedBooks(filtered.slice(0, displayCount));
-    }
-  }, [searchTerm, books, displayCount]);
-
-  const handleLoadMore = () => {
-    setDisplayCount(prev => prev + 25);
-  };
-
-  const handleBookSelect = (book) => {
-    navigate(`/book/${book.id}`);
+  const handleBookSelect = () => {
+    navigate('/book/158');
   };
 
   return (
-    <div className="book-selection-screen">
+    <div style={{
+      minHeight: '100vh',
+      background: '#f8f9fa',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
       <Helmet>
-        <title>Browse Arabic Books - ReadArabic Library | 2000+ Texts Available</title>
-        <meta name="description" content="Browse our extensive collection of 2000+ Arabic texts. Choose from classical Islamic literature, modern Arabic books, and more. Start your Arabic reading journey today." />
-        <meta name="keywords" content="Arabic books, Arabic texts, Arabic library, Arabic reading, Arabic literature, Islamic texts, Arabic learning materials" />
+        <title>Start Reading Arabic - ReadArabic</title>
+        <meta name="description" content="Begin your Arabic reading journey with our beginner-friendly text. Interactive reader with instant translations." />
         <meta name="robots" content="noindex, nofollow" />
         <link rel="canonical" href="https://www.readarabic.io/browse" />
       </Helmet>
-      {/* Header with user actions */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 40px', background: 'white', borderBottom: '1px solid #e1e4e8', position: 'relative' }}>
-        {/* Instructions button in center */}
-        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-          <button 
-            onClick={() => setShowInstructionsModal(true)}
-            style={{ 
-              background: '#667eea', 
-              color: 'white', 
-              border: 'none', 
-              padding: '8px 16px', 
-              borderRadius: '6px', 
-              cursor: 'pointer',
-              fontSize: '0.9rem',
-              fontWeight: '500',
-              transition: 'opacity 0.2s'
-            }}
-            onMouseOver={(e) => e.target.style.opacity = '0.9'}
-            onMouseOut={(e) => e.target.style.opacity = '1'}
-          >
-            Instructions
-          </button>
-        </div>
+      
+      {/* Header */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        padding: '20px 40px', 
+        background: 'white', 
+        borderBottom: '1px solid #e1e4e8',
+        flexWrap: 'wrap',
+        gap: '15px'
+      }}>
+        <h1 style={{ 
+          fontSize: '1.5rem', 
+          color: '#2c3e50', 
+          margin: 0,
+          fontWeight: '600'
+        }}>
+          ReadArabic
+        </h1>
         
-        {/* User actions on the right */}
-        {user ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative' }}>
+        {user && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
             <span style={{ color: '#2c3e50', fontWeight: '500', fontSize: '0.95rem' }}>{user.name}</span>
-            {/* Upgrade button - commented out during free beta
-            {hasActiveSubscription === false && (
-              <button 
-                onClick={() => navigate('/subscribe')} 
-                style={{ 
-                  background: '#10b981', 
-                  color: 'white', 
-                  border: 'none', 
-                  padding: '8px 16px', 
-                  borderRadius: '6px', 
-                  cursor: 'pointer',
-                  fontSize: '0.9rem',
-                  fontWeight: '600',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
-                }}
-                onMouseOver={(e) => {
-                  e.target.style.transform = 'translateY(-1px)';
-                  e.target.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = '0 2px 8px rgba(16, 185, 129, 0.3)';
-                }}
-              >
-                Upgrade
-              </button>
-            )}
-            */}
             <button 
               onClick={() => navigate('/account')}
               style={{ 
                 background: 'transparent',
-                border: 'none',
+                border: '1px solid #e1e4e8',
                 cursor: 'pointer',
-                padding: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: '50%',
+                padding: '8px 16px',
+                borderRadius: '6px',
                 transition: 'background 0.2s',
-                width: '36px',
-                height: '36px'
+                color: '#6b7280',
+                fontSize: '0.9rem',
+                fontWeight: '500'
               }}
               onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
               onMouseOut={(e) => e.target.style.background = 'transparent'}
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
+              Account
             </button>
             <button 
               onClick={() => navigate('/vocabulary/practice')} 
@@ -531,376 +390,160 @@ function Browse() {
               Practice
             </button>
           </div>
-        ) : (
-          <LoginButton />
         )}
       </div>
 
-      {/* Instructions Modal */}
-      {showInstructionsModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            padding: '20px'
-          }}
-          onClick={() => setShowInstructionsModal(false)}
-        >
-          <div
-            style={{
-              background: 'white',
-              borderRadius: '16px',
-              padding: '40px',
-              maxWidth: '800px',
-              maxHeight: '80vh',
-              overflow: 'auto',
-              position: 'relative',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close button */}
+      {/* Main Content */}
+      <div style={{
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '40px 20px'
+      }}>
+        {loadingBook ? (
+          <div style={{ textAlign: 'center' }}>
+            <div className="spinner" style={{
+              border: '4px solid #f3f4f6',
+              borderTop: '4px solid #667eea',
+              borderRadius: '50%',
+              width: '50px',
+              height: '50px',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 20px'
+            }}></div>
+            <p style={{ color: '#6b7280', fontSize: '1rem' }}>Loading...</p>
+          </div>
+        ) : error ? (
+          <div style={{ textAlign: 'center', maxWidth: '500px' }}>
+            <p style={{ color: '#ef4444', fontSize: '1.1rem', marginBottom: '20px' }}>{error}</p>
             <button
-              onClick={() => setShowInstructionsModal(false)}
+              onClick={() => window.location.reload()}
               style={{
-                position: 'absolute',
-                top: '20px',
-                right: '20px',
-                background: 'transparent',
+                background: '#667eea',
+                color: 'white',
                 border: 'none',
-                fontSize: '24px',
+                padding: '12px 24px',
+                borderRadius: '8px',
                 cursor: 'pointer',
-                color: '#6b7280',
-                padding: '4px',
-                borderRadius: '50%',
-                width: '32px',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
+                fontSize: '1rem',
+                fontWeight: '500'
               }}
-              onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
-              onMouseOut={(e) => e.target.style.background = 'transparent'}
             >
-              ×
+              Try Again
             </button>
-
-            {/* Instructions Content */}
-            <div style={{
-              maxWidth: '700px',
-              margin: '0 auto',
-              background: 'white',
-              borderRadius: '16px',
-              direction: 'ltr'
-            }}>
-              <h3 style={{
+          </div>
+        ) : beginnerBook ? (
+          <div style={{
+            maxWidth: '900px',
+            width: '100%'
+          }}>
+            {/* Reading Section */}
+            <div>
+              <h2 style={{
                 fontSize: '1.5rem',
                 color: '#1a202c',
-                marginBottom: '20px',
+                marginBottom: '24px',
                 fontWeight: '700',
-                fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif",
-                direction: 'ltr',
                 textAlign: 'left'
               }}>
-                How to Use ReadArabic
-              </h3>
+                Reading
+              </h2>
+
+              {/* Book Card */}
+              <div
+                onClick={handleBookSelect}
+                style={{
+                  background: 'white',
+                  borderRadius: '12px',
+                  padding: '24px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                  border: '1px solid #e1e4e8',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '20px'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 8px 16px rgba(102, 126, 234, 0.15)';
+                  e.currentTarget.style.borderColor = '#667eea';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+                  e.currentTarget.style.borderColor = '#e1e4e8';
+                }}
+              >
+                <div style={{
+                  fontSize: '2rem',
+                  minWidth: '40px'
+                }}>📖</div>
+                <div style={{ flex: 1 }}>
+                  <h3 style={{
+                    fontSize: '1.3rem',
+                    color: '#1a202c',
+                    marginBottom: '8px',
+                    fontWeight: '600',
+                    fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif",
+                    direction: 'rtl',
+                    lineHeight: '1.6'
+                  }}>
+                    {beginnerBook.meta?.name || 'Beginner Text'}
+                  </h3>
+                  {beginnerBook.meta?.category_name && (
+                    <div style={{
+                      display: 'inline-block',
+                      background: '#f0f4ff',
+                      color: '#667eea',
+                      padding: '4px 12px',
+                      borderRadius: '12px',
+                      fontSize: '0.8rem',
+                      fontWeight: '600'
+                    }}>
+                      {beginnerBook.meta.category_name}
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-                textAlign: 'left',
-                direction: 'ltr'
+                marginTop: '32px',
+                padding: '20px',
+                background: '#f8f9fa',
+                borderRadius: '8px',
+                border: '1px solid #e1e4e8'
               }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '12px',
-                  padding: '12px',
-                  background: '#f8fafc',
-                  borderRadius: '8px',
-                  border: '1px solid #e2e8f0',
-                  direction: 'ltr'
+                <p style={{
+                  fontSize: '0.9rem',
+                  color: '#6b7280',
+                  margin: 0,
+                  lineHeight: '1.6'
                 }}>
-                  <span style={{
-                    fontSize: '1.2rem',
-                    fontWeight: '600',
-                    color: '#667eea',
-                    minWidth: '24px',
-                    direction: 'ltr'
-                  }}>1.</span>
-                  <span style={{
-                    fontSize: '1rem',
-                    color: '#374151',
-                    lineHeight: '1.5',
-                    direction: 'ltr'
-                  }}>
-                    Select any text from our collection of 2000+ texts.
-                  </span>
-                </div>
-                
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '12px',
-                  padding: '12px',
-                  background: '#f8fafc',
-                  borderRadius: '8px',
-                  border: '1px solid #e2e8f0',
-                  direction: 'ltr'
-                }}>
-                  <span style={{
-                    fontSize: '1.2rem',
-                    fontWeight: '600',
-                    color: '#667eea',
-                    minWidth: '24px',
-                    direction: 'ltr'
-                  }}>2.</span>
-                  <span style={{
-                    fontSize: '1rem',
-                    color: '#374151',
-                    lineHeight: '1.5',
-                    direction: 'ltr'
-                  }}>
-                    Read naturally, looking up individual words from the integrated dictionary.
-                  </span>
-                </div>
-                
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '12px',
-                  padding: '12px',
-                  background: '#f8fafc',
-                  borderRadius: '8px',
-                  border: '1px solid #e2e8f0',
-                  direction: 'ltr'
-                }}>
-                  <span style={{
-                    fontSize: '1.2rem',
-                    fontWeight: '600',
-                    color: '#667eea',
-                    minWidth: '24px',
-                    direction: 'ltr'
-                  }}>3.</span>
-                  <span style={{
-                    fontSize: '1rem',
-                    color: '#374151',
-                    lineHeight: '1.5',
-                    direction: 'ltr'
-                  }}>
-                    Highlight the entire sentence at any time for a translation.
-                  </span>
-                </div>
-                
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '12px',
-                  padding: '12px',
-                  background: '#f8fafc',
-                  borderRadius: '8px',
-                  border: '1px solid #e2e8f0',
-                  direction: 'ltr'
-                }}>
-                  <span style={{
-                    fontSize: '1.2rem',
-                    fontWeight: '600',
-                    color: '#667eea',
-                    minWidth: '24px',
-                    direction: 'ltr'
-                  }}>4.</span>
-                  <span style={{
-                    fontSize: '1rem',
-                    color: '#374151',
-                    lineHeight: '1.5',
-                    direction: 'ltr'
-                  }}>
-                    Practice your vocabulary words using smart repetition.
-                  </span>
-                </div>
+                  💡 <strong>Tip:</strong> Select any word to see its definition, or highlight a sentence for instant translation. Save words to practice them later with spaced repetition.
+                </p>
               </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Main Content Container - Well Structured */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '15px 20px' }}>
+        ) : null}
+      </div>
+      
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
         
-        {/* Search and Filter Section */}
-        <div style={{ 
-          background: 'white', 
-          padding: '18px', 
-          borderRadius: '12px', 
-          boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-          marginBottom: '15px'
-        }}>
-          {/* Search Bar */}
-          <input
-            type="text"
-            placeholder="Search books by title..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '10px 16px',
-              fontSize: '1rem',
-              border: '2px solid #e1e4e8',
-              borderRadius: '8px',
-              outline: 'none',
-              transition: 'border-color 0.2s',
-              marginBottom: '15px'
-            }}
-            onFocus={(e) => e.target.style.borderColor = '#667eea'}
-            onBlur={(e) => e.target.style.borderColor = '#e1e4e8'}
-          />
-          
-          {/* Category Dropdown */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <label style={{ fontSize: '0.95rem', color: '#6b7280', fontWeight: '500', minWidth: 'fit-content' }}>Category:</label>
-            <select
-              value={selectedCategory || ''}
-              onChange={(e) => setSelectedCategory(e.target.value ? parseInt(e.target.value) : null)}
-              style={{
-                flex: 1,
-                padding: '10px 16px',
-                fontSize: '1rem',
-                border: '2px solid #e1e4e8',
-                borderRadius: '8px',
-                background: 'white',
-                cursor: 'pointer',
-                fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif",
-                outline: 'none',
-                transition: 'border-color 0.2s'
-              }}
-              onFocus={(e) => e.target.style.borderColor = '#667eea'}
-              onBlur={(e) => e.target.style.borderColor = '#e1e4e8'}
-            >
-              <option value="" style={{ fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif" }}>All Books ({loadingBooks ? '...' : books.length})</option>
-              {categories.map((cat) => (
-                <option key={cat.cat_id} value={cat.cat_id} style={{ fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif" }}>
-                  {cat.category_name} ({cat.book_count})
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Recently Read Books */}
-        {user && recentlyReadBooks.length > 0 && (
-          <div style={{ marginBottom: '15px' }}>
-            <h3 style={{ 
-              fontSize: '1.15rem', 
-              color: '#2c3e50', 
-              marginBottom: '10px',
-              fontWeight: '600'
-            }}>Recently Read</h3>
-            <div style={{ 
-              display: 'flex', 
-              gap: '15px', 
-              overflowX: 'auto', 
-              paddingBottom: '10px',
-              scrollbarWidth: 'thin'
-            }}>
-              {recentlyReadBooks.map((book) => (
-                <div
-                  key={book.id}
-                  onClick={() => handleBookSelect(book)}
-                  style={{
-                    minWidth: '220px',
-                    padding: '15px',
-                    background: 'white',
-                    border: '1px solid #e1e4e8',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
-                  }}
-                  onMouseOver={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.06)';
-                  }}
-                >
-                  <h4 style={{ 
-                    fontSize: '1.05rem', 
-                    marginBottom: '8px', 
-                    color: '#2c3e50', 
-                    fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif", 
-                    direction: 'rtl', 
-                    lineHeight: '1.6'
-                  }}>{book.name}</h4>
-                  <p style={{ fontSize: '0.85rem', color: '#6b7280', margin: 0 }}>Continue reading →</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Books Grid */}
-      <div className="main-books-section">
-        {loadingBooks ? (
-          <div className="loading-state">
-            <div className="spinner"></div>
-            <p>Loading books...</p>
-          </div>
-        ) : error ? (
-          <div className="error-state">
-            <p className="error-message">{error}</p>
-            <button className="retry-btn" onClick={() => setSelectedCategory(null)}>Try Again</button>
-          </div>
-        ) : books.length === 0 ? (
-          <div className="empty-books-state">
-            <p>No books found</p>
-            <p className="empty-subtitle">Try a different category</p>
-          </div>
-        ) : (
-          <div className="main-books-grid">
-            {displayedBooks.map((book) => {
-              // Extract author from info field
-              const authorMatch = book.info?.match(/المؤلف:\s*(.+?)(?:\n|\[|$)/);
-              const author = authorMatch ? authorMatch[1].trim() : null;
-              
-              // Extract page count from info field
-              const pageMatch = book.info?.match(/عدد الصفحات:\s*(\d+)/);
-              const pageCount = pageMatch ? pageMatch[1] : null;
-              
-              return (
-                <div
-                  key={book.id}
-                  className="main-book-card"
-                  onClick={() => handleBookSelect(book)}
-                >
-                  <div className="book-card-body">
-                    <h4 className="book-title">{book.name}</h4>
-                    {book.category_name && (
-                      <div className="book-category-badge">{book.category_name}</div>
-                    )}
-                    {author && (
-                      <p className="book-author">{author}</p>
-                    )}
-                    {pageCount && (
-                      <p className="book-pages">{pageCount} صفحة</p>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+        @media (max-width: 768px) {
+          h2 {
+            font-size: 1.5rem !important;
+          }
+          h3 {
+            font-size: 1.4rem !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
