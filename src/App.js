@@ -354,6 +354,24 @@ function Browse() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
             <span style={{ color: '#2c3e50', fontWeight: '500', fontSize: '0.95rem' }}>{user.name}</span>
             <button 
+              onClick={() => navigate('/browse')}
+              style={{ 
+                background: 'transparent',
+                border: '1px solid #e1e4e8',
+                cursor: 'pointer',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                transition: 'background 0.2s',
+                color: '#6b7280',
+                fontSize: '0.9rem',
+                fontWeight: '500'
+              }}
+              onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
+              onMouseOut={(e) => e.target.style.background = 'transparent'}
+            >
+              Home
+            </button>
+            <button 
               onClick={() => navigate('/account')}
               style={{ 
                 background: 'transparent',
@@ -645,6 +663,24 @@ function Learning() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
             <span style={{ color: '#2c3e50', fontWeight: '500', fontSize: '0.95rem' }}>{user.name}</span>
             <button 
+              onClick={() => navigate('/browse')}
+              style={{ 
+                background: 'transparent',
+                border: '1px solid #e1e4e8',
+                cursor: 'pointer',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                transition: 'background 0.2s',
+                color: '#6b7280',
+                fontSize: '0.9rem',
+                fontWeight: '500'
+              }}
+              onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
+              onMouseOut={(e) => e.target.style.background = 'transparent'}
+            >
+              Home
+            </button>
+            <button 
               onClick={() => navigate('/account')}
               style={{ 
                 background: 'transparent',
@@ -725,22 +761,24 @@ function Learning() {
           </div>
         ) : bookData?.pages ? (
           <div>
-            <h2 style={{
-              fontSize: '1.8rem',
-              color: '#1a202c',
-              marginBottom: '16px',
-              fontWeight: '700'
-            }}>
-              Practice Reading with Tashkeel
-            </h2>
-            <p style={{
-              fontSize: '1rem',
-              color: '#6b7280',
-              marginBottom: '32px',
-              lineHeight: '1.6'
-            }}>
-              Select any reading to begin. Each lesson includes instant word definitions and sentence translations.
-            </p>
+            <div style={{ direction: 'ltr', textAlign: 'left' }}>
+              <h2 style={{
+                fontSize: '1.8rem',
+                color: '#1a202c',
+                marginBottom: '16px',
+                fontWeight: '700'
+              }}>
+                Practice Reading with Tashkeel
+              </h2>
+              <p style={{
+                fontSize: '1rem',
+                color: '#6b7280',
+                marginBottom: '32px',
+                lineHeight: '1.6'
+              }}>
+                Select any reading to begin. Each lesson includes instant word definitions and sentence translations.
+              </p>
+            </div>
 
             {/* Table of Contents - List of Headings */}
             <div style={{
