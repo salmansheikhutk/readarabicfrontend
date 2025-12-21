@@ -460,7 +460,8 @@ function Browse() {
                 color: '#1a202c',
                 marginBottom: '24px',
                 fontWeight: '700',
-                textAlign: 'left'
+                textAlign: 'left',
+                direction: 'ltr'
               }}>
                 Practice Reading with Tashkeel
               </h2>
@@ -534,7 +535,9 @@ function Browse() {
                   fontSize: '0.9rem',
                   color: '#6b7280',
                   margin: 0,
-                  lineHeight: '1.6'
+                  lineHeight: '1.6',
+                  direction: 'ltr',
+                  textAlign: 'left'
                 }}>
                   💡 <strong>Tip:</strong> Select any word to see its definition, or highlight a sentence for instant translation. Save words to practice them later with spaced repetition.
                 </p>
