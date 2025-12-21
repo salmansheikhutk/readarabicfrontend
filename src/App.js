@@ -918,6 +918,7 @@ function BookReader() {
   const [showDuplicateOptions, setShowDuplicateOptions] = useState(false); // Show options for existing words
   const [currentPageIndex, setCurrentPageIndex] = useState(0); // Track current visible page
   const [viewingChapterIndex, setViewingChapterIndex] = useState(0); // Track the chapter user clicked on
+  const [showEnglishPdf, setShowEnglishPdf] = useState(false); // Toggle English PDF view
   const selectionRangeRef = React.useRef(null); // Store the selection range
   const tocRef = React.useRef(null); // Reference to TOC container
   const isNavigatingRef = React.useRef(false); // Flag to prevent observer interference during navigation
@@ -2208,6 +2209,35 @@ function BookReader() {
                         'Mark Complete'
                       )}
                     </button>
+                    
+                    <button
+                      onClick={() => setShowEnglishPdf(!showEnglishPdf)}
+                      style={{
+                        marginTop: '8px',
+                        width: '100%',
+                        padding: '10px',
+                        borderRadius: '8px',
+                        border: '1px solid #3498db',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        fontSize: '0.95rem',
+                        background: showEnglishPdf ? '#3498db' : 'transparent',
+                        color: showEnglishPdf ? 'white' : '#3498db',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px'
+                      }}
+                      onMouseOver={(e) => {
+                        if (!showEnglishPdf) e.target.style.background = 'rgba(52, 152, 219, 0.1)';
+                      }}
+                      onMouseOut={(e) => {
+                        if (!showEnglishPdf) e.target.style.background = 'transparent';
+                      }}
+                    >
+                      {showEnglishPdf ? 'Hide English' : 'English Translation'}
+                    </button>
                   </div>
                 );
               })}
@@ -2217,8 +2247,8 @@ function BookReader() {
       </div>
 
       {/* Main Content */}
-      <div className="main-content">
-        <div className="pdf-viewer">
+      <div className="main-content" style={{ flexDirection: 'row' }}>
+        <div className="pdf-viewer" style={{ flex: showEnglishPdf ? '2' : '1', transition: 'flex 0.3s ease' }}>
           <div className="pdf-controls">
             <span className="page-info">
               {bookData?.meta?.name || 'Book'} - {bookData?.pages?.length || 0} Pages
@@ -2244,6 +2274,36 @@ function BookReader() {
             })}
           </div>
         </div>
+        
+        {showEnglishPdf && (
+          <div style={{ 
+            flex: '1', 
+            borderLeft: '1px solid #e1e4e8', 
+            background: '#f8f9fa',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            transition: 'flex 0.3s ease'
+          }}>
+            <div style={{
+              padding: '15px',
+              background: 'white',
+              borderBottom: '1px solid #e1e4e8',
+              textAlign: 'center',
+              fontWeight: '600',
+              color: '#2c3e50'
+            }}>
+              English Translation
+            </div>
+            <iframe 
+              src="/The-Disease-The-Cure-Imam-Ibn-Al-Qayyim-compressed.pdf" 
+              width="100%" 
+              height="100%" 
+              style={{ border: 'none', flex: 1 }}
+              title="English Translation"
+            />
+          </div>
+        )}
       </div>
     </div>
   );
