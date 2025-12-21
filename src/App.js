@@ -339,7 +339,8 @@ function Browse() {
         background: 'white', 
         borderBottom: '1px solid #e1e4e8',
         flexWrap: 'wrap',
-        gap: '15px'
+        gap: '15px',
+        direction: 'ltr'
       }}>
         <h1 style={{ 
           fontSize: '1.5rem', 
@@ -372,24 +373,6 @@ function Browse() {
               Home
             </button>
             <button 
-              onClick={() => navigate('/account')}
-              style={{ 
-                background: 'transparent',
-                border: '1px solid #e1e4e8',
-                cursor: 'pointer',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                transition: 'background 0.2s',
-                color: '#6b7280',
-                fontSize: '0.9rem',
-                fontWeight: '500'
-              }}
-              onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
-              onMouseOut={(e) => e.target.style.background = 'transparent'}
-            >
-              Account
-            </button>
-            <button 
               onClick={() => navigate('/vocabulary/practice')} 
               style={{ 
                 background: '#667eea', 
@@ -406,6 +389,24 @@ function Browse() {
               onMouseOut={(e) => e.target.style.opacity = '1'}
             >
               Practice
+            </button>
+            <button 
+              onClick={() => navigate('/account')}
+              style={{ 
+                background: 'transparent',
+                border: '1px solid #e1e4e8',
+                cursor: 'pointer',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                transition: 'background 0.2s',
+                color: '#6b7280',
+                fontSize: '0.9rem',
+                fontWeight: '500'
+              }}
+              onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
+              onMouseOut={(e) => e.target.style.background = 'transparent'}
+            >
+              Account
             </button>
           </div>
         )}
@@ -647,7 +648,8 @@ function Learning() {
         background: 'white', 
         borderBottom: '1px solid #e1e4e8',
         flexWrap: 'wrap',
-        gap: '15px'
+        gap: '15px',
+        direction: 'ltr'
       }}>
         <h1 
           onClick={() => navigate('/browse')}
@@ -684,24 +686,6 @@ function Learning() {
               Home
             </button>
             <button 
-              onClick={() => navigate('/account')}
-              style={{ 
-                background: 'transparent',
-                border: '1px solid #e1e4e8',
-                cursor: 'pointer',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                transition: 'background 0.2s',
-                color: '#6b7280',
-                fontSize: '0.9rem',
-                fontWeight: '500'
-              }}
-              onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
-              onMouseOut={(e) => e.target.style.background = 'transparent'}
-            >
-              Account
-            </button>
-            <button 
               onClick={() => navigate('/vocabulary/practice')} 
               style={{ 
                 background: '#667eea', 
@@ -718,6 +702,24 @@ function Learning() {
               onMouseOut={(e) => e.target.style.opacity = '1'}
             >
               Practice
+            </button>
+            <button 
+              onClick={() => navigate('/account')}
+              style={{ 
+                background: 'transparent',
+                border: '1px solid #e1e4e8',
+                cursor: 'pointer',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                transition: 'background 0.2s',
+                color: '#6b7280',
+                fontSize: '0.9rem',
+                fontWeight: '500'
+              }}
+              onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
+              onMouseOut={(e) => e.target.style.background = 'transparent'}
+            >
+              Account
             </button>
           </div>
         )}
