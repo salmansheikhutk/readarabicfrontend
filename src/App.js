@@ -879,6 +879,7 @@ function BookReader() {
   const [editingInlineValue, setEditingInlineValue] = useState('');
   const [showDuplicateOptions, setShowDuplicateOptions] = useState(false); // Show options for existing words
   const [currentPageIndex, setCurrentPageIndex] = useState(0); // Track current visible page
+  const [viewingChapterIndex, setViewingChapterIndex] = useState(0); // Track the chapter user clicked on
   const selectionRangeRef = React.useRef(null); // Store the selection range
   const tocRef = React.useRef(null); // Reference to TOC container
   const isNavigatingRef = React.useRef(false); // Flag to prevent observer interference during navigation
@@ -1036,7 +1037,35 @@ function BookReader() {
       const pageIndex = parseInt(pageParam);
       if (!isNaN(pageIndex) && pageIndex >= 0 && pageIndex < bookData.pages.length) {
         setCurrentPageIndex(pageIndex);
+        
+        // Set viewing chapter based on the requested page
+        if (bookData.indexes?.headings) {
+          const headings = bookData.indexes.headings;
+          let chIndex = 0;
+          for (let i = 0; i < headings.length; i++) {
+            if ((headings[i].page - 1) <= pageIndex) {
+              chIndex = i;
+            } else {
+              break;
+            }
+          }
+          setViewingChapterIndex(chIndex);
+        }
+        
+        // Scroll to the element
+        isNavigatingRef.current = true;
+        setTimeout(() => {
+          const element = document.getElementById(`page-${pageIndex}`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+          setTimeout(() => {
+            isNavigatingRef.current = false;
+          }, 1000);
+        }, 300);
       }
+    } else {
+      setViewingChapterIndex(0);
     }
   }, [bookData, location.search]);
 
@@ -2086,15 +2115,8 @@ function BookReader() {
                   return null;
                 }
                 
-                // Determine if this is the current chapter
-                const nextHeading = headings[index + 1];
-                const nextPageIndex = nextHeading ? nextHeading.page - 1 : bookData.pages.length;
-                
-                // Check if current page is within this chapter's range
-                const isCurrentChapter = currentPageIndex >= targetPageIndex && currentPageIndex < nextPageIndex;
-                
-                // Only show the current chapter
-                if (!isCurrentChapter) return null;
+                // Only show the viewing chapter (the one user clicked on)
+                if (index !== viewingChapterIndex) return null;
                 
                 const isCompleted = completedChapters.includes(index);
                 
