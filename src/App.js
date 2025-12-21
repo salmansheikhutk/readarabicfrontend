@@ -552,6 +552,21 @@ function Learning() {
   const [bookData, setBookData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [completedChapters, setCompletedChapters] = useState([]);
+
+  // Load completed chapters
+  useEffect(() => {
+    const userId = user?.id || 'guest';
+    // Hardcoded book ID 158 for now as per Browse component
+    const saved = localStorage.getItem(`readarabic_progress_${userId}_158`);
+    if (saved) {
+      try {
+        setCompletedChapters(JSON.parse(saved));
+      } catch (e) {
+        console.error('Error parsing progress', e);
+      }
+    }
+  }, [user]);
 
   // Redirect to landing if not logged in
   useEffect(() => {
@@ -738,41 +753,63 @@ function Learning() {
                 
                 if (!actualPageNumber) return null;
                 
+                const isCompleted = completedChapters.includes(index);
+                
                 return (
                   <div
                     key={index}
                     onClick={() => handlePageClick(pageIndex)}
                     style={{
-                      background: 'white',
+                      background: isCompleted ? 'rgba(16, 185, 129, 0.05)' : 'white',
                       padding: '20px 24px',
                       borderRadius: '8px',
-                      border: '1px solid #e1e4e8',
+                      border: isCompleted ? '1px solid #10b981' : '1px solid #e1e4e8',
                       cursor: 'pointer',
                       transition: 'all 0.2s',
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      gap: '16px'
+                      gap: '16px',
+                      position: 'relative',
+                      overflow: 'hidden'
                     }}
                     onMouseOver={(e) => {
                       e.currentTarget.style.transform = 'translateX(4px)';
-                      e.currentTarget.style.borderColor = '#667eea';
-                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.15)';
+                      if (!isCompleted) {
+                        e.currentTarget.style.borderColor = '#667eea';
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.15)';
+                      }
                     }}
                     onMouseOut={(e) => {
                       e.currentTarget.style.transform = 'translateX(0)';
-                      e.currentTarget.style.borderColor = '#e1e4e8';
-                      e.currentTarget.style.boxShadow = 'none';
+                      if (!isCompleted) {
+                        e.currentTarget.style.borderColor = '#e1e4e8';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }
                     }}
                   >
+                    {isCompleted && (
+                      <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        bottom: 0,
+                        width: '4px',
+                        background: '#10b981'
+                      }} />
+                    )}
+                    
                     <div style={{ flex: 1 }}>
                       <div style={{
                         fontSize: '0.85rem',
-                        color: '#6b7280',
+                        color: isCompleted ? '#059669' : '#6b7280',
                         marginBottom: '6px',
-                        fontWeight: '500'
+                        fontWeight: '500',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
                       }}>
-                        Reading {index + 1}
+                        {isCompleted && <span>✓</span>} Reading {index + 1} {isCompleted ? '(Completed)' : ''}
                       </div>
                       <div style={{
                         fontSize: '1.15rem',
@@ -787,11 +824,11 @@ function Learning() {
                       </div>
                     </div>
                     <span style={{
-                      color: '#667eea',
+                      color: isCompleted ? '#10b981' : '#667eea',
                       fontSize: '1.2rem',
                       flexShrink: 0
                     }}>
-                      →
+                      {isCompleted ? '✓' : '→'}
                     </span>
                   </div>
                 );
@@ -847,6 +884,32 @@ function BookReader() {
   const isNavigatingRef = React.useRef(false); // Flag to prevent observer interference during navigation
   const [saveErrorMessage, setSaveErrorMessage] = useState(''); // Show styled error message
   const [hasActiveSubscription, setHasActiveSubscription] = useState(null);
+  const [completedChapters, setCompletedChapters] = useState([]);
+
+  // Load completed chapters
+  useEffect(() => {
+    const userId = user?.id || 'guest';
+    const saved = localStorage.getItem(`readarabic_progress_${userId}_${bookId}`);
+    if (saved) {
+      try {
+        setCompletedChapters(JSON.parse(saved));
+      } catch (e) {
+        console.error('Error parsing progress', e);
+      }
+    }
+  }, [user, bookId]);
+
+  const toggleChapterCompletion = (chapterIndex) => {
+    const userId = user?.id || 'guest';
+    let newCompleted;
+    if (completedChapters.includes(chapterIndex)) {
+      newCompleted = completedChapters.filter(i => i !== chapterIndex);
+    } else {
+      newCompleted = [...completedChapters, chapterIndex];
+    }
+    setCompletedChapters(newCompleted);
+    localStorage.setItem(`readarabic_progress_${userId}_${bookId}`, JSON.stringify(newCompleted));
+  };
 
   useEffect(() => {
     localStorage.setItem('readarabic-dictionary', JSON.stringify(dictionary));
@@ -972,10 +1035,7 @@ function BookReader() {
     if (pageParam !== null) {
       const pageIndex = parseInt(pageParam);
       if (!isNaN(pageIndex) && pageIndex >= 0 && pageIndex < bookData.pages.length) {
-        // Use setTimeout to ensure DOM is ready
-        setTimeout(() => {
-          scrollToPage(pageIndex);
-        }, 100);
+        setCurrentPageIndex(pageIndex);
       }
     }
   }, [bookData, location.search]);
@@ -1517,6 +1577,56 @@ function BookReader() {
     
     return elements;
   };
+
+  // Helper to filter text content by chapter when in single-chapter mode
+  const filterTextByChapter = (text, pageIndex, targetChapterId, nextChapterId, isFirstPage, isLastPage) => {
+    // If no chapter filtering, return full text
+    if (!targetChapterId) return text;
+    
+    // Helper to find start index of a chapter title span
+    // We look for id="chapterId" or id='chapterId' or id=chapterId inside a span tag
+    const findChapterStartIndex = (html, chapterId) => {
+      if (!chapterId) return -1;
+      // Escape special regex characters in ID just in case
+      const escapedId = chapterId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      // Regex to find <span ... id="chapterId" ... >
+      // We don't enforce order of attributes, just that id matches
+      const regex = new RegExp(`<span[^>]*\\sid=["']?${escapedId}["']?[^>]*>`, 'i');
+      const match = regex.exec(html);
+      return match ? match.index : -1;
+    };
+    
+    const targetStartIndex = findChapterStartIndex(text, targetChapterId);
+    const nextStartIndex = findChapterStartIndex(text, nextChapterId);
+    
+    // First page: show from target chapter onwards
+    if (isFirstPage) {
+      // If target is found on this page
+      if (targetStartIndex >= 0) {
+        // If next chapter is also on this page and after target
+        if (nextStartIndex >= 0 && nextStartIndex > targetStartIndex) {
+          return text.substring(targetStartIndex, nextStartIndex);
+        }
+        // Otherwise show from target chapter to end of page
+        return text.substring(targetStartIndex);
+      }
+      // If target not found but we are on first page, return text (fallback)
+      return text;
+    }
+    
+    // Last page: show from start until next chapter
+    if (isLastPage) {
+      if (nextStartIndex >= 0) {
+        // Cut off at next chapter
+        return text.substring(0, nextStartIndex);
+      }
+      // If next chapter not found on this page, show everything
+      return text;
+    }
+    
+    // Middle pages: show everything
+    return text;
+  };
   
   // Helper to render regular text word-by-word with translations
   const renderTextWords = (text, pageIndex, startWordIdx) => {
@@ -1960,7 +2070,7 @@ function BookReader() {
         {showSidebar && (
           <div className="sidebar-content">
             <div className="toc-header">
-              <button className="back-button" onClick={() => navigate('/browse')}>← Back to Books</button>
+              <button className="back-button" onClick={() => navigate('/learning')}>← Back to Books</button>
               <h3>Table of Contents</h3>
             </div>
             <div className="toc-list" ref={tocRef}>
@@ -1976,43 +2086,68 @@ function BookReader() {
                   return null;
                 }
                 
-                const isActive = currentPageIndex === targetPageIndex;
+                // Determine if this is the current chapter
+                const nextHeading = headings[index + 1];
+                const nextPageIndex = nextHeading ? nextHeading.page - 1 : bookData.pages.length;
+                
+                // Check if current page is within this chapter's range
+                const isCurrentChapter = currentPageIndex >= targetPageIndex && currentPageIndex < nextPageIndex;
+                
+                // Only show the current chapter
+                if (!isCurrentChapter) return null;
+                
+                const isCompleted = completedChapters.includes(index);
                 
                 return (
-                  <div
-                    key={index}
-                    data-page-index={targetPageIndex}
-                    className={`toc-item level-${heading.level} ${isActive ? 'active' : ''}`}
-                    onClick={() => {
-                      // Disable observer immediately
-                      isNavigatingRef.current = true;
-                      
-                      
-                      // Always update currentPageIndex first to ensure page is loaded
-                      setCurrentPageIndex(targetPageIndex);
-                      setShowToc(false);
-                      
-                      // Wait for page to render, then scroll
-                      setTimeout(() => {
-                        const element = document.getElementById(`page-${targetPageIndex}`);
-                        if (element) {
-                          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                        
-                        // Re-enable observer after scroll completes
-                        setTimeout(() => {
-                          isNavigatingRef.current = false;
-                        }, 1000);
-                      }, 150);
-                    }}
-                    style={isActive ? {
-                      background: 'rgba(16, 185, 129, 0.15)',
-                      borderLeft: '3px solid #10b981',
-                      color: '#10b981'
-                    } : {}}
-                  >
-                    <span className="toc-title">{heading.title}</span>
-                    <span className="toc-page">p. {actualPageNumber}</span>
+                  <div key={index} style={{ padding: '0 10px 10px 10px' }}>
+                    <div
+                      data-page-index={targetPageIndex}
+                      className={`toc-item level-${heading.level} active`}
+                      style={{
+                        background: 'rgba(16, 185, 129, 0.15)',
+                        borderLeft: '3px solid #10b981',
+                        color: '#10b981',
+                        cursor: 'default'
+                      }}
+                    >
+                      <span className="toc-title">{heading.title}</span>
+                      <span className="toc-page">p. {actualPageNumber}</span>
+                    </div>
+                    
+                    <button
+                      onClick={() => toggleChapterCompletion(index)}
+                      style={{
+                        marginTop: '12px',
+                        width: '100%',
+                        padding: '10px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        fontSize: '0.95rem',
+                        background: isCompleted ? '#10b981' : '#e5e7eb',
+                        color: isCompleted ? 'white' : '#374151',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px'
+                      }}
+                      onMouseOver={(e) => {
+                        if (!isCompleted) e.target.style.background = '#d1d5db';
+                      }}
+                      onMouseOut={(e) => {
+                        if (!isCompleted) e.target.style.background = '#e5e7eb';
+                      }}
+                    >
+                      {isCompleted ? (
+                        <>
+                          <span>✓</span> Completed
+                        </>
+                      ) : (
+                        'Mark Complete'
+                      )}
+                    </button>
                   </div>
                 );
               })}
