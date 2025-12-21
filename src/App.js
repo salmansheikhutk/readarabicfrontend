@@ -169,6 +169,23 @@ function Landing() {
         animation: 'fadeInUp 0.8s ease-out 0.4s backwards'
       }}
       className="section-margin">
+        <div style={{
+          marginBottom: '15px'
+        }}>
+          <span style={{
+            display: 'inline-block',
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            color: 'white',
+            padding: '8px 20px',
+            borderRadius: '25px',
+            fontSize: '0.95rem',
+            fontWeight: '600',
+            boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+            marginBottom: '15px'
+          }}>
+            🎉 Beta Access Free
+          </span>
+        </div>
         <LoginButton />
       </div>
 
@@ -443,6 +460,7 @@ function Browse() {
         {user ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative' }}>
             <span style={{ color: '#2c3e50', fontWeight: '500', fontSize: '0.95rem' }}>{user.name}</span>
+            {/* Upgrade button - commented out during free beta
             {hasActiveSubscription === false && (
               <button 
                 onClick={() => navigate('/subscribe')} 
@@ -470,6 +488,7 @@ function Browse() {
                 Upgrade
               </button>
             )}
+            */}
             <button 
               onClick={() => navigate('/account')}
               style={{ 
@@ -1454,16 +1473,8 @@ function BookReader() {
         .then(async res => {
           const data = await res.json();
           if (res.status === 403 && data.error === 'FREE_LIMIT_REACHED') {
-            // Check if user has active subscription before showing limit error
-            if (hasActiveSubscription) {
-              // User has active subscription but still hit limit - this shouldn't happen
-              console.error('Active subscriber hit free limit - backend issue');
-              alert('There was an error saving your vocabulary. Please contact support.');
-            } else {
-              // Free user hit limit - show upgrade prompt
-              alert(`Free tier limited to 5 words!\n\nYou currently have ${data.vocab_count} words saved.\n\nUpgrade to premium to save unlimited vocabulary words.`);
-              navigate('/subscribe');
-            }
+            // Free tier - no longer has limits during beta
+            console.warn('Free tier limit reached (should not happen during beta)');
           } else if (!res.ok) {
             console.error('Error saving vocabulary:', data);
           } else if (data.success && data.vocabulary?.id) {
@@ -2284,7 +2295,9 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/browse" element={<Browse />} />
+          {/* Subscribe route - commented out during free beta
           <Route path="/subscribe" element={<Subscribe />} />
+          */}
           <Route path="/account" element={<Account />} />
           <Route path="/book/:bookId" element={<BookReader />} />
           <Route path="/vocabulary/practice" element={<VocabularyPractice />} />

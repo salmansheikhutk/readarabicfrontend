@@ -262,6 +262,7 @@ function Account() {
               )}
 
               {subscription.status === 'cancelled' && (
+                /* Reactivate button - commented out during free beta
                 <button
                   onClick={() => navigate('/subscribe')}
                   style={{
@@ -288,14 +289,17 @@ function Account() {
                 >
                   Reactivate Subscription
                 </button>
+                */
+                null
               )}
             </div>
           ) : (
             <div>
               <p style={{ color: '#9ca3af', marginBottom: '25px', fontSize: '0.95rem' }}>
-                Free plan • 5 words max
+                Beta Access • Unlimited vocabulary
               </p>
-                            <button
+              {/* Upgrade button - commented out during free beta
+              <button
                 onClick={() => navigate('/subscribe')}
                 style={{
                   background: '#10b981',
@@ -321,6 +325,7 @@ function Account() {
               >
                 Upgrade
               </button>
+              */}
             </div>
           )}
         </div>
