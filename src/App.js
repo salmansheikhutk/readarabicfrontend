@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import './App.css';
 import VocabularyPractice from './VocabularyPractice';
@@ -313,7 +313,7 @@ function Browse() {
   }, [user]);
 
   const handleBookSelect = () => {
-    navigate('/book/158');
+    navigate('/learning');
   };
 
   return (
@@ -396,10 +396,10 @@ function Browse() {
       {/* Main Content */}
       <div style={{
         flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '40px 20px'
+        padding: '40px 20px',
+        maxWidth: '900px',
+        margin: '0 auto',
+        width: '100%'
       }}>
         {loadingBook ? (
           <div style={{ textAlign: 'center' }}>
@@ -434,10 +434,7 @@ function Browse() {
             </button>
           </div>
         ) : beginnerBook ? (
-          <div style={{
-            maxWidth: '900px',
-            width: '100%'
-          }}>
+          <div>
             {/* Reading Section */}
             <div>
               <h2 style={{
@@ -447,7 +444,7 @@ function Browse() {
                 fontWeight: '700',
                 textAlign: 'left'
               }}>
-                Reading
+                Practice Reading with Tashkeel
               </h2>
 
               {/* Book Card */}
@@ -548,8 +545,275 @@ function Browse() {
   );
 }
 
+// Learning page - Table of contents for beginner book
+function Learning() {
+  const navigate = useNavigate();
+  const { user } = useContext(UserContext);
+  const [bookData, setBookData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Redirect to landing if not logged in
+  useEffect(() => {
+    if (!user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
+
+  // Fetch the beginner book data to get all pages
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchBook = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await fetch(`${API_URL}/api/book/158`);
+        const data = await response.json();
+        
+        if (data.success && data.book) {
+          setBookData(data.book);
+        } else {
+          setError('Failed to load book');
+        }
+      } catch (err) {
+        setError('Failed to load book: ' + err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBook();
+  }, [user]);
+
+  const handlePageClick = (pageIndex) => {
+    navigate(`/book/158?page=${pageIndex}`);
+  };
+
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: '#f8f9fa'
+    }}>
+      <Helmet>
+        <title>Learning - ReadArabic</title>
+        <meta name="description" content="Practice Arabic reading with structured lessons and instant translations." />
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+      
+      {/* Header */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        padding: '20px 40px', 
+        background: 'white', 
+        borderBottom: '1px solid #e1e4e8',
+        flexWrap: 'wrap',
+        gap: '15px'
+      }}>
+        <h1 
+          onClick={() => navigate('/browse')}
+          style={{ 
+            fontSize: '1.5rem', 
+            color: '#2c3e50', 
+            margin: 0,
+            fontWeight: '600',
+            cursor: 'pointer'
+          }}
+        >
+          ReadArabic
+        </h1>
+        
+        {user && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            <span style={{ color: '#2c3e50', fontWeight: '500', fontSize: '0.95rem' }}>{user.name}</span>
+            <button 
+              onClick={() => navigate('/account')}
+              style={{ 
+                background: 'transparent',
+                border: '1px solid #e1e4e8',
+                cursor: 'pointer',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                transition: 'background 0.2s',
+                color: '#6b7280',
+                fontSize: '0.9rem',
+                fontWeight: '500'
+              }}
+              onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
+              onMouseOut={(e) => e.target.style.background = 'transparent'}
+            >
+              Account
+            </button>
+            <button 
+              onClick={() => navigate('/vocabulary/practice')} 
+              style={{ 
+                background: '#667eea', 
+                color: 'white', 
+                border: 'none', 
+                padding: '8px 16px', 
+                borderRadius: '6px', 
+                cursor: 'pointer',
+                fontSize: '0.9rem',
+                fontWeight: '500',
+                transition: 'opacity 0.2s'
+              }}
+              onMouseOver={(e) => e.target.style.opacity = '0.9'}
+              onMouseOut={(e) => e.target.style.opacity = '1'}
+            >
+              Practice
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Main Content */}
+      <div style={{
+        padding: '40px 20px',
+        maxWidth: '900px',
+        margin: '0 auto',
+        width: '100%'
+      }}>
+        {loading ? (
+          <div style={{ textAlign: 'center' }}>
+            <div className="spinner" style={{
+              border: '4px solid #f3f4f6',
+              borderTop: '4px solid #667eea',
+              borderRadius: '50%',
+              width: '50px',
+              height: '50px',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 20px'
+            }}></div>
+            <p style={{ color: '#6b7280', fontSize: '1rem' }}>Loading...</p>
+          </div>
+        ) : error ? (
+          <div style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+            <p style={{ color: '#ef4444', fontSize: '1.1rem', marginBottom: '20px' }}>{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              style={{
+                background: '#667eea',
+                color: 'white',
+                border: 'none',
+                padding: '12px 24px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                fontWeight: '500'
+              }}
+            >
+              Try Again
+            </button>
+          </div>
+        ) : bookData?.pages ? (
+          <div>
+            <h2 style={{
+              fontSize: '1.8rem',
+              color: '#1a202c',
+              marginBottom: '16px',
+              fontWeight: '700'
+            }}>
+              Practice Reading with Tashkeel
+            </h2>
+            <p style={{
+              fontSize: '1rem',
+              color: '#6b7280',
+              marginBottom: '32px',
+              lineHeight: '1.6'
+            }}>
+              Select any reading to begin. Each lesson includes instant word definitions and sentence translations.
+            </p>
+
+            {/* Table of Contents - List of Headings */}
+            <div style={{
+              display: 'grid',
+              gap: '12px'
+            }}>
+              {(bookData.indexes?.headings || []).map((heading, index) => {
+                const pageIndex = heading.page - 1; // heading.page is 1-based
+                const actualPageNumber = bookData.pages?.[pageIndex]?.page;
+                
+                if (!actualPageNumber) return null;
+                
+                return (
+                  <div
+                    key={index}
+                    onClick={() => handlePageClick(pageIndex)}
+                    style={{
+                      background: 'white',
+                      padding: '20px 24px',
+                      borderRadius: '8px',
+                      border: '1px solid #e1e4e8',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      gap: '16px'
+                    }}
+                    onMouseOver={(e) => {
+                      e.currentTarget.style.transform = 'translateX(4px)';
+                      e.currentTarget.style.borderColor = '#667eea';
+                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.15)';
+                    }}
+                    onMouseOut={(e) => {
+                      e.currentTarget.style.transform = 'translateX(0)';
+                      e.currentTarget.style.borderColor = '#e1e4e8';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        fontSize: '0.85rem',
+                        color: '#6b7280',
+                        marginBottom: '6px',
+                        fontWeight: '500'
+                      }}>
+                        Reading {index + 1}
+                      </div>
+                      <div style={{
+                        fontSize: '1.15rem',
+                        color: '#1a202c',
+                        fontWeight: '600',
+                        fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif",
+                        direction: 'rtl',
+                        textAlign: 'right',
+                        lineHeight: '1.8'
+                      }}>
+                        {heading.title}
+                      </div>
+                    </div>
+                    <span style={{
+                      color: '#667eea',
+                      fontSize: '1.2rem',
+                      flexShrink: 0
+                    }}>
+                      →
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : null}
+      </div>
+      
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
 function BookReader() {
   const { bookId } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const { user, setUser } = useContext(UserContext);
   const [bookData, setBookData] = useState(null);
@@ -697,6 +961,24 @@ function BookReader() {
 
     fetchBook();
   }, [bookId]);
+
+  // Scroll to page from query parameter
+  useEffect(() => {
+    if (!bookData?.pages) return;
+    
+    const searchParams = new URLSearchParams(location.search);
+    const pageParam = searchParams.get('page');
+    
+    if (pageParam !== null) {
+      const pageIndex = parseInt(pageParam);
+      if (!isNaN(pageIndex) && pageIndex >= 0 && pageIndex < bookData.pages.length) {
+        // Use setTimeout to ensure DOM is ready
+        setTimeout(() => {
+          scrollToPage(pageIndex);
+        }, 100);
+      }
+    }
+  }, [bookData, location.search]);
 
   // Track current visible page with Intersection Observer
   useEffect(() => {
@@ -1938,6 +2220,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/browse" element={<Browse />} />
+          <Route path="/learning" element={<Learning />} />
           {/* Subscribe route - commented out during free beta
           <Route path="/subscribe" element={<Subscribe />} />
           */}
